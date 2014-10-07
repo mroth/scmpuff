@@ -15,6 +15,7 @@ func main() {
 	puffCmd.AddCommand(versionCmd)
 	puffCmd.AddCommand(CommandInit())
 	puffCmd.AddCommand(CommandExpand())
+	puffCmd.AddCommand(CommandStatus())
 
 	puffCmd.Execute()
 }
