@@ -1,0 +1,14 @@
+{
+	"ImportPath": "github.com/mroth/scmpuff",
+	"GoVersion": "go1.3.3",
+	"Deps": [
+		{
+			"ImportPath": "github.com/spf13/cobra",
+			"Rev": "b1e90a7943957b51bb96a13b44b844475bcf95c0"
+		},
+		{
+			"ImportPath": "github.com/spf13/pflag",
+			"Rev": "463bdc838f2b35e9307e91d480878bda5fff7232"
+		}
+	]
+}

@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+# Usage: build
+#
+# Run go build with godep
+#
+# Author: Jingwen Owen Ou
+# Modified: Matthew Rothenberg
+
+script/bootstrap
+$GOPATH/bin/godep go build -o bin/scmpuff
