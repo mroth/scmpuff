@@ -264,8 +264,10 @@ func (sl StatusList) printAll() {
 }
 
 func (fg FileGroup) print() {
-	fmt.Println(fg.desc)
-	for _, i := range fg.items {
-		fmt.Println(i)
+	if len(fg.items) > 0 {
+		fmt.Println(fg.desc)
+		for _, i := range fg.items {
+			fmt.Println(i)
+		}
 	}
 }
