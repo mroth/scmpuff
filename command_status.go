@@ -161,14 +161,24 @@ func (sl StatusList) orderedGroups() []*FileGroup {
 	return []*FileGroup{sl.groups[0], sl.groups[1], sl.groups[2], sl.groups[3]}
 }
 
+// Total file change items across *all* groups.
+func (sl StatusList) numItems() int {
+	var total int
+	for _, g := range sl.groups {
+		total += len(g.items)
+	}
+	return total
+}
+
 func runStatus() {
 	// TODO: fail if not git repo
 	// TODO: git clear vars
 
 	// TODO run commands to get status and branch
 	gitStatusOutput, err := exec.Command("git", "status", "--porcelain").Output()
-	if err == nil {
+	if err != nil {
 		// TODO: HANDLE
+		panic("GOT NIL ERRORRRRRRRRRR")
 	}
 
 	// gitBranchOutput, err := exec.Command("git", "branch", "-v").Output()
@@ -176,19 +186,21 @@ func runStatus() {
 	// 	// TODO: HANDLE
 	// }
 
-	// split the status output to get a list of changes as raw bytestrings
-	changes := bytes.Split(bytes.TrimSpace(gitStatusOutput), []byte{'\n'})
-
 	// allocate a StatusList to hold the results
 	results := NewStatusList()
 
-	// process each item, and store the results
-	for _, change := range changes {
-		rs := processChange(change)
-		results.groups[rs.group].items = append(results.groups[rs.group].items, rs)
+	if len(gitStatusOutput) > 0 {
+		// split the status output to get a list of changes as raw bytestrings
+		changes := bytes.Split(bytes.TrimSpace(gitStatusOutput), []byte{'\n'})
+
+		// process each item, and store the results
+		for _, change := range changes {
+			rs := processChange(change)
+			results.groups[rs.group].items = append(results.groups[rs.group].items, rs)
+		}
 	}
 
-	results.printAll()
+	results.printStatus()
 }
 
 func processChange(c []byte) *StatusItem {
@@ -257,9 +269,13 @@ func decodeChangeCode(x, y rune, file string) (string, ColorGroup, StatusGroup) 
 	panic("Failed to decode git status change code!")
 }
 
-func (sl StatusList) printAll() {
-	for _, fg := range sl.orderedGroups() {
-		fg.print()
+func (sl StatusList) printStatus() {
+	if sl.numItems() == 0 {
+		fmt.Println("No changes (working directory clean)")
+	} else {
+		for _, fg := range sl.orderedGroups() {
+			fg.print()
+		}
 	}
 }
 
