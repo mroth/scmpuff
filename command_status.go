@@ -191,7 +191,7 @@ func runStatus() {
 
 	if len(gitStatusOutput) > 0 {
 		// split the status output to get a list of changes as raw bytestrings
-		changes := bytes.Split(bytes.TrimSpace(gitStatusOutput), []byte{'\n'})
+		changes := bytes.Split(bytes.Trim(gitStatusOutput, "\n"), []byte{'\n'})
 
 		// process each item, and store the results
 		for _, change := range changes {
