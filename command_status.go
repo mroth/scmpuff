@@ -271,7 +271,7 @@ func decodeChangeCode(x, y rune, file string) (string, ColorGroup, StatusGroup) 
 
 func (sl StatusList) printStatus() {
 	if sl.numItems() == 0 {
-		fmt.Println(outBannerBranch("FOO", "BAR") + outBannerNoChanges())
+		fmt.Println(outBannerBranch("master", "") + outBannerNoChanges())
 	} else {
 		for _, fg := range sl.orderedGroups() {
 			fg.print()
@@ -283,8 +283,10 @@ func (sl StatusList) printStatus() {
 // TODO: includes branch name with diff status
 func outBannerBranch(branchname, difference string) string {
 	return fmt.Sprintf(
-		"%s#%s On branch: %sFOODIFF  %s|  ",
-		colorMap[dark], colorMap[rst], colorMap[branch], colorMap[dark],
+		"%s#%s On branch: %s%s%s  %s|  ",
+		colorMap[dark], colorMap[rst], colorMap[branch],
+		branchname, difference,
+		colorMap[dark],
 	)
 }
 
@@ -298,6 +300,7 @@ func outBannerNoChanges() string {
 
 // Output an entire filegroup to the screen
 // TODO: format me and make me pretty
+// TODO: have me return []files or whatever for later env setting
 func (fg FileGroup) print() {
 	if len(fg.items) > 0 {
 		fmt.Println(fg.desc)
