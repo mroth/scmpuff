@@ -93,7 +93,3 @@ func ExpandArg(arg string) string {
 	// if can do nothing else, return it as is
 	return arg
 }
-
-func intToEnvVar(num int) string {
-	return "$e" + strconv.Itoa(num)
-}
