@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"fmt"
+	"log"
 	"os/exec"
 
 	"github.com/spf13/cobra"
@@ -108,12 +109,12 @@ type StatusItem struct {
 // It also helps us map closer to the program logic of the Ruby code from
 // scm_breeze, so hopefully easier to port.
 type StatusList struct {
-	// groups map[StatusGroup][]*StatusItem
 	groups map[StatusGroup]*FileGroup
 }
 
 // FileGroup is a bucket of all file StatusItems for a particular StatusGroup
 type FileGroup struct {
+	group StatusGroup
 	desc  string
 	items []*StatusItem
 }
@@ -124,18 +125,22 @@ func NewStatusList() *StatusList {
 	return &StatusList{
 		groups: map[StatusGroup]*FileGroup{
 			Staged: &FileGroup{
+				group: Staged,
 				desc:  "Changes to be committed",
 				items: make([]*StatusItem, 0),
 			},
 			Unmerged: &FileGroup{
+				group: Unmerged,
 				desc:  "Unmerged paths",
 				items: make([]*StatusItem, 0),
 			},
 			Unstaged: &FileGroup{
+				group: Unstaged,
 				desc:  "Changes not staged for commit",
 				items: make([]*StatusItem, 0),
 			},
 			Untracked: &FileGroup{
+				group: Untracked,
 				desc:  "Untracked files",
 				items: make([]*StatusItem, 0),
 			},
@@ -177,13 +182,12 @@ func runStatus() {
 	// TODO run commands to get status and branch
 	gitStatusOutput, err := exec.Command("git", "status", "--porcelain").Output()
 	if err != nil {
-		// TODO: HANDLE
-		panic("GOT NIL ERRORRRRRRRRRR")
+		log.Fatal(err)
 	}
 
 	// gitBranchOutput, err := exec.Command("git", "branch", "-v").Output()
 	// if err == nil {
-	// 	// TODO: HANDLE
+	// 	log.Fatal(err)
 	// }
 
 	// allocate a StatusList to hold the results
@@ -303,9 +307,27 @@ func outBannerNoChanges() string {
 // TODO: have me return []files or whatever for later env setting
 func (fg FileGroup) print() {
 	if len(fg.items) > 0 {
-		fmt.Println(fg.desc)
+		fg.printHeader()
+
 		for _, i := range fg.items {
-			fmt.Println(i)
+			i.printItem()
 		}
 	}
+}
+
+func (fg FileGroup) printHeader() {
+	// heading := fg.desc
+	cArrw := fmt.Sprintf("\033[1;%s", groupColorMap[fg.group])
+	cHash := fmt.Sprintf("\033[0;%s", groupColorMap[fg.group])
+	fmt.Printf(
+		"%s➤%s %s\n%s#%s\n",
+		cArrw, colorMap[header], fg.desc, cHash, colorMap[rst],
+	)
+}
+
+func (si StatusItem) printItem() {
+	// TODO: determine padding
+	// TODO: find relative path
+	// TODO: pretty print
+	fmt.Println(si)
 }
