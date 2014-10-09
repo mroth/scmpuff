@@ -48,7 +48,7 @@ func decodeChangeCode(x, y rune, file string) (string, ColorGroup, StatusGroup) 
 	case x == 'T': //          //T.
 		return "typechange", typ, Staged
 	case x == '?' && y == '?': //??
-		return " Untracked", unt, Untracked
+		return " untracked", unt, Untracked
 	// So here's the thing, below case should never match, because [R.] earlier
 	// is going to nab it.  So I'm assuming it's an oversight in the script.
 	//
