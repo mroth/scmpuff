@@ -163,10 +163,19 @@ func (fg FileGroup) printHeader() {
 //
 func (si StatusItem) printItem(displayNum int) {
 
-	// TODO: determine padding
-	// padding = (@e < 10 && @changes.size >= 10) ? " " : ""
-	// really though, *fuck* however scm_breeze was doing this, there are smarter ways
-	padding := ""
+	// Determine padding size
+	// scm_breeze does the following (Ruby code):
+	//
+	// 		padding = (@e < 10 && @changes.size >= 10) ? " " : ""
+	//
+	// instead of scm_breeze method, let's just fix the width at 2, so the output
+	// is consistently spaced for e<=99, really we don't need to worry about the
+	// one lost extra space when max(e)<10, I'd rather the spacing just be the
+	// same.
+	padding := " "
+	if displayNum >= 10 {
+		padding = ""
+	}
 
 	// TODO: find relative path
 	relFile := si.file
