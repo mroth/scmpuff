@@ -1,4 +1,4 @@
-package main
+package expand
 
 import (
 	"fmt"
@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/mroth/scmpuff/helpers"
 	"github.com/spf13/cobra"
 )
 
@@ -24,7 +25,8 @@ func CommandExpand() *cobra.Command {
 	var expandCmd = &cobra.Command{
 		Use:   "expand",
 		Short: "Expands numbered shortcuts",
-		Long: `LONG DESCRIPTION HERE
+		Long: `
+LONG DESCRIPTION HERE
     `,
 		Run: func(cmd *cobra.Command, args []string) {
 			fmt.Println(EvaluateArgs(ExpandArgs(args)))
@@ -84,7 +86,7 @@ func ExpandArg(arg string) string {
 
 		var results []string
 		for i := lo; i <= hi; i++ {
-			results = append(results, intToEnvVar(i))
+			results = append(results, helpers.IntToEnvVar(i))
 		}
 
 		return strings.Join(results, " ")

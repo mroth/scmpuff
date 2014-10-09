@@ -1,6 +1,12 @@
 package main
 
-import "github.com/spf13/cobra"
+import (
+	"github.com/mroth/scmpuff/commands/expand"
+	"github.com/mroth/scmpuff/commands/inits"
+	"github.com/mroth/scmpuff/commands/status"
+	"github.com/mroth/scmpuff/commands/version"
+	"github.com/spf13/cobra"
+)
 
 var puffCmd = &cobra.Command{
 	Use:   "scmpuff",
@@ -12,10 +18,10 @@ var puffCmd = &cobra.Command{
 
 func main() {
 
-	puffCmd.AddCommand(versionCmd)
-	puffCmd.AddCommand(CommandInit())
-	puffCmd.AddCommand(CommandExpand())
-	puffCmd.AddCommand(CommandStatus())
+	puffCmd.AddCommand(version.VersionCmd)
+	puffCmd.AddCommand(inits.CommandInit())
+	puffCmd.AddCommand(expand.CommandExpand())
+	puffCmd.AddCommand(status.CommandStatus())
 
 	puffCmd.Execute()
 }

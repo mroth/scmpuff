@@ -1,4 +1,4 @@
-package main
+package version
 
 import (
 	"fmt"
@@ -6,7 +6,13 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var versionCmd = &cobra.Command{
+// the name of this software
+const NAME string = "scmpuff"
+
+// the version of this software
+const VERSION string = "0.0.1"
+
+var VersionCmd = &cobra.Command{
 	Use:   "version",
 	Short: "Prints the version number",
 	Long:  `All software has versions. This is ours.`,

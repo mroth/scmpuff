@@ -1,6 +1,9 @@
 {
 	"ImportPath": "github.com/mroth/scmpuff",
 	"GoVersion": "go1.3.3",
+	"Packages": [
+		"./..."
+	],
 	"Deps": [
 		{
 			"ImportPath": "github.com/spf13/cobra",

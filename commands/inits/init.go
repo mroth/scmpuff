@@ -1,4 +1,4 @@
-package main
+package inits
 
 import (
 	"fmt"
@@ -18,9 +18,11 @@ func CommandInit() *cobra.Command {
 	var InitCmd = &cobra.Command{
 		Use:   "init",
 		Short: "Output initialization script",
-		Long: `Output the bash/zsh initialization script for scmpuff.
+		Long: `
+Output the bash/zsh initialization script for scmpuff.
 
-This should probably be evaluated in your shell startup.`,
+This should probably be evaluated in your shell startup.
+    `,
 		Run: func(cmd *cobra.Command, args []string) {
 			if outputScript {
 				printScript(includeAliases)
