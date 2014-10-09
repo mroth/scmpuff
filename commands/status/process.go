@@ -1,5 +1,7 @@
 package status
 
+import "log"
+
 func processChange(c []byte) *StatusItem {
 	x := rune(c[0])
 	y := rune(c[1])
@@ -63,5 +65,14 @@ func decodeChangeCode(x, y rune, file string) (string, ColorGroup, StatusGroup) 
 		return "typechange", typ, Unstaged
 	}
 
-	panic("Failed to decode git status change code!")
+	log.Fatalf(`
+Failed to decode git status change code for code: [%s]
+Please file a bug including this error message as well as the output of:
+
+git status --porcelain
+
+You can file the bug at: https://github.com/mroth/scmpuff/issues/
+`, string(x)+string(y))
+
+	panic("...and you may ask yourself, well, how did I get here?")
 }
