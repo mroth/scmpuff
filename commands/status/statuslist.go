@@ -172,9 +172,9 @@ func (si StatusItem) printItem(displayNum int) {
 	// is consistently spaced for e<=99, really we don't need to worry about the
 	// one lost extra space when max(e)<10, I'd rather the spacing just be the
 	// same.
-	padding := " "
-	if displayNum >= 10 {
-		padding = ""
+	var padding string
+	if displayNum < 10 {
+		padding = " "
 	}
 
 	// TODO: find relative path
