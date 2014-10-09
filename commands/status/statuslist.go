@@ -131,6 +131,8 @@ func (fg FileGroup) print(startNum int) {
 		for n, i := range fg.items {
 			i.printItem(startNum + n)
 		}
+
+		fg.printFooter()
 	}
 }
 
@@ -148,6 +150,11 @@ func (fg FileGroup) printHeader() {
 		"%s➤%s %s\n%s#%s\n",
 		cArrw, colorMap[header], fg.desc, cHash, colorMap[rst],
 	)
+}
+
+// Print a final "#" for vertical padding
+func (fg FileGroup) printFooter() {
+	fmt.Printf("\033[0;%s#%s\n", groupColorMap[fg.group], colorMap[rst])
 }
 
 // Print an individual status item for a group.
@@ -193,6 +200,4 @@ func (si StatusItem) printItem(displayNum int) {
 		groupCol, colorMap[rst], colorMap[si.col], si.msg, padding, colorMap[dark],
 		colorMap[rst], displayNum, colorMap[dark], groupCol, relFile, colorMap[rst],
 	)
-
-	// TODO: last # line padding
 }
