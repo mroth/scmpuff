@@ -87,9 +87,9 @@ func (sl StatusList) numItems() int {
 }
 
 func (sl StatusList) printStatus() {
-	if sl.numItems() == 0 {
-		fmt.Println(outBannerBranch("master", "") + outBannerNoChanges())
-	} else {
+	sl.printBanner()
+
+	if sl.numItems() >= 1 {
 		startNum := 1
 		for _, fg := range sl.orderedGroups() {
 			fg.print(startNum)
@@ -98,9 +98,17 @@ func (sl StatusList) printStatus() {
 	}
 }
 
+func (sl StatusList) printBanner() {
+	if sl.numItems() == 0 {
+		fmt.Println(bannerBranch("parseme", "") + bannerNoChanges())
+	} else {
+		fmt.Println(bannerBranch("parseme", "") + bannerChangeHeader())
+	}
+}
+
 // Make string for first half of the status banner.
 // TODO: includes branch name with diff status
-func outBannerBranch(branchname, difference string) string {
+func bannerBranch(branchname, difference string) string {
 	return fmt.Sprintf(
 		"%s#%s On branch: %s%s%s  %s|  ",
 		colorMap[dark], colorMap[rst], colorMap[branch],
@@ -109,8 +117,15 @@ func outBannerBranch(branchname, difference string) string {
 	)
 }
 
+func bannerChangeHeader() string {
+	return fmt.Sprintf(
+		"[%s*%s]%s => $e*\n%s#%s",
+		colorMap[rst], colorMap[dark], colorMap[rst], colorMap[dark], colorMap[rst],
+	)
+}
+
 // If no changes, just display green no changes message (TODO: ?? and exit here)
-func outBannerNoChanges() string {
+func bannerNoChanges() string {
 	return fmt.Sprintf(
 		"\033[0;32mNo changes (working directory clean)%s",
 		colorMap[rst],
