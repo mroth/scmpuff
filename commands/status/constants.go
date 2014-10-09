@@ -42,6 +42,13 @@ var colorMap = map[ColorGroup]string{
 	header: "\033[0m",
 }
 
+// TODO: Why does scm_breeze define these without the leading escape codes?
+// Let's audit our usage and see if always used in same way, if so should be
+// integrated into constants here...
+//
+// Ah, I see, sometimes used with bold, sometimes without.  Might be worth
+// extracting that logic into a helper method to improve readability of print
+// functions.
 var groupColorMap = map[StatusGroup]string{
 	Staged:    "33m",
 	Unmerged:  "31m",

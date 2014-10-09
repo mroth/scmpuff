@@ -73,7 +73,7 @@ func NewStatusList() *StatusList {
 // case however.)
 func (sl StatusList) orderedGroups() []*FileGroup {
 	return []*FileGroup{sl.groups[0], sl.groups[1], sl.groups[2], sl.groups[3]}
-	// use number literals rather than const names so that we can define the order
+	// uses number literals rather than const names so we can define the order
 	// via the const definition.
 }
 
@@ -90,8 +90,10 @@ func (sl StatusList) printStatus() {
 	if sl.numItems() == 0 {
 		fmt.Println(outBannerBranch("master", "") + outBannerNoChanges())
 	} else {
+		startNum := 1
 		for _, fg := range sl.orderedGroups() {
-			fg.print()
+			fg.print(startNum)
+			startNum += len(fg.items)
 		}
 	}
 }
@@ -116,20 +118,30 @@ func outBannerNoChanges() string {
 }
 
 // Output an entire filegroup to the screen
-// TODO: format me and make me pretty
-// TODO: have me return []files or whatever for later env setting
-func (fg FileGroup) print() {
+//
+// The startNum argument tells us what number to start the listings at, it
+// should probably be N+1 where N was the last number displayed (from previous
+// outputted groups, that is.)
+//
+// TODO: have me return []files or whatever for later env setting?
+func (fg FileGroup) print(startNum int) {
 	if len(fg.items) > 0 {
 		fg.printHeader()
 
-		for _, i := range fg.items {
-			i.printItem()
+		for n, i := range fg.items {
+			i.printItem(startNum + n)
 		}
 	}
 }
 
+// Print the display header for a file group.
+//
+// Colorized version of something like this:
+//
+// 		➤ Changes not staged for commit
+// 		#
+//
 func (fg FileGroup) printHeader() {
-	// heading := fg.desc
 	cArrw := fmt.Sprintf("\033[1;%s", groupColorMap[fg.group])
 	cHash := fmt.Sprintf("\033[0;%s", groupColorMap[fg.group])
 	fmt.Printf(
@@ -138,9 +150,40 @@ func (fg FileGroup) printHeader() {
 	)
 }
 
-func (si StatusItem) printItem() {
+// Print an individual status item for a group.
+//
+// Colorized version of something like this:
+//
+//		#       modified: [1] commands/status/constants.go
+//
+// Arguments
+// ---------
+// displayNumber - the display number for the item, which should correspond to
+//   the environment variable that will get set for it later ($eN).
+//
+func (si StatusItem) printItem(displayNum int) {
+
 	// TODO: determine padding
+	// padding = (@e < 10 && @changes.size >= 10) ? " " : ""
+	// really though, *fuck* however scm_breeze was doing this, there are smarter ways
+	padding := ""
+
 	// TODO: find relative path
-	// TODO: pretty print
-	fmt.Println(si)
+	relFile := si.file
+
+	// TODO: if some submodules have changed, parse their summaries from long git
+	// status the way scm_breeze does this requires a second call to git status,
+	// which seems slow so maybe we will skip this for now?
+	//
+	// note to future self: format would add a final " %s" to output printf to
+	// accomodate.
+
+	groupCol := "\033[0;" + groupColorMap[si.group]
+	fmt.Printf(
+		"%s#%s     %s%s:%s%s [%s%d%s] %s%s%s\n",
+		groupCol, colorMap[rst], colorMap[si.col], si.msg, padding, colorMap[dark],
+		colorMap[rst], displayNum, colorMap[dark], groupCol, relFile, colorMap[rst],
+	)
+
+	// TODO: last # line padding
 }
