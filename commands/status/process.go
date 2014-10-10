@@ -8,7 +8,7 @@ func processChange(c []byte) *StatusItem {
 	file := string(c[3:len(c)])
 	msg, col, group := decodeChangeCode(x, y, file)
 
-	ccc := StatusItem{
+	return &StatusItem{
 		x:     x,
 		y:     y,
 		file:  file,
@@ -16,7 +16,6 @@ func processChange(c []byte) *StatusItem {
 		col:   col,
 		group: group,
 	}
-	return &ccc
 }
 
 func decodeChangeCode(x, y rune, file string) (string, ColorGroup, StatusGroup) {
