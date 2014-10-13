@@ -34,15 +34,17 @@ Feature: status command
   @wip
   Scenario: Status properly reports all file changes
     Given I am in a git repository
-    And I successfully run the following commands:
-      | touch deleted_file          |
-      | git add deleted_file        |
-      | git commit -m "Test commit" |
-      | touch new_file              |
-      | touch untracked_file        |
-      | git add new_file            |
-      | echo "changed" > new_file   |
-      | rm deleted_file             |
+      And an empty file named "deleted_file"
+      And I successfully run `git add deleted_file`
+      And I successfully run `git commit -m "Test commit"`
+      And an empty file named "new_file"
+      And an empty file named "untracked_file"
+      And I successfully run `git add new_file`
+      And I overwrite "new_file" with:
+        """
+        changed contents lolol
+        """
+      And I remove the file "deleted_file"
     When I run `scmpuff status`
     Then the exit status should be 0
       And the output should match / new file: *\[1\] *new_file/
