@@ -1,7 +1,6 @@
 package status
 
 import (
-	"bytes"
 	"log"
 	"os/exec"
 
@@ -51,26 +50,6 @@ func runStatus() {
 		log.Fatal(err)
 	}
 
-	// allocate a StatusList to hold the results
-	results := NewStatusList()
-
-	if len(gitStatusOutput) > 0 { //TODO: is this check necessary once we added the branch thing?
-		// split the status output to get a list of changes as raw bytestrings
-		lines := bytes.Split(bytes.Trim(gitStatusOutput, "\n"), []byte{'\n'})
-
-		// branch output is first line
-		branchstr := lines[0]
-		results.branch = ProcessBranch(branchstr)
-
-		// status changes are everything else
-		changes := lines[1:]
-
-		// process each item, and store the results
-		for _, change := range changes {
-			rs := ProcessChange(change)
-			results.groups[rs.group].items = append(results.groups[rs.group].items, rs)
-		}
-	}
-
+	results := Process(gitStatusOutput)
 	results.printStatus()
 }

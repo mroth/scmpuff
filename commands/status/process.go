@@ -1,10 +1,38 @@
 package status
 
 import (
+	"bytes"
 	"log"
 	"regexp"
 	"strconv"
 )
+
+// Process takes the raw output of `git status --porcelain -b` and turns it into
+// a well structured data type.
+func Process(gitStatusOutput []byte) *StatusList {
+	// allocate a StatusList to hold the results
+	results := NewStatusList()
+
+	if len(gitStatusOutput) > 0 { //TODO: is this check necessary once we added the branch thing?
+		// split the status output to get a list of changes as raw bytestrings
+		lines := bytes.Split(bytes.Trim(gitStatusOutput, "\n"), []byte{'\n'})
+
+		// branch output is first line
+		branchstr := lines[0]
+		results.branch = ProcessBranch(branchstr)
+
+		// status changes are everything else
+		changes := lines[1:]
+
+		// process each item, and store the results
+		for _, change := range changes {
+			rs := ProcessChange(change)
+			results.groups[rs.group].items = append(results.groups[rs.group].items, rs)
+		}
+	}
+
+	return results
+}
 
 // ProcessBranch handles parsing the branch status from git status porcelain.
 //
