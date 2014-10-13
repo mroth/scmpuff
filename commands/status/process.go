@@ -12,22 +12,20 @@ import (
 func Process(gitStatusOutput []byte) *StatusList {
 	results := NewStatusList()
 
-	if len(gitStatusOutput) > 0 { //TODO: is this check necessary once we added the branch thing?
-		// split the status output to get a list of changes as raw bytestrings
-		lines := bytes.Split(bytes.Trim(gitStatusOutput, "\n"), []byte{'\n'})
+	// split the status output to get a list of changes as raw bytestrings
+	lines := bytes.Split(bytes.Trim(gitStatusOutput, "\n"), []byte{'\n'})
 
-		// branch output is first line
-		branchstr := lines[0]
-		results.branch = ProcessBranch(branchstr)
+	// branch output is first line
+	branchstr := lines[0]
+	results.branch = ProcessBranch(branchstr)
 
-		// status changes are everything else
-		changes := lines[1:]
+	// status changes are everything else
+	changes := lines[1:]
 
-		// process each item, and store the results
-		for _, change := range changes {
-			for _, r := range ProcessChange(change) {
-				results.groups[r.group].items = append(results.groups[r.group].items, r)
-			}
+	// process each item, and store the results
+	for _, change := range changes {
+		for _, r := range ProcessChange(change) {
+			results.groups[r.group].items = append(results.groups[r.group].items, r)
 		}
 	}
 
