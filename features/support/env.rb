@@ -1,7 +1,12 @@
 require 'aruba/cucumber'
 
 Before do
-  @dirs = ["/tmp/aruba/scmpuff"]
+  # sigh, apparently overriding the tmp dir is buggy, still gets created empty,
+  # and it doesnt properly clobber before scenarios are run.
+  #
+  # I'd like to keep it out of here so Dropbox doesnt mess with it, but
+  # such is life I suppose.
+  # @dirs = ["/tmp/aruba/scmpuff"]
 
   # override PATH (find binary)
 
