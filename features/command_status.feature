@@ -33,8 +33,8 @@ Feature: status command
     And  I successfully run `scmpuff status`
     Then the output should contain "On branch: foobar"
 
-  #@wip
-  #Scenario: Banner shows position relative to upstream status
+  Scenario: Banner shows position relative to upstream status
+    Given PENDING: need to write this still
 
   Scenario: Status properly reports all file changes
     # See: http://git.io/IR8qcg for scm_breeze version of test
@@ -58,10 +58,13 @@ Feature: status command
       And the output should match /untracked: *\[4\] *untracked_file/
 
 
-  Scenario: status shows relative paths
+  Scenario: Status shows relative paths
     Given PENDING: port from scm_breeze
   # TODO: port test_git_status_produces_relative_paths()  from scm_breeze
 
-  Scenario: status for a complex merge conflict
+  Scenario: Status for a complex merge conflict
     Given PENDING: port from scm_breeze
   # TODO: port test_git_status_shortcuts_merge_conflicts()  from scm_breeze
+
+  Scenario: Status sets proper environment variables
+    Given PENDING: implement me
