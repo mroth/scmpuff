@@ -13,42 +13,37 @@ import (
 
 var testCasesProcessChange = []struct {
 	arg      []byte
-	expected *StatusItem
+	expected []*StatusItem
 }{
 	{
 		[]byte("A  TODO.md"),
-		&StatusItem{
-			file:  "TODO.md",
-			msg:   "  new file",
-			col:   neu,
-			group: Staged,
+		[]*StatusItem{
+			&StatusItem{msg: "  new file", col: neu, group: Staged, file: "TODO.md"},
 		},
 	},
 	{
 		[]byte(" M script/benchmark"),
-		&StatusItem{
-			file:  "script/benchmark",
-			msg:   "  modified",
-			col:   mod,
-			group: Unstaged,
+		[]*StatusItem{
+			&StatusItem{msg: "  modified", col: mod, group: Unstaged, file: "script/benchmark"},
 		},
 	},
 	{
 		[]byte("?? .travis.yml"),
-		&StatusItem{
-			file:  ".travis.yml",
-			msg:   " untracked",
-			col:   unt,
-			group: Untracked,
+		[]*StatusItem{
+			&StatusItem{msg: " untracked", col: unt, group: Untracked, file: ".travis.yml"},
 		},
 	},
 	{
 		[]byte(" D deleted_file"),
-		&StatusItem{
-			file:  "deleted_file",
-			msg:   "   deleted",
-			col:   del,
-			group: Unstaged,
+		[]*StatusItem{
+			&StatusItem{msg: "   deleted", col: del, group: Unstaged, file: "deleted_file"},
+		},
+	},
+	{
+		[]byte("AM added_then_modified_file"),
+		[]*StatusItem{
+			&StatusItem{msg: "  new file", col: neu, group: Staged, file: "added_then_modified_file"},
+			&StatusItem{msg: "  modified", col: mod, group: Unstaged, file: "added_then_modified_file"},
 		},
 	},
 }

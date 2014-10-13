@@ -32,7 +32,6 @@ type FileGroup struct {
 
 // StatusItem represents a single processed item of change from a 'git status'
 type StatusItem struct {
-	x, y  rune
 	msg   string
 	col   ColorGroup
 	group StatusGroup

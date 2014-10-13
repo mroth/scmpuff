@@ -31,8 +31,8 @@ Feature: status command
   #@wip
   #Scenario: Banner shows position relative to upstream status
 
-  @wip
   Scenario: Status properly reports all file changes
+    # See: http://git.io/IR8qcg for scm_breeze version of test
     Given I am in a git repository
       And an empty file named "deleted_file"
       And I successfully run `git add deleted_file`

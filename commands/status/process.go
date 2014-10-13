@@ -10,7 +10,6 @@ import (
 // Process takes the raw output of `git status --porcelain -b` and turns it into
 // a well structured data type.
 func Process(gitStatusOutput []byte) *StatusList {
-	// allocate a StatusList to hold the results
 	results := NewStatusList()
 
 	if len(gitStatusOutput) > 0 { //TODO: is this check necessary once we added the branch thing?
@@ -26,8 +25,9 @@ func Process(gitStatusOutput []byte) *StatusList {
 
 		// process each item, and store the results
 		for _, change := range changes {
-			rs := ProcessChange(change)
-			results.groups[rs.group].items = append(results.groups[rs.group].items, rs)
+			for _, r := range ProcessChange(change) {
+				results.groups[r.group].items = append(results.groups[r.group].items, r)
+			}
 		}
 	}
 
@@ -80,52 +80,147 @@ func decodeBranchPosition(bs []byte) (ahead, behind int) {
 }
 
 // ProcessChange for a single item from a git status porcelain.
-func ProcessChange(c []byte) *StatusItem {
+//
+// Note some change items can have multiple statuses, so this returns a slice.
+func ProcessChange(c []byte) []*StatusItem {
 	x := rune(c[0])
 	y := rune(c[1])
 	file := string(c[3:len(c)])
-	msg, col, group := decodeChangeCode(x, y, file)
 
-	return &StatusItem{
-		//x:     x,
-		//y:     y,
-		file:  file,
-		msg:   msg,
-		col:   col,
-		group: group,
+	var results []*StatusItem
+	rp := decodePrimaryChangeCode(x, y, file)
+	if rp != nil {
+		results = append(results, rp)
 	}
+	rs := decodeSecondaryChangeCode(x, y, file)
+	if rs != nil {
+		results = append(results, rs)
+	}
+
+	if len(results) < 1 {
+		log.Fatalf(`
+Failed to decode git status change code for code: [%s]
+Please file a bug including this error message as well as the output of:
+
+git status --porcelain
+
+You can file the bug at: https://github.com/mroth/scmpuff/issues/
+		`, string(x)+string(y))
+	}
+
+	return results
 }
 
-func decodeChangeCode(x, y rune, file string) (string, ColorGroup, StatusGroup) {
+func decodePrimaryChangeCode(x, y rune, file string) *StatusItem {
 	switch {
 	case x == 'D' && y == 'D': //DD
-		return "   both deleted", del, Unmerged
+		return &StatusItem{
+			"   both deleted",
+			del,
+			Unmerged,
+			file,
+		}
 	case x == 'A' && y == 'U': //AU
-		return "    added by us", neu, Unmerged
+		return &StatusItem{
+			"    added by us",
+			neu,
+			Unmerged,
+			file,
+		}
 	case x == 'U' && y == 'D': //UD
-		return "deleted by them", del, Unmerged
+		return &StatusItem{
+			"deleted by them",
+			del,
+			Unmerged,
+			file,
+		}
 	case x == 'U' && y == 'A': //UA
-		return "  added by them", neu, Unmerged
+		return &StatusItem{
+			"  added by them",
+			neu,
+			Unmerged,
+			file,
+		}
 	case x == 'D' && y == 'U': //DU
-		return "  deleted by us", del, Unmerged
+		return &StatusItem{
+			"  deleted by us",
+			del,
+			Unmerged,
+			file,
+		}
 	case x == 'A' && y == 'A': //AA
-		return "     both added", neu, Unmerged
+		return &StatusItem{
+			"     both added",
+			neu,
+			Unmerged,
+			file,
+		}
 	case x == 'U' && y == 'U': //UU
-		return "  both modified", mod, Unmerged
+		return &StatusItem{
+			"  both modified",
+			mod,
+			Unmerged,
+			file,
+		}
 	case x == 'M': //          //M.
-		return "  modified", mod, Staged
+		return &StatusItem{
+			"  modified",
+			mod,
+			Staged,
+			file,
+		}
 	case x == 'A': //          //A.
-		return "  new file", neu, Staged
+		return &StatusItem{
+			"  new file",
+			neu,
+			Staged,
+			file,
+		}
 	case x == 'D': //          //D.
-		return "   deleted", del, Staged
+		return &StatusItem{
+			"   deleted",
+			del,
+			Staged,
+			file,
+		}
 	case x == 'R': //          //R.
-		return "   renamed", ren, Staged
+		return &StatusItem{
+			"   renamed",
+			ren,
+			Staged,
+			file,
+		}
 	case x == 'C': //          //C.
-		return "    copied", cpy, Staged
+		return &StatusItem{
+			"    copied",
+			cpy,
+			Staged,
+			file,
+		}
 	case x == 'T': //          //T.
-		return "typechange", typ, Staged
+		return &StatusItem{
+			"typechange",
+			typ,
+			Staged,
+			file,
+		}
 	case x == '?' && y == '?': //??
-		return " untracked", unt, Untracked
+		return &StatusItem{
+			" untracked",
+			unt,
+			Untracked,
+			file,
+		}
+	}
+
+	return nil
+}
+
+func decodeSecondaryChangeCode(x, y rune, file string) *StatusItem {
+	switch {
+	// TODO: fix the below and restore now that my cluelessness about these being
+	// seperate statuses is reflected.
+	//
 	// So here's the thing, below case should never match, because [R.] earlier
 	// is going to nab it.  So I'm assuming it's an oversight in the script.
 	//
@@ -134,22 +229,28 @@ func decodeChangeCode(x, y rune, file string) (string, ColorGroup, StatusGroup) 
 	//
 	// case x == 'R' && y == 'M': //RM
 	case x != 'R' && y == 'M': //[!R]M
-		return "  modified", mod, Unstaged
+		return &StatusItem{
+			"  modified",
+			mod,
+			Unstaged,
+			file,
+		}
 	case y == 'D' && x != 'D' && x != 'U': //[!D!U]D
 		// Don't show deleted 'y' during a merge conflict.
-		return "   deleted", del, Unstaged
+		return &StatusItem{
+			"   deleted",
+			del,
+			Unstaged,
+			file,
+		}
 	case y == 'T': //.T
-		return "typechange", typ, Unstaged
+		return &StatusItem{
+			"typechange",
+			typ,
+			Unstaged,
+			file,
+		}
 	}
 
-	log.Fatalf(`
-Failed to decode git status change code for code: [%s]
-Please file a bug including this error message as well as the output of:
-
-git status --porcelain
-
-You can file the bug at: https://github.com/mroth/scmpuff/issues/
-`, string(x)+string(y))
-
-	panic("...and you may ask yourself, well, how did I get here?")
+	return nil
 }
