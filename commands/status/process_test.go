@@ -26,33 +26,33 @@ var testCasesProcessChange = []struct {
 			group: Staged,
 		},
 	},
-  {
-    []byte(" M script/benchmark"),
-    &StatusItem{
-      x:     ' ',
-      y:     'M',
-      file:  "script/benchmark",
-      msg:   "  modified",
-      col:   mod,
-      group: Unstaged,
-    },
-  },
-  {
-    []byte("?? .travis.yml"),
-    &StatusItem{
-      x:     '?',
-      y:     '?',
-      file:  ".travis.yml",
-      msg:   " untracked",
-      col:   unt,
-      group: Untracked,
-    },
-  },
+	{
+		[]byte(" M script/benchmark"),
+		&StatusItem{
+			x:     ' ',
+			y:     'M',
+			file:  "script/benchmark",
+			msg:   "  modified",
+			col:   mod,
+			group: Unstaged,
+		},
+	},
+	{
+		[]byte("?? .travis.yml"),
+		&StatusItem{
+			x:     '?',
+			y:     '?',
+			file:  ".travis.yml",
+			msg:   " untracked",
+			col:   unt,
+			group: Untracked,
+		},
+	},
 }
 
 func TestProcessChange(t *testing.T) {
 	for _, tc := range testCasesProcessChange {
-		actual := processChange(tc.arg)
+		actual := ProcessChange(tc.arg)
 		if !reflect.DeepEqual(actual, tc.expected) {
 			t.Fatalf("processChange('%s'): expected %v, actual %v", tc.arg, tc.expected, actual)
 		}
@@ -66,6 +66,53 @@ func TestProcessChange(t *testing.T) {
 //  M script/benchmark
 // ?? .travis.yml
 // ?? commands/status/process_test.go
+
+// Examples of stuff we will want to parse:
+//
+// 		## Initial commit on master
+// 		## master
+// 		## master...origin/master
+// 		## master...origin/master [ahead 1]
+var testCasesProcessBranch = []struct {
+	arg      []byte
+	expected *BranchInfo
+}{
+	{
+		[]byte("## master"),
+		&BranchInfo{name: "master", ahead: 0, behind: 0},
+	},
+	{
+		[]byte("## GetUpGetDown09-11JokeInYoTown"),
+		&BranchInfo{name: "GetUpGetDown09-11JokeInYoTown", ahead: 0, behind: 0},
+	},
+	{
+		[]byte("## master...origin/master"),
+		&BranchInfo{name: "master", ahead: 0, behind: 0},
+	},
+	{
+		[]byte("## upstream...upstream/master"),
+		&BranchInfo{name: "upstream", ahead: 0, behind: 0},
+	},
+	{
+		[]byte("## master...origin/master [ahead 1]"),
+		&BranchInfo{name: "master", ahead: 1, behind: 0},
+	},
+	{
+		[]byte("## upstream...upstream/master [behind 3]"),
+		&BranchInfo{name: "upstream", ahead: 0, behind: 3},
+	},
+	// TODO: test and handle compound up/down status
+}
+
+func TestProcessBranch(t *testing.T) {
+	for _, tc := range testCasesProcessBranch {
+		actual := ProcessBranch(tc.arg)
+		if !reflect.DeepEqual(actual, tc.expected) {
+			t.Fatalf("processBranch('%s'): expected %v, actual %v", tc.arg, tc.expected, actual)
+		}
+	}
+}
+
 //
 // $ gs
 // # On branch: master  |  +1  |  [*] => $e*

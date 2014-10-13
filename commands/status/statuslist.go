@@ -11,7 +11,16 @@ import "fmt"
 // It also helps us map closer to the program logic of the Ruby code from
 // scm_breeze, so hopefully easier to port.
 type StatusList struct {
+	branch *BranchInfo
 	groups map[StatusGroup]*FileGroup
+}
+
+// BranchInfo contains all information needed about the active git branch, as
+// well as its status relative to upstream commits.
+type BranchInfo struct {
+	name   string // name of the active branch
+	ahead  int    // commit position relative to upstream, e.g. +1
+	behind int    // commit position relative to upstream, e.g. -3
 }
 
 // FileGroup is a bucket of all file StatusItems for a particular StatusGroup
@@ -30,8 +39,7 @@ type StatusItem struct {
 	file  string
 }
 
-// NewStatusList is a constructor that initializes a new StatusList so that it's
-// ready to use.
+// NewStatusList is a constructor that initializes a new StatusList
 func NewStatusList() *StatusList {
 	return &StatusList{
 		groups: map[StatusGroup]*FileGroup{
@@ -100,9 +108,9 @@ func (sl StatusList) printStatus() {
 
 func (sl StatusList) printBanner() {
 	if sl.numItems() == 0 {
-		fmt.Println(bannerBranch("parseme", "") + bannerNoChanges())
+		fmt.Println(bannerBranch(sl.branch.name, "") + bannerNoChanges())
 	} else {
-		fmt.Println(bannerBranch("parseme", "") + bannerChangeHeader())
+		fmt.Println(bannerBranch(sl.branch.name, "") + bannerChangeHeader())
 	}
 }
 

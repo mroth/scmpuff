@@ -1,8 +1,58 @@
 package status
 
-import "log"
+import (
+	"log"
+	"regexp"
+	"strconv"
+)
 
-func processChange(c []byte) *StatusItem {
+// ProcessBranch handles parsing the branch status from git status porcelain.
+//
+// Examples of stuff we will want to parse:
+//
+// 		## Initial commit on master
+// 		## master
+// 		## master...origin/master
+// 		## master...origin/master [ahead 1]
+//
+func ProcessBranch(bs []byte) *BranchInfo {
+	b := BranchInfo{}
+
+	b.name = decodeBranchName(bs)
+	b.ahead, b.behind = decodeBranchPosition(bs)
+
+	return &b
+}
+
+func decodeBranchName(bs []byte) string {
+	re := regexp.MustCompile(`^## ([^ \.]+)`)
+	m := re.FindSubmatch(bs)
+	if m == nil {
+		log.Fatalf("Failed to parse branch name for output: [%s]", bs)
+	}
+
+	return string(m[1])
+}
+
+func decodeBranchPosition(bs []byte) (ahead, behind int) {
+	reA := regexp.MustCompile(`\[ahead ?(\d+).*\]`)
+	reB := regexp.MustCompile(`\[.*behind ?(\d+)\]`)
+
+	mA := reA.FindSubmatch(bs)
+	if mA != nil {
+		ahead, _ = strconv.Atoi(string(mA[1]))
+	}
+
+	mB := reB.FindSubmatch(bs)
+	if mB != nil {
+		behind, _ = strconv.Atoi(string(mB[1]))
+	}
+
+	return
+}
+
+// ProcessChange for a single item from a git status porcelain.
+func ProcessChange(c []byte) *StatusItem {
 	x := rune(c[0])
 	y := rune(c[1])
 	file := string(c[3:len(c)])

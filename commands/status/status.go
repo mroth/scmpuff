@@ -46,26 +46,28 @@ func runStatus() {
 	// TODO: git clear vars
 
 	// TODO run commands to get status and branch
-	gitStatusOutput, err := exec.Command("git", "status", "--porcelain").Output()
+	gitStatusOutput, err := exec.Command("git", "status", "--porcelain", "-b").Output()
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	// gitBranchOutput, err := exec.Command("git", "branch", "-v").Output()
-	// if err == nil {
-	// 	log.Fatal(err)
-	// }
-
 	// allocate a StatusList to hold the results
 	results := NewStatusList()
 
-	if len(gitStatusOutput) > 0 {
+	if len(gitStatusOutput) > 0 { //TODO: is this check necessary once we added the branch thing?
 		// split the status output to get a list of changes as raw bytestrings
-		changes := bytes.Split(bytes.Trim(gitStatusOutput, "\n"), []byte{'\n'})
+		lines := bytes.Split(bytes.Trim(gitStatusOutput, "\n"), []byte{'\n'})
+
+		// branch output is first line
+		branchstr := lines[0]
+		results.branch = ProcessBranch(branchstr)
+
+		// status changes are everything else
+		changes := lines[1:]
 
 		// process each item, and store the results
 		for _, change := range changes {
-			rs := processChange(change)
+			rs := ProcessChange(change)
 			results.groups[rs.group].items = append(results.groups[rs.group].items, rs)
 		}
 	}
