@@ -25,7 +25,7 @@ func ProcessBranch(bs []byte) *BranchInfo {
 }
 
 func decodeBranchName(bs []byte) string {
-	re := regexp.MustCompile(`^## ([^ \.]+)`)
+	re := regexp.MustCompile(`^## (?:Initial commit on )?([^ \.]+)`)
 	m := re.FindSubmatch(bs)
 	if m == nil {
 		log.Fatalf("Failed to parse branch name for output: [%s]", bs)
