@@ -1,7 +1,9 @@
 package status
 
 import (
+	"fmt"
 	"log"
+	"os"
 	"os/exec"
 
 	"github.com/spf13/cobra"
@@ -46,7 +48,13 @@ func runStatus() {
 
 	// TODO run commands to get status and branch
 	gitStatusOutput, err := exec.Command("git", "status", "--porcelain", "-b").Output()
+
 	if err != nil {
+		if err.Error() == "exit status 128" {
+			fmt.Println("\033[0;31mNot a git repository (or any of the parent directories)")
+			os.Exit(128)
+		}
+		// or, some other sort of error?
 		log.Fatal(err)
 	}
 

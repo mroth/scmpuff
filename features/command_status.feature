@@ -3,11 +3,15 @@ Feature: status command
   Background:
     Given a mocked home directory
 
-  @wip
-  Scenario: basic stuff - when not in a git repo
-    Given I cd to "/tmp"
-    When I successfully run `scmpuff status`
-    Then the output should contain "burger king"
+  @outside-repo
+  Scenario: Appropriate error status when not in a git repo
+    When I run `scmpuff status`
+    Then the exit status should be 128
+    #                              ^^^ same as `git status`
+    And the output should contain:
+      """
+      Not a git repository (or any of the parent directories)
+      """
 
   Scenario: Banner shows no changes when in an unchanged git repo
     Given I am in a git repository

@@ -31,3 +31,9 @@ After do
   #restore HOME
   #restore GIT env var
 end
+
+# since tmp/aruba is nested within the git repo of this program, we need to
+# be somewhere else to test behavior of the binary when outside the git repo.
+Before('@outside-repo') do
+  @dirs = ["/tmp/aruba/scmpuff"]
+end
