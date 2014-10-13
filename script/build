@@ -6,5 +6,8 @@
 # Author: Jingwen Owen Ou
 # Modified: Matthew Rothenberg
 
-script/bootstrap
+if [ ! -x $GOPATH/bin/godep ]; then
+  script/bootstrap
+fi
+
 $GOPATH/bin/godep go build -o bin/scmpuff
