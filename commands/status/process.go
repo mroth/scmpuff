@@ -59,8 +59,8 @@ func ProcessChange(c []byte) *StatusItem {
 	msg, col, group := decodeChangeCode(x, y, file)
 
 	return &StatusItem{
-		x:     x,
-		y:     y,
+		//x:     x,
+		//y:     y,
 		file:  file,
 		msg:   msg,
 		col:   col,

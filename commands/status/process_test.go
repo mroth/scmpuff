@@ -18,8 +18,6 @@ var testCasesProcessChange = []struct {
 	{
 		[]byte("A  TODO.md"),
 		&StatusItem{
-			x:     'A',
-			y:     ' ',
 			file:  "TODO.md",
 			msg:   "  new file",
 			col:   neu,
@@ -29,8 +27,6 @@ var testCasesProcessChange = []struct {
 	{
 		[]byte(" M script/benchmark"),
 		&StatusItem{
-			x:     ' ',
-			y:     'M',
 			file:  "script/benchmark",
 			msg:   "  modified",
 			col:   mod,
@@ -40,8 +36,6 @@ var testCasesProcessChange = []struct {
 	{
 		[]byte("?? .travis.yml"),
 		&StatusItem{
-			x:     '?',
-			y:     '?',
 			file:  ".travis.yml",
 			msg:   " untracked",
 			col:   unt,
@@ -51,8 +45,6 @@ var testCasesProcessChange = []struct {
 	{
 		[]byte(" D deleted_file"),
 		&StatusItem{
-			x:     ' ',
-			y:     'D',
 			file:  "deleted_file",
 			msg:   "   deleted",
 			col:   del,
