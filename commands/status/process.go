@@ -107,7 +107,7 @@ func decodeChangeCode(x, y rune, file string) (string, ColorGroup, StatusGroup) 
 	// case x == 'R' && y == 'M': //RM
 	case x != 'R' && y == 'M': //[!R]M
 		return "  modified", mod, Unstaged
-	case y == 'D' && y != 'D' && y != 'U': //[!D!U]D
+	case y == 'D' && x != 'D' && x != 'U': //[!D!U]D
 		// Don't show deleted 'y' during a merge conflict.
 		return "   deleted", del, Unstaged
 	case y == 'T': //.T

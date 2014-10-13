@@ -48,6 +48,17 @@ var testCasesProcessChange = []struct {
 			group: Untracked,
 		},
 	},
+	{
+		[]byte(" D deleted_file"),
+		&StatusItem{
+			x:     ' ',
+			y:     'D',
+			file:  "deleted_file",
+			msg:   "   deleted",
+			col:   del,
+			group: Unstaged,
+		},
+	},
 }
 
 func TestProcessChange(t *testing.T) {
