@@ -38,3 +38,11 @@ Given(/^I successfully run the following commands:$/) do |list|
     step "I successfully run `#{item.first}`"
   end
 end
+
+
+#
+# Helpful to define actual pending tests
+#
+Given(/^PENDING/) do
+  pending
+end

@@ -3,6 +3,7 @@ Feature: status command
   Background:
     Given a mocked home directory
 
+  @wip
   Scenario: basic stuff - when not in a git repo
     Given I cd to "/tmp"
     When I successfully run `scmpuff status`
@@ -53,8 +54,10 @@ Feature: status command
       And the output should match /untracked: *\[4\] *untracked_file/
 
 
-  #Scenario: status shows relative paths
+  Scenario: status shows relative paths
+    Given PENDING: port from scm_breeze
   # TODO: port test_git_status_produces_relative_paths()  from scm_breeze
 
-  #Scenario: status for a complex merge conflict
+  Scenario: status for a complex merge conflict
+    Given PENDING: port from scm_breeze
   # TODO: port test_git_status_shortcuts_merge_conflicts()  from scm_breeze
