@@ -27,3 +27,14 @@ Given /^I switch to git branch "([^"]*)"$/ do |branch_name|
     Given I successfully run `git checkout -b #{branch_name}`
   }
 end
+
+#
+# Make table/list versions of common Aruba functions:
+#
+
+Given(/^I successfully run the following commands:$/) do |list|
+  # list is a Cucumber::Ast::Table
+  list.raw.each do |item|
+    step "I successfully run `#{item.first}`"
+  end
+end

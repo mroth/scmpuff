@@ -28,5 +28,31 @@ Feature: status command
     And  I successfully run `scmpuff status`
     Then the output should contain "On branch: foobar"
 
+  #@wip
+  #Scenario: Banner shows position relative to upstream status
 
-  #Scenario: when in a git repo with changes
+  @wip
+  Scenario: Status properly reports all file changes
+    Given I am in a git repository
+    And I successfully run the following commands:
+      | touch deleted_file          |
+      | git add deleted_file        |
+      | git commit -m "Test commit" |
+      | touch new_file              |
+      | touch untracked_file        |
+      | git add new_file            |
+      | echo "changed" > new_file   |
+      | rm deleted_file             |
+    When I run `scmpuff status`
+    Then the exit status should be 0
+      And the output should match / new file: *\[1\] *new_file/
+      And the output should match /  deleted: *\[2\] *deleted_file/
+      And the output should match / modified: *\[3\] *new_file/
+      And the output should match /untracked: *\[4\] *untracked_file/
+
+
+  #Scenario: status shows relative paths
+  # TODO: port test_git_status_produces_relative_paths()  from scm_breeze
+
+  #Scenario: status for a complex merge conflict
+  # TODO: port test_git_status_shortcuts_merge_conflicts()  from scm_breeze
