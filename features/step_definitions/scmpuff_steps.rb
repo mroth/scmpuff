@@ -1,4 +1,4 @@
-include FileUtils
+require 'aruba/api'
 
 Given /^a git repository named "([^"]*)"$/ do |repo_name|
   # system `git init --quiet #{repo_name}`
@@ -27,6 +27,35 @@ Given /^I switch to git branch "([^"]*)"$/ do |branch_name|
     Given I successfully run `git checkout -b #{branch_name}`
   }
 end
+
+Given /^I am in a complex working tree status matching scm_breeze tests$/ do
+  steps %Q{
+    Given I am in a git repository
+    And an empty file named "deleted_file"
+    And I successfully run `git add deleted_file`
+    And I successfully run `git commit -m "Test commit"`
+    And an empty file named "new_file"
+    And an empty file named "untracked_file"
+    And I successfully run `git add new_file`
+    And I overwrite "new_file" with:
+      """
+      changed contents lolol
+      """
+    And I remove the file "deleted_file"
+  }
+end
+
+Given(/^the scmpuff environment variables have been cleared$/) do
+  (1..50).each do |n|
+    set_env("e#{n}", nil)
+  end
+end
+
+
+Then(/^the environment variable "(.*?)" should equal the absolute path for "(.*?)"$/) do |var, filename|
+  expect(ENV[var]).to eq(File.expand_path("~/mygitrepo/#{filename}"))
+end
+
 
 #
 # Make table/list versions of common Aruba functions:

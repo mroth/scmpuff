@@ -38,18 +38,7 @@ Feature: status command
 
   Scenario: Status properly reports all file changes
     # See: http://git.io/IR8qcg for scm_breeze version of test
-    Given I am in a git repository
-      And an empty file named "deleted_file"
-      And I successfully run `git add deleted_file`
-      And I successfully run `git commit -m "Test commit"`
-      And an empty file named "new_file"
-      And an empty file named "untracked_file"
-      And I successfully run `git add new_file`
-      And I overwrite "new_file" with:
-        """
-        changed contents lolol
-        """
-      And I remove the file "deleted_file"
+    Given I am in a complex working tree status matching scm_breeze tests
     When I run `scmpuff status`
     Then the exit status should be 0
       And the output should match / new file: *\[1\] *new_file/
@@ -66,5 +55,12 @@ Feature: status command
     Given PENDING: port from scm_breeze
   # TODO: port test_git_status_shortcuts_merge_conflicts()  from scm_breeze
 
+  @wip
   Scenario: Status sets proper environment variables
-    Given PENDING: implement me
+    Given I am in a complex working tree status matching scm_breeze tests
+      And the scmpuff environment variables have been cleared
+    When I run `scmpuff status`
+      Then the environment variable "e1" should equal the absolute path for "new_file"
+      And  the environment variable "e2" should equal the absolute path for "deleted_file"
+      And  the environment variable "e3" should equal the absolute path for "new_file"
+      And  the environment variable "e4" should equal the absolute path for "untracked_file"
