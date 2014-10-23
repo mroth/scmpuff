@@ -64,3 +64,6 @@ Feature: status command
       And  the environment variable "e2" should equal the absolute path for "deleted_file"
       And  the environment variable "e3" should equal the absolute path for "new_file"
       And  the environment variable "e4" should equal the absolute path for "untracked_file"
+
+  #Scenario: Status clears extra environment variables from before
+  

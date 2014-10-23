@@ -1,15 +1,17 @@
 package status
 
-import "fmt"
+import (
+	"fmt"
+	"log"
+	"os"
+
+	"github.com/mroth/scmpuff/helpers"
+)
 
 // StatusList gives us a data structure to store all items of a git status
 // organized by what group they fall under.
 //
-// This is helpful because we want to pull them out by group later, and don't
-// want to bear the cost of filtering then.
-//
-// It also helps us map closer to the program logic of the Ruby code from
-// scm_breeze, so hopefully easier to port.
+// We also have interface methods yarr to perform tasks based on the status.
 type StatusList struct {
 	branch *BranchInfo
 	groups map[StatusGroup]*FileGroup
@@ -85,12 +87,40 @@ func (sl StatusList) orderedGroups() []*FileGroup {
 }
 
 // Total file change items across *all* groups.
+//
+// This should now be identical to what you would get from len(Items()) but this
+// way there is no wasted allocation of a new slice if you just want the count.
+// Also ordering doesnt matter so we don't need to use orderedGroups() here.
 func (sl StatusList) numItems() int {
 	var total int
 	for _, g := range sl.groups {
 		total += len(g.items)
 	}
 	return total
+}
+
+// Items will return a slice of all StatusItems for the list regardless of what
+// FileGroup they belong to.
+//
+// However, we need to be careful to return them in the same order always.
+func (sl StatusList) orderedItems() (items []*StatusItem) {
+	for _, g := range sl.orderedGroups() {
+		items = append(items, g.items...)
+	}
+	return
+}
+
+//
+func (sl StatusList) setEnvVars() {
+	for i, item := range sl.orderedItems() {
+		fmt.Printf("setting %v to %v\n", helpers.IntToEnvVar(i), item.file)
+		err := os.Setenv(helpers.IntToEnvVar(i), item.file)
+		if err != nil {
+			log.Fatal(err)
+		}
+		os.Setenv("foobar", "foobar")
+		os.Setenv("$barfoo", "barfoo")
+	}
 }
 
 func (sl StatusList) printStatus() {
