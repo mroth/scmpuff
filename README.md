@@ -41,3 +41,16 @@ Features we don't have
 
 Antipatterns
  - Don't set any environment variables that are unnecessary.
+
+
+## TODO
+
+Known issues:
+
+ - doesn't handle getting additional args and passing them along, see test in scm_breeze status_shortcuts_test.sh line 58
+
+ - switch to buffered output writer for speed! (issue #1)
+
+ - get rid of the retarded way scmbreeze hardcodes padding into the msg for things,can be better handled with printf padding
+
+ - maybe use chans to make multiple calls to git CLI concurrent? (e.g. branch, status, second status if needed...) would need to bench and see if it actually helps, could maybe even hurt?
