@@ -9,6 +9,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var porcelainFiles bool
+
 // CommandStatus processes 'git status --porcelain', and exports numbered
 // env variables that contain the path of each affected file.
 // Output is also more concise than standard 'git status'.
@@ -30,6 +32,15 @@ Output is also more concise than standard 'git status'.
 		},
 	}
 
+	// TODO
+	// statusCmd.Flags().BoolVarP()
+	// --aliases
+	statusCmd.Flags().BoolVarP(
+		&porcelainFiles,
+		"filelist", "f", false,
+		"include parseable filelist as first line of output",
+	)
+
 	// --relative
 	// statusCmd.Flags().BoolVarP(
 	// 	&expandRelative,
@@ -44,7 +55,7 @@ Output is also more concise than standard 'git status'.
 
 func runStatus() {
 	// TODO: fail if not git repo
-	// TODO: git clear vars
+	// TODO: git clear vars (needs to be done in shellscript)
 
 	// TODO run commands to get status and branch
 	gitStatusOutput, err := exec.Command("git", "status", "--porcelain", "-b").Output()
@@ -59,5 +70,5 @@ func runStatus() {
 	}
 
 	results := Process(gitStatusOutput)
-	results.printStatus(true)
+	results.printStatus(porcelainFiles)
 }

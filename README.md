@@ -54,3 +54,5 @@ Known issues:
  - get rid of the retarded way scmbreeze hardcodes padding into the msg for things,can be better handled with printf padding
 
  - maybe use chans to make multiple calls to git CLI concurrent? (e.g. branch, status, second status if needed...) would need to bench and see if it actually helps, could maybe even hurt?
+
+ - maybe dont use first line of output trick and instead use STDERR? 

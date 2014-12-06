@@ -11,7 +11,7 @@ scmpuff_status_shortcuts() {
   # scmpuff_clear_vars
 
   # Run scmpuff status, store output
-  local cmd_output="$(/usr/bin/env scmpuff status $@)"
+  local cmd_output="$(/usr/bin/env scmpuff status --filelist $@)"
 
   # Fetch list of files from first line of script output
   files="$(echo "$cmd_output" | head -n 1)"
