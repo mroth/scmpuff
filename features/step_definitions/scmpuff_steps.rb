@@ -52,8 +52,17 @@ Given(/^the scmpuff environment variables have been cleared$/) do
 end
 
 
-Then(/^the environment variable "(.*?)" should equal the absolute path for "(.*?)"$/) do |var, filename|
-  expect(ENV[var]).to eq(File.expand_path("~/mygitrepo/#{filename}"))
+# TODO: no longer needed?
+#Then(/^the environment variable "(.*?)" should equal the absolute path for "(.*?)"$/) do |var, filename|
+#  expect(ENV[var]).to eq(File.expand_path("~/mygitrepo/#{filename}"))
+#end
+
+
+#
+# Backtick version for "when I type" step to enable passing quotation marks
+#
+When(/^I type `(.*?)`$/) do |cmd|
+  type(cmd)
 end
 
 

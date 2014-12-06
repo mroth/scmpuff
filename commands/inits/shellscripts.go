@@ -1,10 +1,13 @@
 package inits
 
-func scriptStringzz() string {
+func statusShortcutsString() string {
 	return `
 scmpuff_status_shortcuts() {
   # fail_if_not_git_repo || return 1
-  zsh_compat # Ensure shwordsplit is on for zsh
+
+	# Ensure shwordsplit is on for zsh
+	if [ -n "$ZSH_VERSION" ]; then setopt shwordsplit; fi;
+
   # scmpuff_clear_vars
 
   # Run scmpuff status, store output
@@ -29,8 +32,9 @@ scmpuff_status_shortcuts() {
   echo "$cmd_output" | tail -n +2
 
 	# Reset zsh environment to default
-  zsh_reset
+	if [ -n "$ZSH_VERSION" ]; then unsetopt shwordsplit; fi;
 }
+
 
 # Clear numbered env variables
 scmpuff_clear_vars() {

@@ -59,5 +59,5 @@ func runStatus() {
 	}
 
 	results := Process(gitStatusOutput)
-	results.printStatus()
+	results.printStatus(true)
 }

@@ -55,15 +55,42 @@ Feature: status command
     Given PENDING: port from scm_breeze
   # TODO: port test_git_status_shortcuts_merge_conflicts()  from scm_breeze
 
+  #TODO: move me into command_init.feature
+  #TODO: bash via table
   @wip
-  Scenario: Status sets proper environment variables
+  Scenario Outline: Evaling init -s sets up status shortcuts in environment
+    When I run `<shell>` interactively
+      And I type `eval "$(scmpuff init -s)"`
+      And I type "type scmpuff_status_shortcuts"
+      And I type "exit"
+    Then the output should not contain "not found"
+    Examples:
+      | shell |
+      | bash  |
+      | zsh   |
+
+  @wip
+  Scenario Outline: Status sets proper environment variables in zsh
     Given I am in a complex working tree status matching scm_breeze tests
       And the scmpuff environment variables have been cleared
-    When I run `scmpuff status`
-      Then the environment variable "e1" should equal the absolute path for "new_file"
-      And  the environment variable "e2" should equal the absolute path for "deleted_file"
-      And  the environment variable "e3" should equal the absolute path for "new_file"
-      And  the environment variable "e4" should equal the absolute path for "untracked_file"
+    When I run `<shell>` interactively
+      And I type `eval "$(scmpuff init -s)"`
+      #TODO: move below to actual alias?
+      And I type "scmpuff_status_shortcuts"
+      And I type `echo -e "e1:$e1\ne2:$e2\ne3:$e3\ne4:$e4\ne5:$e5\nEND"`
+      And I type "exit"
+    Then the output should contain:
+      """
+      e1:new_file
+      e2:deleted_file
+      e3:new_file
+      e4:untracked_file
+      e5:
+      END
+      """
+    Examples:
+      | shell |
+      | bash  |
+      | zsh   |
 
   #Scenario: Status clears extra environment variables from before
-  

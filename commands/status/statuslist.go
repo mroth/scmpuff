@@ -2,10 +2,7 @@ package status
 
 import (
 	"fmt"
-	"log"
-	"os"
-
-	"github.com/mroth/scmpuff/helpers"
+	"strings"
 )
 
 // StatusList gives us a data structure to store all items of a git status
@@ -110,20 +107,15 @@ func (sl StatusList) orderedItems() (items []*StatusItem) {
 	return
 }
 
+// Outputs the status list nicely formatted to the screen.
 //
-func (sl StatusList) setEnvVars() {
-	for i, item := range sl.orderedItems() {
-		fmt.Printf("setting %v to %v\n", helpers.IntToEnvVar(i), item.file)
-		err := os.Setenv(helpers.IntToEnvVar(i), item.file)
-		if err != nil {
-			log.Fatal(err)
-		}
-		os.Setenv("foobar", "foobar")
-		os.Setenv("$barfoo", "barfoo")
+// if `includeParseData` is true, the first line will be a machine parseable
+// list of files to be used for environment variable expansion.
+func (sl StatusList) printStatus(includeParseData bool) {
+	if includeParseData {
+		fmt.Println(sl.dataForParsing())
 	}
-}
 
-func (sl StatusList) printStatus() {
 	sl.printBanner()
 
 	if sl.numItems() >= 1 {
@@ -133,6 +125,19 @@ func (sl StatusList) printStatus() {
 			startNum += len(fg.items)
 		}
 	}
+}
+
+// - machine readable string for env var parsing of file list
+// - same format that smb_breeze uses (but without preceding @@FILES thing that
+//   creates extra shell parsing mess)
+// - needs to be returned in same order that file lists are outputted to screen,
+//   otherwise env vars won't match UI.
+func (sl StatusList) dataForParsing() string {
+	items := make([]string, sl.numItems())
+	for i, si := range sl.orderedItems() {
+		items[i] = si.file
+	}
+	return strings.Join(items, "|")
 }
 
 func (sl StatusList) printBanner() {
