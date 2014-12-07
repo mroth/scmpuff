@@ -70,12 +70,11 @@ Feature: status command
       | zsh   |
 
   @wip
-  Scenario Outline: Status sets proper environment variables in zsh
+  Scenario Outline: Status sets proper environment variables in shell
     Given I am in a complex working tree status matching scm_breeze tests
       And the scmpuff environment variables have been cleared
     When I run `<shell>` interactively
       And I type `eval "$(scmpuff init -s)"`
-      #TODO: move below to actual alias?
       And I type "scmpuff_status_shortcuts"
       And I type `echo -e "e1:$e1\ne2:$e2\ne3:$e3\ne4:$e4\ne5:$e5\nEND"`
       And I type "exit"
@@ -93,4 +92,28 @@ Feature: status command
       | bash  |
       | zsh   |
 
-  #Scenario: Status clears extra environment variables from before
+  @wip
+  Scenario Outline: Status clears extra environment variables from before
+    Given I am in a complex working tree status matching scm_breeze tests
+      And the scmpuff environment variables have been cleared
+    When I run `<shell>` interactively
+      And I type `eval "$(scmpuff init -s)"`
+      And I type "scmpuff_status_shortcuts"
+      And I type "git add new_file"
+      And I type "git commit -m 'so be it'"
+      And I type "scmpuff_status_shortcuts"
+      And I type `echo -e "e1:$e1\ne2:$e2\ne3:$e3\ne4:$e4\ne5:$e5\nEND"`
+      And I type "exit"
+    Then the output should contain:
+      """
+      e1:deleted_file
+      e2:untracked_file
+      e3:
+      e4:
+      e5:
+      END
+      """
+  Examples:
+    | shell |
+    | bash  |
+    | zsh   |

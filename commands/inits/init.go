@@ -51,8 +51,8 @@ This should probably be evaluated in your shell startup.
 
 func printScript(includeAliases bool) {
 	fmt.Println(scriptString())
+	fmt.Println(statusShortcutsString())
 	if includeAliases {
-		fmt.Println(statusShortcutsString())
 		fmt.Println(aliasesString())
 	}
 }
