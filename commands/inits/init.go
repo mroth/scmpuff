@@ -50,7 +50,7 @@ This should probably be evaluated in your shell startup.
 }
 
 func printScript(includeAliases bool) {
-	fmt.Println(scriptString())
+	// fmt.Println(gitwrapString()) 	// TODO: enable wrapping git cmds once expand works && add tests
 	fmt.Println(statusShortcutsString())
 	if includeAliases {
 		fmt.Println(aliasesString())
@@ -64,7 +64,7 @@ func helpString() string {
 eval "$(scmpuff init -s)"`
 }
 
-func scriptString() string {
+func gitwrapString() string {
 	return `git () {
   case $1 in
     (commit|blame|add|log|rebase|merge) scmpuff expand "$_git_cmd" "$@" ;;
