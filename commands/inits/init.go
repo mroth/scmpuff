@@ -77,7 +77,7 @@ func gitwrapString() string {
 
 func aliasesString() string {
 	return `
-alias gs='scmpuff status'
-alias ga='scmpuff add'
+alias gs='scmpuff_status_shortcuts'
+#alias ga='scmpuff add' #TODO: implement me
   `
 }
