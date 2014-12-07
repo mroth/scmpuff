@@ -8,7 +8,7 @@ scmpuff_status_shortcuts() {
 	# Ensure shwordsplit is on for zsh
 	if [ -n "$ZSH_VERSION" ]; then setopt shwordsplit; fi;
 
-  # scmpuff_clear_vars
+  scmpuff_clear_vars
 
   # Run scmpuff status, store output
   local cmd_output="$(/usr/bin/env scmpuff status --filelist $@)"
@@ -40,8 +40,9 @@ scmpuff_status_shortcuts() {
 scmpuff_clear_vars() {
   local i
   for (( i=1; i<=999; i++ )); do
-		if [[ -n ${e$i} ]]; then
-			unset ${e$i}
+	local env_var_i=e${i}
+		if [[ -n ${env_var_i} ]]; then
+			unset ${env_var_i}
 		else
 		  break
 		fi
