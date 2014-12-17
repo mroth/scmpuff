@@ -1,4 +1,6 @@
 scmpuff_status_shortcuts() {
+  local scmpuff_env_char="e"
+
   # fail_if_not_git_repo || return 1
 
   # Ensure shwordsplit is on for zsh
@@ -16,8 +18,8 @@ scmpuff_status_shortcuts() {
   IFS="|"
   local e=1
   for file in $files; do
-    export $git_env_char$e="$file"
-    if [ "${scmpuffDebug:-}" = "true" ]; then echo "Set \$$git_env_char$e  => $file"; fi
+    export $scmpuff_env_char$e="$file"
+    if [ "${scmpuffDebug:-}" = "true" ]; then echo "Set \$$scmpuff_env_char$e  => $file"; fi
     let e++
   done
   IFS=$' \t\n'
@@ -34,9 +36,11 @@ scmpuff_status_shortcuts() {
 
 # Clear numbered env variables
 scmpuff_clear_vars() {
+  local scmpuff_env_char="e"
   local i
+
   for (( i=1; i<=999; i++ )); do
-    local env_var_i=e${i}
+    local env_var_i=${scmpuff_env_char}${i}
     if [[ -n ${env_var_i} ]]; then
       unset ${env_var_i}
     else
