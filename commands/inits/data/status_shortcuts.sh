@@ -27,8 +27,8 @@ scmpuff_status_shortcuts() {
   # Print status (from line two onward)
   echo "$cmd_output" | tail -n +2
 
-	# Reset zsh environment to default
-	if [ -n "$ZSH_VERSION" ]; then unsetopt shwordsplit; fi;
+  # Reset zsh environment to default
+  if [ -n "$ZSH_VERSION" ]; then unsetopt shwordsplit; fi;
 }
 
 
@@ -36,11 +36,11 @@ scmpuff_status_shortcuts() {
 scmpuff_clear_vars() {
   local i
   for (( i=1; i<=999; i++ )); do
-	local env_var_i=e${i}
-		if [[ -n ${env_var_i} ]]; then
-			unset ${env_var_i}
-		else
-		  break
-		fi
+    local env_var_i=e${i}
+    if [[ -n ${env_var_i} ]]; then
+      unset ${env_var_i}
+    else
+      break
+    fi
   done
 }

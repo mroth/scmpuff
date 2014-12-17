@@ -69,4 +69,4 @@ Known issues:
 
  - maybe use chans to make multiple calls to git CLI concurrent? (e.g. branch, status, second status if needed...) would need to bench and see if it actually helps, could maybe even hurt?
 
- - maybe dont use first line of output trick and instead use STDERR? 
+ - maybe dont use first line of output trick and instead use STDERR?
