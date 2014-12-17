@@ -55,20 +55,6 @@ Feature: status command
     Given PENDING: port from scm_breeze
   # TODO: port test_git_status_shortcuts_merge_conflicts()  from scm_breeze
 
-  #TODO: move me into command_init.feature
-  #TODO: bash via table
-  @wip
-  Scenario Outline: Evaling init -s sets up status shortcuts in environment
-    When I run `<shell>` interactively
-      And I type `eval "$(scmpuff init -s)"`
-      And I type "type scmpuff_status_shortcuts"
-      And I type "exit"
-    Then the output should not contain "not found"
-    Examples:
-      | shell |
-      | bash  |
-      | zsh   |
-
   @wip
   Scenario Outline: Status sets proper environment variables in shell
     Given I am in a complex working tree status matching scm_breeze tests
@@ -113,7 +99,7 @@ Feature: status command
       e5:
       END
       """
-  Examples:
-    | shell |
-    | bash  |
-    | zsh   |
+    Examples:
+      | shell |
+      | bash  |
+      | zsh   |

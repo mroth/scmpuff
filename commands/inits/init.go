@@ -25,7 +25,7 @@ This should probably be evaluated in your shell startup.
     `,
 		Run: func(cmd *cobra.Command, args []string) {
 			if outputScript {
-				printScript(includeAliases)
+				printScript()
 			} else {
 				fmt.Println(helpString())
 			}
@@ -36,48 +36,15 @@ This should probably be evaluated in your shell startup.
 	InitCmd.Flags().BoolVarP(
 		&includeAliases,
 		"aliases", "a", true,
-		"Define short aliases for convenience",
+		"Include short aliases for convenience",
 	)
 
 	// --show
 	InitCmd.Flags().BoolVarP(
 		&outputScript,
 		"show", "s", false,
-		"Show outputscript",
+		"Output scmpuff initialization scripts",
 	)
 
 	return InitCmd
-}
-
-func printScript(includeAliases bool) {
-	// fmt.Println(gitwrapString()) 	// TODO: enable wrapping git cmds once expand works && add tests
-	fmt.Println(statusShortcutsString())
-	if includeAliases {
-		fmt.Println(aliasesString())
-	}
-}
-
-// TODO: check for proper shell version
-func helpString() string {
-	return `# Wrap git automatically by adding the following to ~/.zshrc:
-
-eval "$(scmpuff init -s)"`
-}
-
-func gitwrapString() string {
-	return `git () {
-  case $1 in
-    (commit|blame|add|log|rebase|merge) scmpuff expand "$_git_cmd" "$@" ;;
-    (checkout|diff|rm|reset) scmpuff expand --relative "$_git_cmd" "$@" ;;
-    (branch) _scmb_git_branch_shortcuts "${@:2}" ;;
-    (*) "$_git_cmd" "$@" ;;
-  esac
-}`
-}
-
-func aliasesString() string {
-	return `
-alias gs='scmpuff_status_shortcuts'
-#alias ga='scmpuff add' #TODO: implement me
-  `
 }
