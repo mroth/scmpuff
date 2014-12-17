@@ -4,8 +4,7 @@ import "fmt"
 
 // the below go:generate directive will automatically generate a bindata.go file
 // which wraps the contents of the data directory so we can include text files
-// in our distributed binary directly. (boy, Go can be quite annoying
-// sometimes!)
+// in our distributed binary directly.
 
 //go:generate go-bindata -o bindata.go -ignore=README* -pkg=inits data
 
@@ -15,8 +14,9 @@ func printScript() {
 	if includeAliases {
 		fmt.Println(assetString("data/aliases.sh"))
 	}
+	// TODO: enable wrapping git cmds once expand works && add tests
 	// if wrapGit {
-	// fmt.Println(gitwrapString()) 	// TODO: enable wrapping git cmds once expand works && add tests
+	// fmt.Println(gitwrapString())
 	// }
 }
 
