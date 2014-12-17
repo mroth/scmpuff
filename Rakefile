@@ -6,7 +6,7 @@ require 'rake/clean'
 BINDATA    = "commands/inits/bindata.go"
 SH_SCRIPTS = FileList.new("commands/inits/data/*.sh")
 
-file BINDATA => [SH_SCRIPTS] do
+file BINDATA => [*SH_SCRIPTS] do
   FileUtils.rm(BINDATA, :verbose => true) if File.exists? BINDATA
   sh "go generate ./commands/inits"
 end

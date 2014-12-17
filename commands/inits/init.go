@@ -19,7 +19,7 @@ func CommandInit() *cobra.Command {
 		Use:   "init",
 		Short: "Output initialization script",
 		Long: `
-Output the bash/zsh initialization script for scmpuff.
+Outputs the bash/zsh initialization script for scmpuff.
 
 This should probably be evaluated in your shell startup.
     `,
@@ -47,4 +47,11 @@ This should probably be evaluated in your shell startup.
 	)
 
 	return InitCmd
+}
+
+// TODO: check for proper shell version
+func helpString() string {
+	return `# Initialize scmpuff by adding the following to ~/.bash_profile or ~/.zshrc:
+
+eval "$(scmpuff init -s)"`
 }
