@@ -24,6 +24,9 @@ For now, you have to do it from source:
 (Once this is semi feature complete, will work on binary cross-compilation and
 putting a package in Homebrew.)
 
+
+## Setup
+
 To initialize properly, add the following to your `~/.bash_profile` or
 `~/.zshrc` file:
 
@@ -34,6 +37,7 @@ This will define the scmpuff shell functions as well as some git shortcuts
 PENDING:
 You can also choose to wrap the default git commands by changing that command
 to pass `--wrap=true`.
+
 
 ## FAQ
 
@@ -59,6 +63,7 @@ in your shell initialization.  Then, if you wish to remap them, simple modify
 your default aliases wherever you normally do, but add aliases mapped to the
 scmpuff shell functions, e.g. `alias gs='scmpuff_status_shortcuts'`.
 
+
 ## Development
 While the build process itself does not require it, development uses Ruby for
 integration testing because of the excellent Cucumber/Aruba package for testing
@@ -72,6 +77,7 @@ Since we already have Ruby then for tests, we use a Rakefile instead of Makefile
 since it offers some niceties.  Do `rake -T` to see available tasks.
 
 `GO_VERSION >= 1.4` is required to build.
+
 
 ## TODO
 
