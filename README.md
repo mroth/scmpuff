@@ -43,6 +43,20 @@ Antipatterns
  - Don't set any environment variables that are unnecessary.
 
 
+## Development
+While the build process itself does not require it, development uses Ruby for
+integration testing because of the excellent Cucumber/Aruba package for testing
+CLI tools.
+
+Thus, to bootstrap, you will need to have Ruby and bundler installed on your
+system.  Do `bundle install; rake bootstrap` to get the dev environment going.
+We assume you are both cloned into and have your $GOPATH properly set.
+
+Since we already have Ruby then for tests, we use a Rakefile instead of Makefile
+since it offers some niceties.  Do `rake -T` to see available tasks.
+
+`GO_VERSION >= 1.4` is required to build.
+
 ## TODO
 
 Known issues:

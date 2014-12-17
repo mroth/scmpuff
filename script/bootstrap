@@ -1,8 +1,7 @@
 #!/usr/bin/env bash
 # Usage: bootstrap
 #
-# Install all dependencies
-#
-# Author: Jingwen Owen Ou
+# Installs all Gotool dependencies for build process
 
 go get github.com/tools/godep
+go get github.com/jteeuwen/go-bindata/...
