@@ -6,14 +6,16 @@ require 'rake/clean'
 BINDATA    = "commands/inits/bindata.go"
 SH_SCRIPTS = FileList.new("commands/inits/data/*.sh")
 
+# the bindata file is defined as being dependent on all shell scripts in data/
+# if any shell scripts change, clean intermediary files then regenerate bindata
 file BINDATA => [*SH_SCRIPTS] do
   FileUtils.rm(BINDATA, :verbose => true) if File.exists? BINDATA
   sh "go generate ./commands/inits"
 end
 
-# the bindata file is also considered an intermediary and can be cleaned up
-CLEAN.include("commands/inits/bindata.go")
-
+# bindata should also be cleaned up in default clean too
+CLEAN.include(BINDATA)
+CLEAN.include("tmp")
 
 desc "bootstrap gotool dependencies"
 task :bootstrap do
@@ -26,7 +28,7 @@ task :build => BINDATA do
 end
 
 desc "run unit tests"
-task :test do
+task :test => BINDATA do
   sh "go test ./..."
 end
 
