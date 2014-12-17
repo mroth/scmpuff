@@ -19,7 +19,7 @@ any speed issues.
 
 For now, you have to do it from source:
 
-    go install github.com/mroth/scmpuff
+    go get github.com/mroth/scmpuff
 
 (Once this is semi feature complete, will work on binary cross-compilation and
 putting a package in Homebrew.)
