@@ -13,9 +13,8 @@ file BINDATA => [*SH_SCRIPTS] do
   sh "go generate ./commands/inits"
 end
 
-# bindata should also be cleaned up in default clean too
-CLEAN.include(BINDATA)
-CLEAN.include("tmp")
+CLEAN.include(BINDATA) if File.exists? BINDATA
+CLEAN.include("tmp")   if File.directory? "tmp"
 
 desc "bootstrap gotool dependencies"
 task :bootstrap do
