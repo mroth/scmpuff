@@ -55,7 +55,6 @@ Feature: status command
     Given PENDING: port from scm_breeze
   # TODO: port test_git_status_shortcuts_merge_conflicts()  from scm_breeze
 
-  @wip
   Scenario Outline: Status sets proper environment variables in shell
     Given I am in a complex working tree status matching scm_breeze tests
       And the scmpuff environment variables have been cleared
@@ -78,7 +77,6 @@ Feature: status command
       | bash  |
       | zsh   |
 
-  @wip
   Scenario Outline: Status clears extra environment variables from before
     Given I am in a complex working tree status matching scm_breeze tests
       And the scmpuff environment variables have been cleared

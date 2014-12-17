@@ -21,8 +21,19 @@ For now, you have to do it from source:
 
     go install github.com/mroth/scmpuff
 
-Once this is semi feature complete, will work on binary cross-compilation and
-putting a package in Homebrew.
+(Once this is semi feature complete, will work on binary cross-compilation and
+putting a package in Homebrew.)
+
+To initialize properly, add the following to your `~/.bash_profile` or
+`~/.zshrc` file:
+
+    eval "$(scmpuff init -s)"
+
+This will define the scmpuff shell functions as well as some git shortcuts
+
+PENDING:
+You can also choose to wrap the default git commands by changing that command
+to pass `--wrap=true`.
 
 ## FAQ
 
@@ -42,6 +53,11 @@ Features we don't have
 Antipatterns
  - Don't set any environment variables that are unnecessary.
 
+### Can I disable or change the default git shortcut alias names?
+You can disable them via passing `--aliases=false` to the `scmpuff init` call
+in your shell initialization.  Then, if you wish to remap them, simple modify
+your default aliases wherever you normally do, but add aliases mapped to the
+scmpuff shell functions, e.g. `alias gs='scmpuff_status_shortcuts'`.
 
 ## Development
 While the build process itself does not require it, development uses Ruby for

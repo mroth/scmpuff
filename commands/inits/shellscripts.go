@@ -41,8 +41,8 @@ func gitwrapString() string {
 func aliasesString() string {
 	return `
 alias gs='scmpuff_status_shortcuts'
-#alias ga='scmpuff add' #TODO: implement me
-  `
+#alias ga='scmpuff_add_shortcuts' #TODO: implement me
+`
 }
 
 // returns the string data for an embedded data script
