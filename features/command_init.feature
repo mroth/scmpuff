@@ -8,16 +8,16 @@ Feature: init command
     Then the output should contain "scmpuff_status_shortcuts()"
 
   Scenario Outline: --aliases should control whether short aliases are in output
-    When I successfully run `scmpuff <subcommand>`
+    When I successfully run `scmpuff init <flags>`
     Then the output <should?> contain "alias gs='scmpuff_status_shortcuts'"
     And  the output <should?> contain "alias ga='scmpuff_add_shortcuts'"
     Examples:
-      | subcommand              | should?    |
-      | init -s                 | should     |
-      | init -as                | should     |
-      | init -a -s              | should     |
-      | init --aliases=true -s  | should     |
-      | init --aliases=false -s | should not |
+      | flags              | should?    |
+      | -s                 | should     |
+      | -as                | should     |
+      | -a -s              | should     |
+      | --aliases=true -s  | should     |
+      | --aliases=false -s | should not |
 
   Scenario: init -w -s should add git wrapping to output
     Then PENDING
