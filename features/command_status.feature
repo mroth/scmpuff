@@ -16,25 +16,41 @@ Feature: status command
   Scenario: Banner shows no changes when in an unchanged git repo
     Given I am in a git repository
     When I successfully run `scmpuff status`
-    And  the output should contain "No changes (working directory clean)"
+    Then the stdout from "scmpuff status" should contain "No changes (working directory clean)"
 
   Scenario: Banner shows expansion reminder when in a changed git repo
     Given I am in a git repository
     And an empty file named "whatever"
     When I successfully run `scmpuff status`
-    Then the output should contain "|  [*] => $e*"
+    Then the stdout from "scmpuff status" should contain "|  [*] => $e*"
 
   Scenario: Banner shows current branch name
     Given I am in a git repository
     When I successfully run `scmpuff status`
-    Then the output should contain "On branch: master"
+    Then the stdout from "scmpuff status" should contain "On branch: master"
 
     When I switch to git branch "foobar"
     And  I successfully run `scmpuff status`
-    Then the output should contain "On branch: foobar"
+    Then the stdout from "scmpuff status" should contain "On branch: foobar"
 
-  Scenario: Banner shows position relative to upstream status
-    Given PENDING: need to write this still
+  @wip
+  Scenario: Banner shows position relative to remote status
+    Given a git repository named "simulatedremote"
+      And I cd to "simulatedremote"
+      And a 4 byte file named "a.txt"
+      And I successfully run the following commands:
+        | git add a.txt               |
+        | git commit -m "made a file" |
+      And I cd to ".."
+    Given I clone "simulatedremote" to "local"
+      And I cd to "local"
+      And a 4 byte file named "b.txt"
+    When I successfully run the following commands:
+      | git add b.txt                     |
+      | git commit -m "made another file" |
+    When I successfully run `scmpuff status`
+      Then the stdout from "scmpuff status" should contain "|  +1  |"
+
 
   Scenario: Status properly reports all file changes
     # See: http://git.io/IR8qcg for scm_breeze version of test

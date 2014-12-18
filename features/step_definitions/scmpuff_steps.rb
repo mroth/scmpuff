@@ -28,6 +28,12 @@ Given /^I switch to git branch "([^"]*)"$/ do |branch_name|
   }
 end
 
+Given(/^I clone "(.*?)" to "(.*?)"$/) do |r1, r2|
+  steps %Q{
+    Given I successfully run `git clone #{r1}/.git #{r2}`
+  }
+end
+
 Given /^I am in a complex working tree status matching scm_breeze tests$/ do
   steps %Q{
     Given I am in a git repository

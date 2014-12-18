@@ -142,20 +142,38 @@ func (sl StatusList) dataForParsing() string {
 
 func (sl StatusList) printBanner() {
 	if sl.numItems() == 0 {
-		fmt.Println(bannerBranch(sl.branch.name, "") + bannerNoChanges())
+		fmt.Println(bannerBranch(sl.branch) + bannerNoChanges())
 	} else {
-		fmt.Println(bannerBranch(sl.branch.name, "") + bannerChangeHeader())
+		fmt.Println(bannerBranch(sl.branch) + bannerChangeHeader())
 	}
 }
 
 // Make string for first half of the status banner.
-// TODO: includes branch name with diff status
-func bannerBranch(branchname, difference string) string {
+func bannerBranch(b *BranchInfo) string {
 	return fmt.Sprintf(
 		"%s#%s On branch: %s%s%s  %s|  ",
 		colorMap[dark], colorMap[rst], colorMap[branch],
-		branchname, difference,
+		b.name, bannerBranchDiff(b),
 		colorMap[dark],
+	)
+}
+
+// formats the +1/-2 diff status for string if branch has a diff
+func bannerBranchDiff(b *BranchInfo) string {
+	if b.ahead+b.behind == 0 {
+		return ""
+	}
+	var diff string
+	if b.ahead > 0 && b.behind > 0 {
+		diff = fmt.Sprintf("+%d/-%d", b.ahead, b.behind)
+	} else if b.ahead > 0 {
+		diff = fmt.Sprintf("+%d", b.ahead)
+	} else if b.behind > 0 {
+		diff = fmt.Sprintf("-%d", b.behind)
+	}
+	return fmt.Sprintf(
+		"  %s|  %s%s%s",
+		colorMap[dark], colorMap[neu], diff, colorMap[rst],
 	)
 }
 
@@ -179,8 +197,6 @@ func bannerNoChanges() string {
 // The startNum argument tells us what number to start the listings at, it
 // should probably be N+1 where N was the last number displayed (from previous
 // outputted groups, that is.)
-//
-// TODO: have me return []files or whatever for later env setting?
 func (fg FileGroup) print(startNum int) {
 	if len(fg.items) > 0 {
 		fg.printHeader()
