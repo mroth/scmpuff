@@ -33,24 +33,31 @@ Feature: status command
     And  I successfully run `scmpuff status`
     Then the stdout from "scmpuff status" should contain "On branch: foobar"
 
-  @wip
   Scenario: Banner shows position relative to remote status
+    # Simulate a remote repository
     Given a git repository named "simulatedremote"
       And I cd to "simulatedremote"
       And a 4 byte file named "a.txt"
       And I successfully run the following commands:
-        | git add a.txt               |
-        | git commit -m "made a file" |
+        | git config receive.denyCurrentBranch ignore |
+        | git add a.txt                               |
+        | git commit -m "made a file"                 |
       And I cd to ".."
     Given I clone "simulatedremote" to "local"
       And I cd to "local"
       And a 4 byte file named "b.txt"
-    When I successfully run the following commands:
+    # Check ahead of remote
+    Given I successfully run the following commands:
       | git add b.txt                     |
       | git commit -m "made another file" |
     When I successfully run `scmpuff status`
-      Then the stdout from "scmpuff status" should contain "|  +1  |"
-
+    Then the stdout from "scmpuff status" should contain "|  +1  |"
+    # Check behind from remote
+    Given I successfully run the following commands:
+      | git push         |
+      | git reset HEAD~1 |
+    When I successfully run `scmpuff status`
+    Then the stdout from "scmpuff status" should contain "|  -1  |"
 
   Scenario: Status properly reports all file changes
     # See: http://git.io/IR8qcg for scm_breeze version of test
