@@ -54,15 +54,12 @@ Output is also more concise than standard 'git status'.
 }
 
 func runStatus() {
-	// TODO: fail if not git repo
-	// TODO: git clear vars (needs to be done in shellscript)
-
-	// TODO run commands to get status and branch
 	gitStatusOutput, err := exec.Command("git", "status", "--porcelain", "-b").Output()
 
 	if err != nil {
 		if err.Error() == "exit status 128" {
-			fmt.Println("\033[0;31mNot a git repository (or any of the parent directories)")
+			msg := "Not a git repository (or any of the parent directories)"
+			fmt.Fprintf(os.Stderr, "\033[0;31m"+msg+"\n")
 			os.Exit(128)
 		}
 		// or, some other sort of error?

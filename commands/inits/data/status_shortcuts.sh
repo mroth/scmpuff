@@ -1,15 +1,22 @@
 scmpuff_status_shortcuts() {
   local scmpuff_env_char="e"
 
-  # fail_if_not_git_repo || return 1
-
   # Ensure shwordsplit is on for zsh
   if [ -n "$ZSH_VERSION" ]; then setopt shwordsplit; fi;
 
   scmpuff_clear_vars
 
   # Run scmpuff status, store output
-  local cmd_output="$(/usr/bin/env scmpuff status --filelist $@)"
+  # (`local` needs to be on its own line otherwise cmd exit code is swallowed!)
+  local cmd_output
+  cmd_output="$(/usr/bin/env scmpuff status --filelist $@)"
+
+  # if there was an error, exit prematurely
+  # we swallowed STDOUT but not STDERR, so user should see error status
+  local es=$?
+  if [ $es -ne 0 ]; then
+    return $es
+  fi
 
   # Fetch list of files from first line of script output
   files="$(echo "$cmd_output" | head -n 1)"
