@@ -16,8 +16,10 @@ mkdir -p ${DIR}
 cd ${DIR}
 git init .
 
+k=25
+
 # make 25 files in git history (no changes)
-for i in {1..25}; do
+for ((i=0;i<k;i++)); do
   F=$(mktemp foo.XXXX)
   echo "X" > ${F}
   git add ${F}
@@ -25,7 +27,7 @@ done
 git commit -m "added some files"
 
 # make 25 files in git history with staged changes
-for i in {1..25}; do
+for ((i=0;i<k;i++)); do
   F=$(mktemp foo.XXXX)
   echo "X" >> ${F}
   git add ${F}
@@ -35,7 +37,7 @@ for i in {1..25}; do
 done
 
 # make 25 files in git history with unstaged changes
-for i in {1..25}; do
+for ((i=0;i<k;i++)); do
   F=$(mktemp foo.XXXX)
   echo "X" >> ${F}
   git add ${F}
@@ -44,14 +46,14 @@ for i in {1..25}; do
 done
 
 # make 25 new files to be added
-for i in {1..25}; do
+for ((i=0;i<k;i++)); do
   F=$(mktemp foo.XXXX)
   echo "X" >> ${F}
   git add ${F}
 done
 
 # make 25 untracked files
-for i in {1..25}; do
+for ((i=0;i<k;i++)); do
   F=$(mktemp foo.XXXX)
   echo "X" >> ${F}
 done
