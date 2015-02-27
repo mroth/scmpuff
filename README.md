@@ -15,6 +15,13 @@ any speed issues.
 [scmbreeze]: https://github.com/ndbroadbent/scm_breeze
 
 
+## SPEED
+(measured on Macbook Air)
+
+Time to evaluate shell setup:
+
+Status on a git repo with ~100 changes:
+
 ## Installation
 
 For now, you have to do it from source:
@@ -26,8 +33,9 @@ putting a package in Homebrew.)
 
 
 ## Setup
+Currently scmpuff supports bash and zsh for all functionality.
 
-To initialize properly, add the following to your `~/.bash_profile` or
+To initialize shell functions, add the following to your `~/.bash_profile` or
 `~/.zshrc` file:
 
     eval "$(scmpuff init -s)"
@@ -37,6 +45,9 @@ This will define the scmpuff shell functions as well as some git shortcuts
 PENDING:
 You can also choose to wrap the default git commands by changing that command
 to pass `--wrap=true`.
+
+If you would also like some handy shortcuts
+(OR: by default you get some... to disable)
 
 
 ## FAQ
