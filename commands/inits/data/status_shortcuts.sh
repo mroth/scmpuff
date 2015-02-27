@@ -26,12 +26,14 @@ scmpuff_status_shortcuts() {
   local e=1
   for file in $files; do
     export $scmpuff_env_char$e="$file"
-    if [ "${scmpuffDebug:-}" = "true" ]; then echo "Set \$$scmpuff_env_char$e  => $file"; fi
+    if [ "${SCMPUFF_DEBUG:-}" = "true" ]; then
+      echo "Set \$$scmpuff_env_char$e  => $file"
+    fi
     let e++
   done
   IFS=$' \t\n'
 
-  if [ "${scmpuffDebug:-}" = "true" ]; then echo "------------------------"; fi
+  if [ "${SCMPUFF_DEBUG:-}" = "true" ]; then echo "------------------------"; fi
 
   # Print status (from line two onward)
   echo "$cmd_output" | tail -n +2
