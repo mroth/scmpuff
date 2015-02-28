@@ -1,7 +1,9 @@
 package status
 
 import (
+	"bufio"
 	"fmt"
+	"os"
 	"strings"
 )
 
@@ -112,19 +114,25 @@ func (sl StatusList) orderedItems() (items []*StatusItem) {
 // if `includeParseData` is true, the first line will be a machine parseable
 // list of files to be used for environment variable expansion.
 func (sl StatusList) printStatus(includeParseData bool) {
+	b := bufio.NewWriter(os.Stdout)
+
 	if includeParseData {
-		fmt.Println(sl.dataForParsing())
+		fmt.Fprintln(b, sl.dataForParsing())
 	}
 
-	sl.printBanner()
+	fmt.Fprintln(b, sl.banner())
 
+	// keep track of number of items printed, and pass off information to each
+	// fileGroup, which knows how to print itself.
 	if sl.numItems() >= 1 {
 		startNum := 1
 		for _, fg := range sl.orderedGroups() {
-			fg.print(startNum)
+			fg.print(startNum, b)
 			startNum += len(fg.items)
 		}
 	}
+
+	b.Flush()
 }
 
 // - machine readable string for env var parsing of file list
@@ -140,12 +148,15 @@ func (sl StatusList) dataForParsing() string {
 	return strings.Join(items, "|")
 }
 
-func (sl StatusList) printBanner() {
+// Returns the banner string to be used for printing.
+//
+// Banner string contains the branch information, as well as information about
+// the branch status relative to upstream.
+func (sl StatusList) banner() string {
 	if sl.numItems() == 0 {
-		fmt.Println(bannerBranch(sl.branch) + bannerNoChanges())
-	} else {
-		fmt.Println(bannerBranch(sl.branch) + bannerChangeHeader())
+		return bannerBranch(sl.branch) + bannerNoChanges()
 	}
+	return bannerBranch(sl.branch) + bannerChangeHeader()
 }
 
 // Make string for first half of the status banner.
@@ -197,40 +208,42 @@ func bannerNoChanges() string {
 // The startNum argument tells us what number to start the listings at, it
 // should probably be N+1 where N was the last number displayed (from previous
 // outputted groups, that is.)
-func (fg FileGroup) print(startNum int) {
+//
+// The buffered writer is so we can send output to the same handle.
+func (fg FileGroup) print(startNum int, b *bufio.Writer) {
 	if len(fg.items) > 0 {
-		fg.printHeader()
+		b.WriteString(fg.header())
 
 		for n, i := range fg.items {
-			i.printItem(startNum + n)
+			b.WriteString(i.display(startNum + n))
 		}
 
-		fg.printFooter()
+		b.WriteString(fg.footer())
 	}
 }
 
-// Print the display header for a file group.
+// Returns the display header string for a file group.
 //
 // Colorized version of something like this:
 //
 // 		➤ Changes not staged for commit
 // 		#
 //
-func (fg FileGroup) printHeader() {
+func (fg FileGroup) header() string {
 	cArrw := fmt.Sprintf("\033[1;%s", groupColorMap[fg.group])
 	cHash := fmt.Sprintf("\033[0;%s", groupColorMap[fg.group])
-	fmt.Printf(
+	return fmt.Sprintf(
 		"%s➤%s %s\n%s#%s\n",
 		cArrw, colorMap[header], fg.desc, cHash, colorMap[rst],
 	)
 }
 
 // Print a final "#" for vertical padding
-func (fg FileGroup) printFooter() {
-	fmt.Printf("\033[0;%s#%s\n", groupColorMap[fg.group], colorMap[rst])
+func (fg FileGroup) footer() string {
+	return fmt.Sprintf("\033[0;%s#%s\n", groupColorMap[fg.group], colorMap[rst])
 }
 
-// Print an individual status item for a group.
+// Returns print string for an individual status item for a group.
 //
 // Colorized version of something like this:
 //
@@ -241,7 +254,7 @@ func (fg FileGroup) printFooter() {
 // displayNumber - the display number for the item, which should correspond to
 //   the environment variable that will get set for it later ($eN).
 //
-func (si StatusItem) printItem(displayNum int) {
+func (si StatusItem) display(displayNum int) string {
 
 	// Determine padding size
 	// scm_breeze does the following (Ruby code):
@@ -268,7 +281,7 @@ func (si StatusItem) printItem(displayNum int) {
 	// accomodate.
 
 	groupCol := "\033[0;" + groupColorMap[si.group]
-	fmt.Printf(
+	return fmt.Sprintf(
 		"%s#%s     %s%s:%s%s [%s%d%s] %s%s%s\n",
 		groupCol, colorMap[rst], colorMap[si.col], si.msg, padding, colorMap[dark],
 		colorMap[rst], displayNum, colorMap[dark], groupCol, relFile, colorMap[rst],
