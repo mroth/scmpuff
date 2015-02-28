@@ -26,6 +26,11 @@ task :build => BINDATA do
   sh "script/build"
 end
 
+desc "builds & installs the binary"
+task :install => :build do
+  sh "go install"
+end
+
 desc "run unit tests"
 task :test => BINDATA do
   sh "go test ./..."
