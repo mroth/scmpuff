@@ -7,20 +7,28 @@ Feature: init command
     When I successfully run `scmpuff init -s`
     Then the output should contain "scmpuff_status_shortcuts()"
 
-  Scenario Outline: --aliases should control whether short aliases are in output
+  Scenario Outline: --aliases controls short aliases in output (default: yes)
     When I successfully run `scmpuff init <flags>`
     Then the output <should?> contain "alias gs='scmpuff_status_shortcuts'"
-    And  the output <should?> contain "alias ga='scmpuff_add_shortcuts'"
+    And  the output <should?> contain "alias ga='git add'"
     Examples:
       | flags              | should?    |
       | -s                 | should     |
       | -as                | should     |
       | -a -s              | should     |
-      | --aliases=true -s  | should     |
-      | --aliases=false -s | should not |
+      | -s --aliases=true  | should     |
+      | -s --aliases=false | should not |
 
-  Scenario: init -w -s should add git wrapping to output
-    Then PENDING
+  Scenario Outline: --wrap controls git cmd wrapping in output (default: no)
+    When I successfully run `scmpuff init <flags>`
+    Then the output <should?> contain "function git()"
+    Examples:
+      | flags              | should?    |
+      | -s                 | should not |
+      | -ws                | should     |
+      | -w -s              | should     |
+      | -s --wrap=true     | should     |
+      | -s --wrap=false    | should not |
 
   Scenario Outline: Evaling init -s defines status shortcuts in environment
     When I run `<shell>` interactively
