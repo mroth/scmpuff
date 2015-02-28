@@ -61,12 +61,16 @@ I like to say "scum puff."
 
 ### How does it compare with scm_breeze?
 
-Features we don't have
+Features we don't have:
  * Design Asset Management
+ * Key chording
+ * File indexing/search
  * Most everything except var substitution
 
-Antipatterns
+Antipatterns:
  - Don't set any environment variables that are unnecessary.
+ - Do as much as possible in cross-platform compiled code, as little as possible
+   in shell script.
 
 ### Can I disable or change the default git shortcut alias names?
 You can disable them via passing `--aliases=false` to the `scmpuff init` call
@@ -95,8 +99,6 @@ since it offers some niceties.  Do `rake -T` to see available tasks.
 Known issues:
 
  - doesn't handle getting additional args and passing them along, see test in scm_breeze status_shortcuts_test.sh line 58
-
- - switch to buffered output writer for speed! (issue #1)
 
  - get rid of the retarded way scmbreeze hardcodes padding into the msg for things,can be better handled with printf padding
 
