@@ -14,10 +14,10 @@ func printScript() {
 	if includeAliases {
 		fmt.Println(assetString("data/aliases.sh"))
 	}
-	// TODO: enable wrapping git cmds once expand works && add tests
-	// if wrapGit {
-	// fmt.Println(gitwrapString())
-	// }
+
+	if wrapGit {
+		fmt.Println(assetString("data/git_wrapper.sh"))
+	}
 }
 
 // returns the string data for an embedded data script

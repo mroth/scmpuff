@@ -11,6 +11,7 @@ import (
 // with.
 var includeAliases bool
 var outputScript bool
+var wrapGit bool
 
 // CommandInit generates the command handler for `scmpuff init`
 func CommandInit() *cobra.Command {
@@ -44,6 +45,13 @@ This should probably be evaluated in your shell startup.
 		&outputScript,
 		"show", "s", false,
 		"Output scmpuff initialization scripts",
+	)
+
+	// --wrap
+	InitCmd.Flags().BoolVarP(
+		&wrapGit,
+		"wrap", "w", false,
+		"Wrap standard git commands",
 	)
 
 	return InitCmd
