@@ -25,7 +25,8 @@ func CommandStatus() *cobra.Command {
 		Long: `
 Processes 'git status --porcelain', and exports numbered env variables that
 contain the path of each affected file.
-Output is also more concise than standard 'git status'.
+
+The output is prettier and more concise than standard 'git status'.
     `,
 		Run: func(cmd *cobra.Command, args []string) {
 			runStatus()
