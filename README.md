@@ -40,14 +40,9 @@ To initialize shell functions, add the following to your `~/.bash_profile` or
 
     eval "$(scmpuff init -s)"
 
-This will define the scmpuff shell functions as well as some git shortcuts
+This will define the scmpuff shell functions as well as some git shortcuts.
 
-PENDING:
-You can also choose to wrap the default git commands by changing that command
-to pass `--wrap=true`.
-
-If you would also like some handy shortcuts
-(OR: by default you get some... to disable)
+## Usage
 
 
 ## FAQ
