@@ -56,12 +56,20 @@ Given(/^the scmpuff environment variables have been cleared$/) do
   end
 end
 
+# identical to what is in the built-in aruba steps, but without stupid
+# forced variable upcasing, since I use lowercase in the app!
+Given(/^I override the environment variables to:/) do |table|
+  table.hashes.each do |row|
+    variable = row['variable'].to_s
+    value = row['value'].to_s
+    set_env(variable, value)
+  end
+end
 
 # TODO: no longer needed?
 #Then(/^the environment variable "(.*?)" should equal the absolute path for "(.*?)"$/) do |var, filename|
 #  expect(ENV[var]).to eq(File.expand_path("~/mygitrepo/#{filename}"))
 #end
-
 
 #
 # Backtick version for "when I type" step to enable passing quotation marks
@@ -70,18 +78,15 @@ When(/^I type `(.*?)`$/) do |cmd|
   type(cmd)
 end
 
-
 #
 # Make table/list versions of common Aruba functions:
 #
-
 Given(/^I successfully run the following commands:$/) do |list|
   # list is a Cucumber::Ast::Table
   list.raw.each do |item|
     step "I successfully run `#{item.first}`"
   end
 end
-
 
 #
 # Helpful to define actual pending tests

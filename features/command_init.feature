@@ -19,12 +19,12 @@ Feature: init command
       | -s --aliases=true  | should     |
       | -s --aliases=false | should not |
 
-  Scenario Outline: --wrap controls git cmd wrapping in output (default: no)
+  Scenario Outline: --wrap controls git cmd wrapping in output (default: yes)
     When I successfully run `scmpuff init <flags>`
     Then the output <should?> contain "function git()"
     Examples:
       | flags              | should?    |
-      | -s                 | should not |
+      | -s                 | should     |
       | -ws                | should     |
       | -w -s              | should     |
       | -s --wrap=true     | should     |

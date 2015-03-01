@@ -50,7 +50,7 @@ This should probably be evaluated in your shell startup.
 	// --wrap
 	InitCmd.Flags().BoolVarP(
 		&wrapGit,
-		"wrap", "w", false,
+		"wrap", "w", true,
 		"Wrap standard git commands",
 	)
 
