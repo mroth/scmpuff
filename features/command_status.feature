@@ -70,9 +70,45 @@ Feature: status command
       And the output should match /untracked: *\[4\] *untracked_file/
 
 
+  @wip @focus
   Scenario: Status shows relative paths
-    Given PENDING: port from scm_breeze
-  # TODO: port test_git_status_produces_relative_paths()  from scm_breeze
+    Some people might care about relative paths.
+    TOOD: figure out how this should work w/r/t defaults and --relative.
+
+    To do this, let's replicate the test_git_status_produces_relative_paths()
+    test function from scm_breeze, located in status_shortcuts_test.sh:116,
+    so that people who want to migrate over can have expected behavior.
+
+    Given I am in a git repository
+      And a directory named "dir1/sub1/subsub1"
+      And a directory named "dir1/sub2"
+      And a directory named "dir2"
+      And an empty file named "dir1/sub1/subsub1/testfile"
+      And an empty file named "dir1/sub2/testfile"
+      And an empty file named "dir2/testfile"
+      And I successfully run `git add .`
+
+    When I successfully run `scmpuff status`
+    Then the stdout from "scmpuff status" should contain "dir1/sub1/subsub1/testfile"
+
+    When I cd to "dir1"
+    And I successfully run `scmpuff status`
+    Then the stdout from "scmpuff status" should contain " sub1/subsub1/testfile"
+     And the stdout from "scmpuff status" should contain " sub2/testfile"
+     And the stdout from "scmpuff status" should contain "../dir2/testfile"
+
+    When I cd to "sub1"
+    And I successfully run `scmpuff status`
+    Then the stdout from "scmpuff status" should contain " subsub1/testfile"
+     And the stdout from "scmpuff status" should contain " ../sub2/testfile"
+     And the stdout from "scmpuff status" should contain "../../dir2/testfile"
+
+    When I cd to "subsub1"
+    And I successfully run `scmpuff status`
+    Then the stdout from "scmpuff status" should contain " testfile"
+     And the stdout from "scmpuff status" should contain " ../../sub2/testfile"
+     And the stdout from "scmpuff status" should contain "../../../dir2/testfile"
+
 
   Scenario: Status for a complex merge conflict
     Given PENDING: port from scm_breeze
