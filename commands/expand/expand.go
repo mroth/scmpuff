@@ -19,7 +19,6 @@ var expandRelative bool
 // Numbered shortcut variables are produced by various commands, such as:
 //
 //  * git_status_shortcuts()  - git status implementation
-//  * git_show_affected_files() - shows files affected by a given SHA1, etc.
 func CommandExpand() *cobra.Command {
 
 	var expandCmd = &cobra.Command{
