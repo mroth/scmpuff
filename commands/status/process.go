@@ -2,7 +2,6 @@ package status
 
 import (
 	"bytes"
-	"fmt"
 	"log"
 	"os"
 	"path/filepath"
@@ -16,11 +15,11 @@ func Process(gitStatusOutput []byte, root string) *StatusList {
 	results := NewStatusList()
 
 	// split the status output to get a list of changes as raw bytestrings
-	lines := bytes.Split(bytes.Trim(gitStatusOutput, "\n"), []byte{'\n'})
+	lines := bytes.Split(gitStatusOutput, []byte{'\n'})
 
 	// branch output is first line
 	branchstr := lines[0]
-	results.branch = ProcessBranch(branchstr)
+	results.branch = extractBranch(branchstr)
 
 	// status changes are everything else
 	changes := lines[1:]
@@ -35,7 +34,7 @@ func Process(gitStatusOutput []byte, root string) *StatusList {
 	return results
 }
 
-// ProcessBranch handles parsing the branch status from git status porcelain.
+// extractBranch handles parsing the branch status from git status porcelain.
 //
 // Examples of stuff we will want to parse:
 //
@@ -44,7 +43,7 @@ func Process(gitStatusOutput []byte, root string) *StatusList {
 // 		## master...origin/master
 // 		## master...origin/master [ahead 1]
 //
-func ProcessBranch(bs []byte) *BranchInfo {
+func extractBranch(bs []byte) *BranchInfo {
 	b := BranchInfo{}
 
 	b.name = decodeBranchName(bs)
@@ -93,39 +92,30 @@ type change struct {
 // ProcessChange for a single item from a git status porcelain.
 //
 // Note some change items can have multiple statuses, so this returns a slice.
-func ProcessChange(c []byte, root string) (results []*StatusItem) {
-	x := rune(c[0])
-	y := rune(c[1])
+func ProcessChange(chunk []byte, root string) (results []*StatusItem) {
 
-	absolutePath, relativePath := processFile(c, root)
+	absolutePath, relativePath := extractFile(chunk, root)
 
-	processedChanges := []*change{
-		decodePrimaryChangeCode(x, y),
-		decodeSecondaryChangeCode(x, y),
-	}
-
-	for _, c := range processedChanges {
-		if c != nil {
-			result := &StatusItem{
-				msg:         c.msg,
-				col:         c.col,
-				group:       c.group,
-				fileAbsPath: absolutePath,
-				fileRelPath: relativePath,
-			}
-			results = append(results, result)
+	for _, c := range extractChangeCodes(chunk) {
+		result := &StatusItem{
+			msg:         c.msg,
+			col:         c.col,
+			group:       c.group,
+			fileAbsPath: absolutePath,
+			fileRelPath: relativePath,
 		}
+		results = append(results, result)
 	}
 
 	if len(results) < 1 {
 		log.Fatalf(`
-Failed to decode git status change code for code: [%s]
+Failed to decode git status change code for chunk: [%s]
 Please file a bug including this error message as well as the output of:
 
 git status --porcelain
 
 You can file the bug at: https://github.com/mroth/scmpuff/issues/
-		`, string(x)+string(y))
+		`, chunk)
 	}
 
 	return results
@@ -139,25 +129,36 @@ Parameters:
  - c: the raw bytes representing a status change
  - root: the absolute path to the git working tree
 */
-func processFile(c []byte, root string) (absolutePath, relativePath string) {
-	file := string(c[3:len(c)])
+func extractFile(chunk []byte, root string) (absolutePath, relativePath string) {
+	file := string(chunk[3:len(chunk)])
 	absolutePath = filepath.Join(root, file)
 
 	// get the current working directory and calculate relative path for file.
 	// if for some reason this fails, fallback to absolute path.
 	wd, err := os.Getwd()
 	if err != nil {
-		fmt.Println("DEBUG: ***wtf i didnt get working directory??***")
 		relativePath = absolutePath
 	} else {
 		relativePath, err = filepath.Rel(wd, absolutePath)
 		if err != nil {
-			fmt.Println("DEBUG: ***wtf i couldn't calculate relative path??***")
 			relativePath = absolutePath
 		}
 	}
-
 	return
+}
+
+func extractChangeCodes(chunk []byte) []*change {
+	x := rune(chunk[0])
+	y := rune(chunk[1])
+
+	var changes []*change
+	if p := decodePrimaryChangeCode(x, y); p != nil {
+		changes = append(changes, p)
+	}
+	if s := decodeSecondaryChangeCode(x, y); s != nil {
+		changes = append(changes, s)
+	}
+	return changes
 }
 
 func decodePrimaryChangeCode(x, y rune) *change {

@@ -75,7 +75,7 @@ func gitStatusOutput() []byte {
 	if err != nil {
 		log.Fatal(err)
 	}
-	return gso
+	return bytes.Trim(gso, "\n")
 }
 
 // Returns the root for the git project.
