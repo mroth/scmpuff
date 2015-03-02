@@ -38,7 +38,7 @@ LONG DESCRIPTION HERE
 		"relative",
 		"r",
 		false,
-		"TODO: DESCRIPTION HERE YO",
+		"try to expand path relative to current working directory",
 	)
 
 	return expandCmd
@@ -60,6 +60,10 @@ func escape(sequence string) string {
 
 // Evaluates a string of arguments and expands environment variables.
 func evaluateEnvironment(argstr string) string {
+	// TODO need to treat each of these individually
+	// then only expand when needed (or just expand everything maybe)
+	// check if it represents a file...
+	// and if relative paths is on, try to convert to relative
 	return os.ExpandEnv(argstr)
 }
 
