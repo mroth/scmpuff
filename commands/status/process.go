@@ -94,7 +94,13 @@ type change struct {
 // Note some change items can have multiple statuses, so this returns a slice.
 func ProcessChange(chunk []byte, root string) (results []*StatusItem) {
 
-	absolutePath, relativePath := extractFile(chunk, root)
+	// get the current working directory
+	// if for some reason this fails, fallback to git worktree root
+	wd, err := os.Getwd()
+	if err != nil {
+		wd = root
+	}
+	absolutePath, relativePath := extractFile(chunk, root, wd)
 
 	for _, c := range extractChangeCodes(chunk) {
 		result := &StatusItem{
@@ -129,21 +135,15 @@ Parameters:
  - c: the raw bytes representing a status change
  - root: the absolute path to the git working tree
 */
-func extractFile(chunk []byte, root string) (absolutePath, relativePath string) {
+func extractFile(chunk []byte, root, wd string) (absPath, relPath string) {
 	file := string(chunk[3:len(chunk)])
-	absolutePath = filepath.Join(root, file)
+	absPath = filepath.Join(root, file)
 
-	// get the current working directory and calculate relative path for file.
-	// if for some reason this fails, fallback to absolute path.
-	wd, err := os.Getwd()
+	relPath, err := filepath.Rel(wd, absPath)
 	if err != nil {
-		relativePath = absolutePath
-	} else {
-		relativePath, err = filepath.Rel(wd, absolutePath)
-		if err != nil {
-			relativePath = absolutePath
-		}
+		relPath = absPath
 	}
+
 	return
 }
 
