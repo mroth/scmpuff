@@ -49,17 +49,13 @@ Feature: scmpuff_status_shortcuts function
     When I run `<shell>` interactively
       And I type `eval "$(scmpuff init -s)"`
       And I type "scmpuff_status_shortcuts"
-      And I type `echo -e "e1:$e1\ne2:$e2\ne3:$e3\ne4:$e4\ne5:$e5\nEND"`
+      And I type `echo -e "e1:$e1\ne2:$e2\ne3:$e3\ne4:$e4\ne5:$e5\n"`
       And I type "exit"
-    Then the output should contain:
-      """
-      e1:new_file
-      e2:deleted_file
-      e3:new_file
-      e4:untracked_file
-      e5:
-      END
-      """
+    Then the output should match /^e1:.*new_file$/
+      And the output should match /^e2:.*deleted_file$/
+      And the output should match /^e3:.*new_file$/
+      And the output should match /^e4:.*untracked_file$/
+      And the output should match /^e5:$/
     Examples:
       | shell |
       | bash  |
@@ -74,17 +70,13 @@ Feature: scmpuff_status_shortcuts function
       And I type "git add new_file"
       And I type "git commit -m 'so be it'"
       And I type "scmpuff_status_shortcuts"
-      And I type `echo -e "e1:$e1\ne2:$e2\ne3:$e3\ne4:$e4\ne5:$e5\nEND"`
+      And I type `echo -e "e1:$e1\ne2:$e2\ne3:$e3\ne4:$e4\ne5:$e5\n"`
       And I type "exit"
-    Then the output should contain:
-      """
-      e1:deleted_file
-      e2:untracked_file
-      e3:
-      e4:
-      e5:
-      END
-      """
+    Then the output should match /^e1:.*deleted_file$/
+      And the output should match /^e2:.*untracked_file$/
+      And the output should match /^e3:$/
+      And the output should match /^e4:$/
+      And the output should match /^e5:$/
     Examples:
       | shell |
       | bash  |

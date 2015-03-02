@@ -1,6 +1,7 @@
 package status
 
 import (
+	"bytes"
 	"fmt"
 	"log"
 	"os"
@@ -55,13 +56,14 @@ The output is prettier and more concise than standard 'git status'.
 }
 
 func runStatus() {
-	gitProjectRoot() // := root
+	root := gitProjectRoot()
 	// root should be used to calculate absolute path which is what SHOULD BE the
 	// path for the FILE in statusItem.  From that we can calculate relative path
 	// for display in print, and either use abs or relative for fileList based
 	// on --RELATIVE flag!!!!!!!!!!!!!! <--- this should work
+	status := gitStatusOutput()
 
-	results := Process(gitStatusOutput())
+	results := Process(status, root)
 	results.printStatus(porcelainFiles)
 }
 
@@ -79,7 +81,7 @@ func gitStatusOutput() []byte {
 // Returns the root for the git project.
 //
 // If can't be found, the process will die fatally.
-func gitProjectRoot() []byte {
+func gitProjectRoot() string {
 	gpr, err := exec.Command("git", "rev-parse", "--show-toplevel").Output()
 
 	if err != nil {
@@ -92,5 +94,5 @@ func gitProjectRoot() []byte {
 		// or, some other sort of error?
 		log.Fatal(err)
 	}
-	return gpr
+	return string(bytes.TrimSpace(gpr))
 }

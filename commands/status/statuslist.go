@@ -31,13 +31,17 @@ type FileGroup struct {
 
 // StatusItem represents a single processed item of change from a 'git status'
 type StatusItem struct {
-	msg   string
-	col   ColorGroup
-	group StatusGroup
-	file  string
+	msg         string      // msg to display representing the item status
+	col         ColorGroup  // which ColorGroup to use when printing item
+	group       StatusGroup // which StatusGroup item belongs to (Staged, etc...)
+	fileAbsPath string      // the absolute filepath for the item
+	fileRelPath string      // the filepath for the item relative to worktree
 }
 
-// NewStatusList is a constructor that initializes a new StatusList
+// NewStatusList is a convenience constructor that initializes a new StatusList
+//
+// Since the possible FileGroups for a statusList are known in advance, this
+// basically just adds them to the StatusList and returns it.
 func NewStatusList() *StatusList {
 	return &StatusList{
 		groups: map[StatusGroup]*FileGroup{
@@ -83,7 +87,7 @@ func (sl StatusList) orderedGroups() []*FileGroup {
 	// via the const definition.
 }
 
-// Total file change items across *all* groups.
+// Number of file change items across *all* groups in a StatusList.
 //
 // This should now be identical to what you would get from len(Items()) but this
 // way there is no wasted allocation of a new slice if you just want the count.
@@ -135,7 +139,7 @@ func (sl StatusList) printStatus(includeParseData bool) {
 func (sl StatusList) dataForParsing() string {
 	items := make([]string, sl.numItems())
 	for i, si := range sl.orderedItems() {
-		items[i] = si.file
+		items[i] = si.fileAbsPath
 	}
 	return strings.Join(items, "|")
 }
@@ -257,8 +261,8 @@ func (si StatusItem) printItem(displayNum int) {
 		padding = " "
 	}
 
-	// TODO: find relative path
-	relFile := si.file
+	// find relative path
+	relFile := si.fileRelPath
 
 	// TODO: if some submodules have changed, parse their summaries from long git
 	// status the way scm_breeze does this requires a second call to git status,
