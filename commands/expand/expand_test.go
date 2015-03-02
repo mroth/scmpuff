@@ -6,6 +6,7 @@ import (
 	"testing"
 )
 
+// Expansion of multiple args at the same time
 var testExpandCases = []struct {
 	args, expected string
 }{
@@ -26,6 +27,7 @@ func TestExpand(t *testing.T) {
 	}
 }
 
+// Expansion of a single arg, which might still be a range
 var testExpandArgCases = []struct {
 	arg      string
 	expected []string
