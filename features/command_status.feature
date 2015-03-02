@@ -70,10 +70,8 @@ Feature: status command
       And the output should match /untracked: *\[4\] *untracked_file/
 
 
-  @wip @focus
   Scenario: Status shows relative paths
     Some people might care about relative paths.
-    TOOD: figure out how this should work w/r/t defaults and --relative.
 
     To do this, let's replicate the test_git_status_produces_relative_paths()
     test function from scm_breeze, located in status_shortcuts_test.sh:116,

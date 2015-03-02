@@ -2,14 +2,17 @@ package status
 
 import (
 	"bytes"
+	"fmt"
 	"log"
+	"os"
+	"path/filepath"
 	"regexp"
 	"strconv"
 )
 
 // Process takes the raw output of `git status --porcelain -b` and turns it into
 // a well structured data type.
-func Process(gitStatusOutput []byte) *StatusList {
+func Process(gitStatusOutput []byte, root string) *StatusList {
 	results := NewStatusList()
 
 	// split the status output to get a list of changes as raw bytestrings
@@ -24,7 +27,7 @@ func Process(gitStatusOutput []byte) *StatusList {
 
 	// process each item, and store the results
 	for _, change := range changes {
-		for _, r := range ProcessChange(change) {
+		for _, r := range ProcessChange(change, root) {
 			results.groups[r.group].items = append(results.groups[r.group].items, r)
 		}
 	}
@@ -77,22 +80,41 @@ func decodeBranchPosition(bs []byte) (ahead, behind int) {
 	return
 }
 
+// basically a StatusItem minus the file information, for now just being
+// used to get results from the change code processing...
+// This could probably be encapsulated in StatusItem itself, but wary of adding
+// more nesting...
+type change struct {
+	msg   string
+	col   ColorGroup
+	group StatusGroup
+}
+
 // ProcessChange for a single item from a git status porcelain.
 //
 // Note some change items can have multiple statuses, so this returns a slice.
-func ProcessChange(c []byte) []*StatusItem {
+func ProcessChange(c []byte, root string) (results []*StatusItem) {
 	x := rune(c[0])
 	y := rune(c[1])
-	file := string(c[3:len(c)])
 
-	var results []*StatusItem
-	rp := decodePrimaryChangeCode(x, y, file)
-	if rp != nil {
-		results = append(results, rp)
+	absolutePath, relativePath := processFile(c, root)
+
+	processedChanges := []*change{
+		decodePrimaryChangeCode(x, y),
+		decodeSecondaryChangeCode(x, y),
 	}
-	rs := decodeSecondaryChangeCode(x, y, file)
-	if rs != nil {
-		results = append(results, rs)
+
+	for _, c := range processedChanges {
+		if c != nil {
+			result := &StatusItem{
+				msg:         c.msg,
+				col:         c.col,
+				group:       c.group,
+				fileAbsPath: absolutePath,
+				fileRelPath: relativePath,
+			}
+			results = append(results, result)
+		}
 	}
 
 	if len(results) < 1 {
@@ -109,112 +131,127 @@ You can file the bug at: https://github.com/mroth/scmpuff/issues/
 	return results
 }
 
-func decodePrimaryChangeCode(x, y rune, file string) *StatusItem {
+/*
+ProcessFile extracts the filename from a status change, and determines the
+absolute and relative paths.
+
+Parameters:
+ - c: the raw bytes representing a status change
+ - root: the absolute path to the git working tree
+*/
+func processFile(c []byte, root string) (absolutePath, relativePath string) {
+	file := string(c[3:len(c)])
+	absolutePath = filepath.Join(root, file)
+
+	// get the current working directory and calculate relative path for file.
+	// if for some reason this fails, fallback to absolute path.
+	wd, err := os.Getwd()
+	if err != nil {
+		fmt.Println("DEBUG: ***wtf i didnt get working directory??***")
+		relativePath = absolutePath
+	} else {
+		relativePath, err = filepath.Rel(wd, absolutePath)
+		if err != nil {
+			fmt.Println("DEBUG: ***wtf i couldn't calculate relative path??***")
+			relativePath = absolutePath
+		}
+	}
+
+	return
+}
+
+func decodePrimaryChangeCode(x, y rune) *change {
 	switch {
 	case x == 'D' && y == 'D': //DD
-		return &StatusItem{
+		return &change{
 			"   both deleted",
 			del,
 			Unmerged,
-			file,
 		}
 	case x == 'A' && y == 'U': //AU
-		return &StatusItem{
+		return &change{
 			"    added by us",
 			neu,
 			Unmerged,
-			file,
 		}
 	case x == 'U' && y == 'D': //UD
-		return &StatusItem{
+		return &change{
 			"deleted by them",
 			del,
 			Unmerged,
-			file,
 		}
 	case x == 'U' && y == 'A': //UA
-		return &StatusItem{
+		return &change{
 			"  added by them",
 			neu,
 			Unmerged,
-			file,
 		}
 	case x == 'D' && y == 'U': //DU
-		return &StatusItem{
+		return &change{
 			"  deleted by us",
 			del,
 			Unmerged,
-			file,
 		}
 	case x == 'A' && y == 'A': //AA
-		return &StatusItem{
+		return &change{
 			"     both added",
 			neu,
 			Unmerged,
-			file,
 		}
 	case x == 'U' && y == 'U': //UU
-		return &StatusItem{
+		return &change{
 			"  both modified",
 			mod,
 			Unmerged,
-			file,
 		}
 	case x == 'M': //          //M.
-		return &StatusItem{
+		return &change{
 			"  modified",
 			mod,
 			Staged,
-			file,
 		}
 	case x == 'A': //          //A.
-		return &StatusItem{
+		return &change{
 			"  new file",
 			neu,
 			Staged,
-			file,
 		}
 	case x == 'D': //          //D.
-		return &StatusItem{
+		return &change{
 			"   deleted",
 			del,
 			Staged,
-			file,
 		}
 	case x == 'R': //          //R.
-		return &StatusItem{
+		return &change{
 			"   renamed",
 			ren,
 			Staged,
-			file,
 		}
 	case x == 'C': //          //C.
-		return &StatusItem{
+		return &change{
 			"    copied",
 			cpy,
 			Staged,
-			file,
 		}
 	case x == 'T': //          //T.
-		return &StatusItem{
+		return &change{
 			"typechange",
 			typ,
 			Staged,
-			file,
 		}
 	case x == '?' && y == '?': //??
-		return &StatusItem{
+		return &change{
 			" untracked",
 			unt,
 			Untracked,
-			file,
 		}
 	}
 
 	return nil
 }
 
-func decodeSecondaryChangeCode(x, y rune, file string) *StatusItem {
+func decodeSecondaryChangeCode(x, y rune) *change {
 	switch {
 	// TODO: fix the below and restore now that my cluelessness about these being
 	// seperate statuses is reflected.
@@ -227,26 +264,23 @@ func decodeSecondaryChangeCode(x, y rune, file string) *StatusItem {
 	//
 	// case x == 'R' && y == 'M': //RM
 	case x != 'R' && y == 'M': //[!R]M
-		return &StatusItem{
+		return &change{
 			"  modified",
 			mod,
 			Unstaged,
-			file,
 		}
 	case y == 'D' && x != 'D' && x != 'U': //[!D!U]D
 		// Don't show deleted 'y' during a merge conflict.
-		return &StatusItem{
+		return &change{
 			"   deleted",
 			del,
 			Unstaged,
-			file,
 		}
 	case y == 'T': //.T
-		return &StatusItem{
+		return &change{
 			"typechange",
 			typ,
 			Unstaged,
-			file,
 		}
 	}
 
