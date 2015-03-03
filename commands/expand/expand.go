@@ -8,7 +8,6 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/mroth/scmpuff/helpers"
 	"github.com/spf13/cobra"
 )
 
@@ -123,8 +122,7 @@ func expandArg(arg string) []string {
 			return []string{arg} //return as-is
 		}
 
-		digit, _ := strconv.Atoi(dm)
-		result := helpers.IntToEnvVar(digit)
+		result := "$e" + dm
 		return []string{result}
 	}
 
@@ -136,7 +134,7 @@ func expandArg(arg string) []string {
 
 		var results []string
 		for i := lo; i <= hi; i++ {
-			results = append(results, helpers.IntToEnvVar(i))
+			results = append(results, "$e"+strconv.Itoa(i))
 		}
 		return results
 	}
