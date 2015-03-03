@@ -44,6 +44,34 @@ This will define the scmpuff shell functions as well as some git shortcuts.
 
 ## Usage
 
+**Once things are loaded, the most important function you will want to know
+about is `scmpuff_status`, which is aliased to `gs` for short.**
+
+This is a replacement for `git status` that is pretty and shows you numbers next
+to each filename, for example:
+
+    $ gs
+    # On branch: master  |  +1  |  [*] => $e*
+    #
+    ➤ Changes not staged for commit
+    #
+    #       modified:  [1] main.go
+    #
+    ➤ Untracked files
+    #
+    #      untracked:  [2] HELLO.txt
+    #      untracked:  [3] features/shell_aliases.feature
+    #      untracked:  [4] mkramdisk.sh
+    #
+
+**You can now use these numbers in place of filenames when calling normal git
+commands, e.g. `git add 2 3` or `git checkout 1`.**
+
+You can also use numeric ranges, e.g. `git reset 2-4`. Ranges can even be mixed
+with normal numeric operands.
+
+By default, scmpuff will also define a few handy shortcuts to save your fingers,
+e.g. `ga`, `gd`, `gco`.  Check your aliases to see what they are.
 
 ## FAQ
 

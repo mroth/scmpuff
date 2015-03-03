@@ -12,12 +12,12 @@ var puffCmd = &cobra.Command{
 	Use:   "scmpuff",
 	Short: "scmpuff extends common git commands with numeric filename shortcuts.",
 	Long: `scmpuff extends common git commands with numeric filename shortcuts.
-  Built by @mroth, with huge props to @nbroadbent for the original.
-  `,
+
+If you are just getting started, try the intro!`,
 }
 
 func main() {
-
+	puffCmd.AddCommand(introCmd)
 	puffCmd.AddCommand(version.VersionCmd)
 	puffCmd.AddCommand(inits.CommandInit())
 	puffCmd.AddCommand(expand.CommandExpand())
