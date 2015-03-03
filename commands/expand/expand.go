@@ -18,16 +18,20 @@ var expandRelative bool
 // Allows expansion of numbered shortcuts, ranges of shortcuts, or standard paths.
 // Numbered shortcut variables are produced by various commands, such as:
 //
-//  * git_status_shortcuts()  - git status implementation
+//  * scmpuff_status()  - git status implementation
 func CommandExpand() *cobra.Command {
 
 	var expandCmd = &cobra.Command{
-		Use:   "expand",
-		Short: "Expands numbered shortcuts",
-		Long: `
-LONG DESCRIPTION HERE
-    `,
+		Use:   "expand <shortcuts...>",
+		Short: "Expands numeric shortcuts",
+		Long: `Expands numeric shortcuts to their full filepath.
+
+Takes a list of digits (1 4 5) or numeric ranges (1-5) or even both.`,
 		Run: func(cmd *cobra.Command, args []string) {
+			if len(args) < 1 {
+				cmd.Usage()
+			}
+
 			fmt.Println(Process(args))
 		},
 	}
@@ -38,7 +42,7 @@ LONG DESCRIPTION HERE
 		"relative",
 		"r",
 		false,
-		"try to expand path relative to current working directory",
+		"make path relative to current working directory",
 	)
 
 	return expandCmd

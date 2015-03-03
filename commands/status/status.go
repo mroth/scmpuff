@@ -16,7 +16,7 @@ var porcelainFiles bool
 // env variables that contain the path of each affected file.
 // Output is also more concise than standard 'git status'.
 //
-// Call with optional <group> parameter to filter by modification state:
+// TODO: Call with optional <group> parameter to filter by modification state:
 // 1 || Staged,  2 || Unmerged,  3 || Unstaged,  4 || Untracked
 func CommandStatus() *cobra.Command {
 
@@ -52,7 +52,7 @@ see 'scmpuff init'.)
 	// 	"relative",
 	// 	"r",
 	// 	false,
-	// 	"TODO: DESCRIPTION HERE YO",
+	// 	"TODO: SHOULD THIS BE IMPLEMENTED? OR JUST KEEP ALWAYS ON...",
 	// )
 
 	return statusCmd
