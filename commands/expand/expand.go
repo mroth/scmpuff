@@ -3,6 +3,7 @@ package expand
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 	"regexp"
 	"strconv"
 	"strings"
@@ -49,8 +50,12 @@ var expandArgRangeMatcher = regexp.MustCompile("^([0-9]+)-([0-9]+)$")
 var shellEscaper = regexp.MustCompile("([\\^()\\[\\]<>' \"])")
 
 // Process expands args and performs all substitution, etc.
+//
+// Ends up with a final string that is TAB delineated between arguments.
 func Process(args []string) string {
-	return escape(evaluateEnvironment(expand(args)))
+	expandedArgs := evaluateEnvironment(expand(args))
+	sequence := strings.Join(expandedArgs, "\t")
+	return escape(sequence)
 }
 
 // Escape everything so it can be interpreted once passed along to the shell.
@@ -59,12 +64,32 @@ func escape(sequence string) string {
 }
 
 // Evaluates a string of arguments and expands environment variables.
-func evaluateEnvironment(argstr string) string {
-	// TODO need to treat each of these individually
-	// then only expand when needed (or just expand everything maybe)
-	// check if it represents a file...
-	// and if relative paths is on, try to convert to relative
-	return os.ExpandEnv(argstr)
+func evaluateEnvironment(args []string) []string {
+	var results []string
+	for _, arg := range args {
+		expandedArg := os.ExpandEnv(arg)
+		if expandRelative {
+			results = append(results, convertToRelativeIfFilePath(expandedArg))
+		} else {
+			results = append(results, expandedArg)
+		}
+	}
+	return results
+}
+
+// For a given arg, try to determine if it represents a file, and if so, convert
+// it to a relative filepath.
+//
+// Otherwise (or if any error conditions occur) return it unmolested.
+func convertToRelativeIfFilePath(arg string) string {
+	if _, err := os.Stat(arg); err == nil {
+		wd, err1 := os.Getwd()
+		relPath, err2 := filepath.Rel(wd, arg)
+		if err1 == nil && err2 == nil {
+			return relPath
+		}
+	}
+	return arg
 }
 
 // Expand takes the list of arguments received from the command line and expands
@@ -72,15 +97,12 @@ func evaluateEnvironment(argstr string) string {
 //
 // It handles converting numeric file placeholders and range placeholders into
 // environment variable symbolic representation,
-//
-// Ends up with a final string that is TAB delineated between arguments.
-func expand(args []string) string {
+func expand(args []string) []string {
 	var results []string
 	for _, arg := range args {
 		results = append(results, expandArg(arg)...)
 	}
-
-	return strings.Join(results, "\t")
+	return results
 }
 
 // expandArg "expands" a single argument we received on the command line.

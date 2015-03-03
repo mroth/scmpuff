@@ -10,19 +10,20 @@ import (
 var testExpandCases = []struct {
 	args, expected string
 }{
-	{"1 3 7", "$e1\t$e3\t$e7"},
-	{"1-3 6", "$e1\t$e2\t$e3\t$e6"},
-	{"seven 2-5 1", "seven\t$e2\t$e3\t$e4\t$e5\t$e1"},
+	{"1 3 7", "$e1 $e3 $e7"},
+	{"1-3 6", "$e1 $e2 $e3 $e6"},
+	{"seven 2-5 1", "seven $e2 $e3 $e4 $e5 $e1"},
 }
 
 func TestExpand(t *testing.T) {
 	for _, tc := range testExpandCases {
-		// split here to emulate what Cobra will pass us but still write test with
-		// normal strings
+		// split here to emulate what Cobra will pass us but still write tests with
+		// normal looking strings
 		args := strings.Split(tc.args, " ")
+		expected := strings.Split(tc.expected, " ")
 		actual := expand(args)
-		if actual != tc.expected {
-			t.Fatalf("ExpandArgs(%v): expected %v, actual %v", tc.args, tc.expected, actual)
+		if !reflect.DeepEqual(actual, expected) {
+			t.Fatalf("ExpandArgs(%v): expected %v, actual %v", tc.args, expected, actual)
 		}
 	}
 }

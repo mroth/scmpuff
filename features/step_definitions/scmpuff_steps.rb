@@ -66,10 +66,10 @@ Given(/^I override the environment variables to:/) do |table|
   end
 end
 
-# TODO: no longer needed?
-#Then(/^the environment variable "(.*?)" should equal the absolute path for "(.*?)"$/) do |var, filename|
-#  expect(ENV[var]).to eq(File.expand_path("~/mygitrepo/#{filename}"))
-#end
+Given(/^I override environment variable "(.*?)" to the absolute path of "(.*?)"$/) do |e, f|
+  filepath = File.expand_path File.join("tmp/aruba", f)
+  set_env(e, filepath)
+end
 
 #
 # Backtick version for "when I type" step to enable passing quotation marks
