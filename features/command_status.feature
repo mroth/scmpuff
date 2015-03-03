@@ -5,9 +5,11 @@ Feature: status command
 
   @outside-repo
   Scenario: Appropriate error status when not in a git repo
+    We can make this pretty, but we also want to be sure to use the same exit
+    code as the normal 'git' command line client for consistency.
+
     When I run `scmpuff status`
     Then the exit status should be 128
-    #                              ^^^ same as `git status`
     And the output should contain:
       """
       Not a git repository (or any of the parent directories)
@@ -16,13 +18,15 @@ Feature: status command
   Scenario: Banner shows no changes when in an unchanged git repo
     Given I am in a git repository
     When I successfully run `scmpuff status`
-    Then the stdout from "scmpuff status" should contain "No changes (working directory clean)"
+    Then the output should contain "No changes (working directory clean)"
+
 
   Scenario: Banner shows expansion reminder when in a changed git repo
     Given I am in a git repository
     And an empty file named "whatever"
     When I successfully run `scmpuff status`
-    Then the stdout from "scmpuff status" should contain "|  [*] => $e*"
+    Then the output should contain "|  [*] => $e*"
+
 
   Scenario: Banner shows current branch name
     Given I am in a git repository
@@ -33,8 +37,9 @@ Feature: status command
     And  I successfully run `scmpuff status`
     Then the stdout from "scmpuff status" should contain "On branch: foobar"
 
+
   Scenario: Banner shows position relative to remote status
-    # Simulate a remote repository
+    # Simulate a remote git repository situation
     Given a git repository named "simulatedremote"
       And I cd to "simulatedremote"
       And a 4 byte file named "a.txt"
@@ -46,18 +51,21 @@ Feature: status command
     Given I clone "simulatedremote" to "local"
       And I cd to "local"
       And a 4 byte file named "b.txt"
+
     # Check ahead of remote
     Given I successfully run the following commands:
       | git add b.txt                     |
       | git commit -m "made another file" |
     When I successfully run `scmpuff status`
     Then the stdout from "scmpuff status" should contain "|  +1  |"
+
     # Check behind from remote
     Given I successfully run the following commands:
       | git push         |
       | git reset HEAD~1 |
     When I successfully run `scmpuff status`
     Then the stdout from "scmpuff status" should contain "|  -1  |"
+
 
   Scenario: Status properly reports all file changes
     # See: http://git.io/IR8qcg for scm_breeze version of test
