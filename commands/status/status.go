@@ -28,14 +28,17 @@ Processes 'git status --porcelain', and exports numbered env variables that
 contain the path of each affected file.
 
 The output is prettier and more concise than standard 'git status'.
+
+In most cases, you won't want to call this directly, but rather will be using
+the exported shell-function 'scmpuff_status', which wraps this command and also
+sets the environment variables for your shell. (For more information on this,
+see 'scmpuff init'.)
     `,
 		Run: func(cmd *cobra.Command, args []string) {
 			runStatus()
 		},
 	}
 
-	// TODO
-	// statusCmd.Flags().BoolVarP()
 	// --aliases
 	statusCmd.Flags().BoolVarP(
 		&porcelainFiles,

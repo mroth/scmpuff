@@ -1,4 +1,4 @@
-scmpuff_status_shortcuts() {
+scmpuff_status() {
   local scmpuff_env_char="e"
 
   # Ensure shwordsplit is on for zsh

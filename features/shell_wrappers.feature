@@ -11,7 +11,7 @@ Feature: optional wrapping of normal git cmds in the shell
       And a 4 byte file named "bar.foo"
     When I run `<shell>` interactively
       And I type `eval "$(scmpuff init -ws)"`
-      And I type "scmpuff_status_shortcuts"
+      And I type "scmpuff_status"
       And I type "git add 1"
       And I type "exit"
     Then the output should contain:

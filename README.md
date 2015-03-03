@@ -71,7 +71,7 @@ Antipatterns:
 You can disable them via passing `--aliases=false` to the `scmpuff init` call
 in your shell initialization.  Then, if you wish to remap them, simple modify
 your default aliases wherever you normally do, but add aliases mapped to the
-scmpuff shell functions, e.g. `alias gs='scmpuff_status_shortcuts'`.
+scmpuff shell functions, e.g. `alias gs='scmpuff_status'`.
 
 
 ## Development
