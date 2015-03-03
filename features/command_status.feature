@@ -95,25 +95,22 @@ Feature: status command
       And I successfully run `git add .`
 
     When I successfully run `scmpuff status`
-    Then the stdout from "scmpuff status" should contain "dir1/sub1/subsub1/testfile"
-
+      Then the stdout from "scmpuff status" should contain "dir1/sub1/subsub1/testfile"
     When I cd to "dir1"
     And I successfully run `scmpuff status`
-    Then the stdout from "scmpuff status" should contain " sub1/subsub1/testfile"
-     And the stdout from "scmpuff status" should contain " sub2/testfile"
-     And the stdout from "scmpuff status" should contain "../dir2/testfile"
-
+      Then the stdout from "scmpuff status" should contain " sub1/subsub1/testfile"
+       And the stdout from "scmpuff status" should contain " sub2/testfile"
+       And the stdout from "scmpuff status" should contain "../dir2/testfile"
     When I cd to "sub1"
     And I successfully run `scmpuff status`
-    Then the stdout from "scmpuff status" should contain " subsub1/testfile"
-     And the stdout from "scmpuff status" should contain " ../sub2/testfile"
-     And the stdout from "scmpuff status" should contain "../../dir2/testfile"
-
+      Then the stdout from "scmpuff status" should contain " subsub1/testfile"
+       And the stdout from "scmpuff status" should contain " ../sub2/testfile"
+       And the stdout from "scmpuff status" should contain "../../dir2/testfile"
     When I cd to "subsub1"
     And I successfully run `scmpuff status`
-    Then the stdout from "scmpuff status" should contain " testfile"
-     And the stdout from "scmpuff status" should contain " ../../sub2/testfile"
-     And the stdout from "scmpuff status" should contain "../../../dir2/testfile"
+      Then the stdout from "scmpuff status" should contain " testfile"
+       And the stdout from "scmpuff status" should contain " ../../sub2/testfile"
+       And the stdout from "scmpuff status" should contain "../../../dir2/testfile"
 
 
   Scenario: Status for a complex merge conflict
