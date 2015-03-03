@@ -1,5 +1,5 @@
-# alias g='git'
 alias gs='scmpuff_status_shortcuts'
 alias ga='git add'
 alias gd='git diff'
 alias grs='git reset'
+alias gco='git checkout'
