@@ -5,16 +5,16 @@
 Makes working with git from the command line quicker by substituting numeric
 shortcuts for files.
 
-[SCREENSHOT]
+<img width=568 src="http://f.cl.ly/items/2726271z170L2y0K3d0b/scmpuff_screenshot.png">
 
 **scmpuff** is a minimalistic implementation of the core functionality of
-[scm_breeze][scmbreeze], without many of the extras.  
+[SCM Breeze][scmbreeze], without many of the extras.
 
 It's focus is on simplicity, speed, and cross-platform support. The majority of
 the functionality is contained within a compiled binary, and the shell
 integration is under 100 lines of shell script.
 
-scmpuff currently functions in `bash` and `zsh` in any *nix-like operating
+**scmpuff** currently functions in `bash` and `zsh` in any *nix-like operating
 system. It's written with cross-platform support in mind, so hopefully we'll
 have it functioning on Windows soon as well.
 
@@ -118,12 +118,12 @@ in your shell initialization.  Then, if you wish to remap them, simple modify
 your default aliases wherever you normally do, but add aliases mapped to the
 scmpuff shell functions, e.g. `alias gs='scmpuff_status'`.
 
-### Okay but really, _why_ did you fork scm_breeze?
+### Okay but really, _why_ did you fork SCM Breeze?
 Well, you see, I went drinking with some of the IoJS guys and one thing led to
 another and when I woke up I had a bad hangover and noticed my text editor was
 open...
 
-Okay in all seriousness, scm_breeze is a great tool, and has been an
+Okay in all seriousness, SCM Breeze is a great tool, and has been an
 indispensable part of my daily workflow for years.
 
 That said, it does a lot more than I need, and I have a bit of an obsession with
