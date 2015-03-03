@@ -23,7 +23,6 @@ Feature: command expansion at command line
     When I successfully run `scmpuff expand 6 3-4 1`
     Then the output should match /f.txt\tc.txt\td.txt\ta.txt/
 
-  @wip
   Scenario: Dont expand files or directories with numeric names
     Given an empty file named "1"
     Given a directory named "2"

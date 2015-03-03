@@ -118,8 +118,11 @@ func expandArg(arg string) []string {
 	// ...is it a single digit?
 	dm := expandArgDigitMatcher.FindString(arg)
 	if dm != "" {
-		// TODO: check if is numerically named file or directory, dont expand if so
-		// return "$e" + dm
+		// dont expand if its actually a numerically named file or directory!
+		if _, err := os.Stat(dm); err == nil {
+			return []string{arg} //return as-is
+		}
+
 		digit, _ := strconv.Atoi(dm)
 		result := helpers.IntToEnvVar(digit)
 		return []string{result}
