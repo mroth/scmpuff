@@ -1,7 +1,2 @@
-# As much as I'd love to keep bindata out of git since it's a generated file,
-# if we want "go get" to just work for people, we need to check it in, which
-# sadly means anytime the data/* files are modified and it gets regenerated
-# by our build script the corresponding changes to this file will have to be
-# checked in as well.
+bindata.go
 
-#bindata.go
