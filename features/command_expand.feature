@@ -1,7 +1,6 @@
 Feature: command expansion at command line
 
   Background:
-    #Given a mocked home directory
     Given I override the environment variables to:
       | variable | value |
       | e1       | a.txt |
