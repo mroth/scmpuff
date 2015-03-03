@@ -47,12 +47,12 @@ Feature: command expansion at command line
     When I successfully run `scmpuff expand 1`
     Then the output should match /so\\\(dumb\\\)\.jpg/
 
-  @wip @focus
   Scenario: Allow user to specify --relative paths
-    Given I override the environment variables to:
-      | variable | value              |
-      | e1       | /tmp/aruba/xxx.jpg |
-      | PWD      | /tmp/aruba/foo/bar |
+    Given a directory named "foo"
+      And a directory named "foo/bar"
+      And an empty file named "xxx.jpg"
+      And I cd to "foo/bar"
+    Given I override environment variable "e1" to the absolute path of "xxx.jpg"
     When I successfully run `scmpuff expand 1`
     Then the stdout from "scmpuff expand 1" should contain "/tmp/aruba/xxx.jpg"
     When I successfully run `scmpuff expand -r -- 1`

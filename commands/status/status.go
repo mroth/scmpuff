@@ -57,10 +57,6 @@ The output is prettier and more concise than standard 'git status'.
 
 func runStatus() {
 	root := gitProjectRoot()
-	// root should be used to calculate absolute path which is what SHOULD BE the
-	// path for the FILE in statusItem.  From that we can calculate relative path
-	// for display in print, and either use abs or relative for fileList based
-	// on --RELATIVE flag!!!!!!!!!!!!!! <--- this should work
 	status := gitStatusOutput()
 
 	results := Process(status, root)
