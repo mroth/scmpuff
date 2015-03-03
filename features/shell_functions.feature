@@ -1,5 +1,5 @@
-Feature: scmpuff_status_shortcuts function
-  The scmpuff_status_shortcuts shell function wraps the underlying
+Feature: scmpuff_status function
+  The scmpuff_status shell function wraps the underlying
   `scmpuff status` command, passing along the `--filelist` option and then
   parsing the results to set environment variables in the current shell.
 
@@ -18,7 +18,7 @@ Feature: scmpuff_status_shortcuts function
 
     When I run `<shell>` interactively
       And I type `eval "$(scmpuff init -ws)"`
-      And I type "scmpuff_status_shortcuts"
+      And I type "scmpuff_status"
       And I type "exit $?"
     Then the exit status should be 128
     And the output should contain:
@@ -34,7 +34,7 @@ Feature: scmpuff_status_shortcuts function
     Given I am in a git repository
     When I run `<shell>` interactively
       And I type `eval "$(scmpuff init -ws)"`
-      And I type "scmpuff_status_shortcuts"
+      And I type "scmpuff_status"
       And I type "exit $?"
     Then the exit status should be 0
     And the output should contain "No changes (working directory clean)"
@@ -48,7 +48,7 @@ Feature: scmpuff_status_shortcuts function
       And the scmpuff environment variables have been cleared
     When I run `<shell>` interactively
       And I type `eval "$(scmpuff init -s)"`
-      And I type "scmpuff_status_shortcuts"
+      And I type "scmpuff_status"
       And I type `echo -e "e1:$e1\ne2:$e2\ne3:$e3\ne4:$e4\ne5:$e5\n"`
       And I type "exit"
     Then the output should match /^e1:.*new_file$/
@@ -66,10 +66,10 @@ Feature: scmpuff_status_shortcuts function
       And the scmpuff environment variables have been cleared
     When I run `<shell>` interactively
       And I type `eval "$(scmpuff init -s)"`
-      And I type "scmpuff_status_shortcuts"
+      And I type "scmpuff_status"
       And I type "git add new_file"
       And I type "git commit -m 'so be it'"
-      And I type "scmpuff_status_shortcuts"
+      And I type "scmpuff_status"
       And I type `echo -e "e1:$e1\ne2:$e2\ne3:$e3\ne4:$e4\ne5:$e5\n"`
       And I type "exit"
     Then the output should match /^e1:.*deleted_file$/

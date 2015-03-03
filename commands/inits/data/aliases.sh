@@ -1,4 +1,4 @@
-alias gs='scmpuff_status_shortcuts'
+alias gs='scmpuff_status'
 alias ga='git add'
 alias gd='git diff'
 alias grs='git reset'
