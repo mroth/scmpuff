@@ -9,7 +9,9 @@ import "fmt"
 //go:generate go-bindata -o bindata.go -ignore=README* -pkg=inits data
 
 func printScript() {
-	fmt.Println(assetString("data/status_shortcuts.sh"))
+	if outputScript {
+		fmt.Println(assetString("data/status_shortcuts.sh"))
+	}
 
 	if includeAliases {
 		fmt.Println(assetString("data/aliases.sh"))
