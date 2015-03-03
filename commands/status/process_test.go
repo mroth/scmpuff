@@ -8,7 +8,7 @@ import (
 // single test to make sure everything gets stiched together properly, test
 // actual cases in more specific methods
 func TestProcessChange(t *testing.T) {
-	chunk := []byte("A  TODO.md")
+	chunk := []byte("A  HELLO.md")
 	actual := ProcessChange(chunk, "/tmp")[0]
 
 	expectedChange := &change{
@@ -22,7 +22,7 @@ func TestProcessChange(t *testing.T) {
 		t.Fatal("changes did not match expected")
 	}
 
-	if actual.fileAbsPath != "/tmp/TODO.md" {
+	if actual.fileAbsPath != "/tmp/HELLO.md" {
 		t.Fatal("absolute path did not match expected")
 	}
 
@@ -86,7 +86,7 @@ func TestExtractFile(t *testing.T) {
 }
 
 // $ git status --porcelain
-// A  TODO.md
+// A  HELLO.md
 //  M script/benchmark
 // ?? .travis.yml
 // ?? commands/status/process_test.go
@@ -95,7 +95,7 @@ var testCasesExtractChangeCodes = []struct {
 	expected []*change
 }{
 	{
-		[]byte("A  TODO.md"),
+		[]byte("A  HELLO.md"),
 		[]*change{
 			&change{msg: "  new file", col: neu, group: Staged},
 		},
