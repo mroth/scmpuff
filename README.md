@@ -80,7 +80,8 @@ e.g. `ga`, `gd`, `gco`.  Check your aliases to see what they are.
 ## FAQ
 
 ### How do you pronounce it?
-I like to say "scum puff."
+
+:information_desk_person: I like to say "scum puff." But I'm weird.
 
 ### How does it compare with scm_breeze?
 
