@@ -41,12 +41,17 @@ Feature: command expansion at command line
     When I successfully run `scmpuff expand -- git xxx "foo bar" 1`
     Then the output should match /git\txxx\tfoo\\ bar\ta.txt/
 
-  Scenario: Verify filenames with stupid characters are properly escaped
+  Scenario Outline: Verify filenames with stupid characters are properly escaped
     Given I override the environment variables to:
-      | variable | value        |
-      | e1       | so(dumb).jpg |
+      | variable | value      |
+      | e1       | <filename> |
     When I successfully run `scmpuff expand 1`
-    Then the output should match /so\\\(dumb\\\)\.jpg/
+    Then the output should contain exactly "<escaped>"
+    Examples:
+      | filename       | escaped          |
+      | so(dumb).jpg   | so\(dumb\).jpg   |
+      | hi mom.txt     | hi\ mom.txt      |
+      | "x.txt         | \"x.txt          |
 
   Scenario: Allow user to specify --relative paths
     Given a directory named "foo"
