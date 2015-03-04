@@ -117,22 +117,24 @@ func (sl StatusList) orderedItems() (items []*StatusItem) {
 //
 // if `includeParseData` is true, the first line will be a machine parseable
 // list of files to be used for environment variable expansion.
-func (sl StatusList) printStatus(includeParseData bool) {
+func (sl StatusList) printStatus(includeParseData, includeStatusOutput bool) {
 	b := bufio.NewWriter(os.Stdout)
 
 	if includeParseData {
 		fmt.Fprintln(b, sl.dataForParsing())
 	}
 
-	fmt.Fprintln(b, sl.banner())
-
-	// keep track of number of items printed, and pass off information to each
-	// fileGroup, which knows how to print itself.
-	if sl.numItems() >= 1 {
-		startNum := 1
-		for _, fg := range sl.orderedGroups() {
-			fg.print(startNum, b)
-			startNum += len(fg.items)
+	if includeStatusOutput {
+		// print the banner
+		fmt.Fprintln(b, sl.banner())
+		// keep track of number of items printed, and pass off information to each
+		// fileGroup, which knows how to print itself.
+		if sl.numItems() >= 1 {
+			startNum := 1
+			for _, fg := range sl.orderedGroups() {
+				fg.print(startNum, b)
+				startNum += len(fg.items)
+			}
 		}
 	}
 

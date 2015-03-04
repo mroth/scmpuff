@@ -10,8 +10,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var porcelainFiles bool
-
 // CommandStatus processes 'git status --porcelain', and exports numbered
 // env variables that contain the path of each affected file.
 // Output is also more concise than standard 'git status'.
@@ -19,6 +17,8 @@ var porcelainFiles bool
 // TODO: Call with optional <group> parameter to filter by modification state:
 // 1 || Staged,  2 || Unmerged,  3 || Unstaged,  4 || Untracked
 func CommandStatus() *cobra.Command {
+	var optsFilelist bool
+	var optsDisplay bool
 
 	var statusCmd = &cobra.Command{
 		Use:   "status",
@@ -35,15 +35,28 @@ sets the environment variables for your shell. (For more information on this,
 see 'scmpuff init'.)
     `,
 		Run: func(cmd *cobra.Command, args []string) {
-			runStatus()
+			root := gitProjectRoot()
+			status := gitStatusOutput()
+
+			results := Process(status, root)
+			results.printStatus(optsFilelist, optsDisplay)
 		},
 	}
 
-	// --aliases
+	// --filelist, -f
 	statusCmd.Flags().BoolVarP(
-		&porcelainFiles,
+		&optsFilelist,
 		"filelist", "f", false,
-		"include parseable filelist as first line of output",
+		"include machine-parseable filelist",
+	)
+
+	// --display
+	// allow normal display to be disabled, not really useful unless you know you
+	// JUST want the machine parseable file-list for some reason.
+	statusCmd.Flags().BoolVarP(
+		&optsDisplay,
+		"display", "", true,
+		"displays the formatted status output",
 	)
 
 	// --relative
@@ -56,14 +69,6 @@ see 'scmpuff init'.)
 	// )
 
 	return statusCmd
-}
-
-func runStatus() {
-	root := gitProjectRoot()
-	status := gitStatusOutput()
-
-	results := Process(status, root)
-	results.printStatus(porcelainFiles)
 }
 
 // Runs `git status --porcelain` and returns the results.
