@@ -66,6 +66,39 @@ var testCasesExtractFile = []struct {
 		expectedAbs: "/tmp/foo/bar/narwhal/disco/yyy",
 		expectedRel: "../../narwhal/disco/yyy",
 	},
+	{
+		root:        "/tmp/foo",
+		wd:          "/tmp/foo",
+		chunk:       []byte("R  foo.txt -> bar.txt"),
+		expectedAbs: "/tmp/foo/foo.txt -> bar.txt", // same as scmbreeze, but problematic?
+		expectedRel: "foo.txt -> bar.txt",          // same as scmbreeze, but problematic?
+	},
+	// following examples are ones where scm_breeze strips the escaping that
+	// git status --porcelain does in certain cases.  Using -z would have probably
+	// been a better way to go, but for now lets see if we can replicate it...
+	// (note: scm_breeze fails on complex cases of this, we dont use it as source
+	//  of truth for correctness!)
+	{
+		root:        "/tmp/foo",
+		wd:          "/tmp/foo",
+		chunk:       []byte(`A  "hi there mom.txt"`),
+		expectedAbs: "/tmp/foo/hi there mom.txt",
+		expectedRel: "hi there mom.txt",
+	},
+	{
+		root:        "/tmp/foo",
+		wd:          "/tmp/foo/bar",
+		chunk:       []byte(`?? "\"x.txt"`),
+		expectedAbs: `/tmp/foo/"x.txt`,
+		expectedRel: `../"x.txt`,
+	},
+	{
+		root:        "/tmp/foo",
+		wd:          "/tmp/foo",
+		chunk:       []byte(`?? "hi m\"o\"m.txt"`),
+		expectedAbs: `/tmp/foo/hi m"o"m.txt`, //scmbreeze fails these with `hi m"o\`
+		expectedRel: `hi m"o"m.txt`,
+	},
 }
 
 func TestExtractFile(t *testing.T) {

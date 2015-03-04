@@ -31,3 +31,44 @@ Feature: optional wrapping of normal git cmds in the shell
       | shell |
       | bash  |
       | zsh   |
+
+
+  Scenario Outline: Wrapped `git add` can handle files with spaces properly
+    Given I am in a git repository
+      And an empty file named "file with spaces.txt"
+    When I run `<shell>` interactively
+      And I type `eval "$(scmpuff init -ws)"`
+      And I type "scmpuff_status"
+      And I type "git add 1"
+      And I type "exit"
+    Then the exit status should be 0
+    And the output should match /new file:\s+\[1\] file with spaces.txt/
+    Examples:
+      | shell |
+      | bash  |
+      | zsh   |
+
+
+  Scenario Outline: Wrapped `git reset` can handle files with spaces properly
+    This is different and more complex because `git status --porcelain` puts it
+    inside quotes for the case where it is already added (but doesnt in the ??
+    case surprisingly), and also it expands using --relative.
+
+    Given I am in a git repository
+      And an empty file named "file with spaces.txt"
+    And I successfully run `git add "file with spaces.txt"`
+    When I run `<shell>` interactively
+      And I type `eval "$(scmpuff init -ws)"`
+      And I type "scmpuff_status"
+      And I type "git reset 1"
+      And I type "exit"
+    Then the exit status should be 0
+    When I run `scmpuff status`
+    Then the stdout from "scmpuff status" should contain:
+      """
+      untracked:  [1] file with spaces.txt
+      """
+    Examples:
+      | shell |
+      | bash  |
+      | zsh   |

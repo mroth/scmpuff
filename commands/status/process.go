@@ -132,14 +132,23 @@ ProcessFile extracts the filename from a status change, and determines the
 absolute and relative paths.
 
 Parameters:
- - c: the raw bytes representing a status change
+ - c: the raw bytes representing a status change from `git status --porcelain`
  - root: the absolute path to the git working tree
 */
 func extractFile(chunk []byte, root, wd string) (absPath, relPath string) {
+	// file identifier starts at pos4 and continues to EOL
 	file := string(chunk[3:len(chunk)])
-	absPath = filepath.Join(root, file)
 
-	relPath, err := filepath.Rel(wd, absPath)
+	// try to unquote it, for instances where git --porcelain quotes for special
+	// characters
+	unquoted, err := strconv.Unquote(file)
+	if err == nil {
+		file = unquoted
+	}
+
+	// determine absolute and relative paths
+	absPath = filepath.Join(root, file)
+	relPath, err = filepath.Rel(wd, absPath)
 	if err != nil {
 		relPath = absPath
 	}
