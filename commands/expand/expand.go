@@ -32,7 +32,7 @@ Takes a list of digits (1 4 5) or numeric ranges (1-5) or even both.`,
 				cmd.Usage()
 			}
 
-			fmt.Println(Process(args))
+			fmt.Print(Process(args))
 		},
 	}
 

@@ -11,8 +11,11 @@ Feature: command expansion at command line
       | e6       | f.txt |
 
   Scenario: Expand single digit case
+    Important: note we check for an exact match here, because a line feed
+    should not exist at the end of the output.
+
     When I successfully run `scmpuff expand 1`
-    Then the output should contain exactly "a.txt\n"
+    Then the output should contain exactly "a.txt"
 
   Scenario: Expand multiple digit case
     When I successfully run `scmpuff expand 1 2 6`
