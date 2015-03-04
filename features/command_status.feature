@@ -114,5 +114,48 @@ Feature: status command
 
 
   Scenario: Status for a complex merge conflict
-    Given PENDING: port from scm_breeze
-  # TODO: port test_git_status_shortcuts_merge_conflicts()  from scm_breeze
+    Test by duplicating exactly the test_git_status_shortcuts_merge_conflicts()
+    tests from scm_breeze.
+
+    Given I am in a git repository
+    And an empty file named "both_modified"
+    And an empty file named "both_deleted"
+    And an empty file named "deleted_by_them"
+    And an empty file named "deleted_by_us"
+    And a file named "renamed_file" with:
+      """
+      renamed file needs some content
+      """
+    And I successfully run `git add both_modified both_deleted renamed_file deleted_by_them deleted_by_us`
+    And I successfully run `git commit -m "First commit"`
+
+    And I successfully run `git checkout -b conflict_branch`
+    And a file named "both_added" with:
+      """
+      added by branch
+      """
+    And I append to "both_modified" with "branch line"
+    And I append to "deleted_by_us" with "deleted by us"
+    And I successfully run `git rm deleted_by_them both_deleted`
+    And I successfully run `git mv renamed_file renamed_file_on_branch`
+    And I successfully run `git add both_added both_modified deleted_by_us`
+    And I successfully run `git commit -m "Branch commit"`
+
+    And I successfully run `git checkout master`
+    And I append to "both_added" with "added by master"
+    And I append to "both_modified" with "master line"
+    And I append to "deleted_by_them" with "deleted by them"
+    And I successfully run `git rm deleted_by_us both_deleted`
+    And I successfully run `git mv renamed_file renamed_file_on_master`
+    And I successfully run `git add both_added both_modified deleted_by_them`
+    And I successfully run `git commit -m "Master commit"`
+    And I run `git merge conflict_branch`
+
+    When I successfully run `scmpuff status`
+    Then the output should match /both added: *\[[0-9]*\] *both_added/
+    Then the output should match /both modified: *\[[0-9]*\] *both_modified/
+    Then the output should match /deleted by them: *\[[0-9]*\] *deleted_by_them/
+    Then the output should match /deleted by us: *\[[0-9]*\] *deleted_by_us/
+    Then the output should match /both deleted: *\[[0-9]*\] *renamed_file/
+    Then the output should match /added by them: *\[[0-9]*\] *renamed_file_on_branch/
+    Then the output should match /added by us: *\[[0-9]*\] *renamed_file_on_master/
