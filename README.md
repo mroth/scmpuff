@@ -138,12 +138,21 @@ So in my mind, it's really not a fork!
 
 [patches]: https://github.com/ndbroadbent/scm_breeze/issues?q=author%3Amroth
 
+
 ## Benchmarks
-Some informal benchmarks, measured on Macbook Air.
 
-Time to evaluate shell setup:
+In normal usage I've always found scm_breeze to be acceptably fast, but scmpuff
+should be faster, so here are some informal benchmarks, measured on my 2011
+MacBook Air.
 
-Status on a git repo with ~100 changes:
+Time to init during shell startup:  
+`scm_breeze: 0.09sec scmpuff: 0.01sec`
+
+Full color numbered status on a git repo with ~500 changes:  
+`scm_breeze: 1.14sec* scmpuff: 0.15sec`  
+_Note: scm_breeze normally falls back to normal git status after a configurable
+`gs_max_changes=150`, which I modified here for testing._
+
 
 ## Development
 
