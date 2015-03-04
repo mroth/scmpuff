@@ -56,28 +56,27 @@ var shellEscaper = regexp.MustCompile("([\\^()\\[\\]<>' \"])")
 //
 // Ends up with a final string that is TAB delineated between arguments.
 func Process(args []string) string {
-	expandedArgs := evaluateEnvironment(expand(args))
-	sequence := strings.Join(expandedArgs, "\t")
-	return escape(sequence)
+	var processedArgs []string
+	for _, arg := range expand(args) {
+		processed := escape(evaluateEnvironment(arg))
+		processedArgs = append(processedArgs, processed)
+	}
+
+	return strings.Join(processedArgs, "\t")
 }
 
 // Escape everything so it can be interpreted once passed along to the shell.
-func escape(sequence string) string {
-	return shellEscaper.ReplaceAllString(sequence, "\\$1")
+func escape(arg string) string {
+	return shellEscaper.ReplaceAllString(arg, "\\$1")
 }
 
 // Evaluates a string of arguments and expands environment variables.
-func evaluateEnvironment(args []string) []string {
-	var results []string
-	for _, arg := range args {
-		expandedArg := os.ExpandEnv(arg)
-		if expandRelative {
-			results = append(results, convertToRelativeIfFilePath(expandedArg))
-		} else {
-			results = append(results, expandedArg)
-		}
+func evaluateEnvironment(arg string) string {
+	expandedArg := os.ExpandEnv(arg)
+	if expandRelative {
+		return convertToRelativeIfFilePath(expandedArg)
 	}
-	return results
+	return expandedArg
 }
 
 // For a given arg, try to determine if it represents a file, and if so, convert
