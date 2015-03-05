@@ -53,6 +53,10 @@ Feature: command expansion at command line
       | hi mom.txt     | hi\ mom.txt      |
       | "x.txt         | \"x.txt          |
 
+  @wip
+  Scenario: Don't get screwed up if filename contains a | symbol
+    Given PENDING
+
   Scenario: Allow user to specify --relative paths
     Given a directory named "foo"
       And a directory named "foo/bar"

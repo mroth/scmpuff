@@ -78,8 +78,118 @@ Feature: status command
       And the output should match /untracked: *\[4\] *untracked_file/
 
 
-  Scenario: Status shows relative paths
-    Some people might care about relative paths.
+  @wip
+  Scenario Outline: Handles file path magic properly for untracked files
+    Given I am in a git repository
+      And a directory named "foo"
+      And an empty file named "foo/placeholder.txt"
+      And I successfully run `git add .`
+      And I successfully run `git commit -am.`
+    Given an empty file named "<gitpath>"
+    And I cd to "<cwd>"
+    When I successfully run `scmpuff status`
+    Then the stdout from "scmpuff status" should contain:
+      """
+      untracked:  [1] <displaypath>
+      """
+    When I successfully run `scmpuff status -f --display=false`
+    Then the stdout from "scmpuff status -f --display=false" should contain:
+      """
+      <abspath_end>
+      """
+    Examples:
+      | cwd | gitpath    | abspath_end  | displaypath |
+      | .   | a.txt      | /a.txt       | a.txt       |
+      | .   | foo/b.txt  | /foo/b.txt   | foo/b.txt   |
+      | foo | foo/b.txt  | /foo/b.txt   | b.txt       |
+      | foo | a.txt      | /a.txt       | ../a.txt    |
+      | .   | hi mom.txt | /hi mom.txt  | hi mom.txt  |
+      | .   | (x).txt    | /(x).txt     | (x).txt     |
+
+  @wip
+  Scenario Outline: Handles file path magic properly for new files
+    You would think this would be the same as the previous test, but in fact
+    the way `git status --porcelain` outputs these is different, so we need
+    to test this scenario seperately. (For example, prior to a4f2282 this would
+    fail!)
+
+    Given I am in a git repository
+      And a directory named "foo"
+      And an empty file named "foo/placeholder.txt"
+      And I successfully run `git add .`
+      And I successfully run `git commit -am.`
+    Given an empty file named "<gitpath>"
+    # below is the one difference!
+    And I successfully run `git add .`
+    And I cd to "<cwd>"
+    When I successfully run `scmpuff status`
+    Then the stdout from "scmpuff status" should contain:
+      """
+      new file:  [1] <displaypath>
+      """
+    When I successfully run `scmpuff status -f --display=false`
+    Then the stdout from "scmpuff status -f --display=false" should contain:
+      """
+      <abspath_end>
+      """
+    Examples:
+      | cwd | gitpath    | abspath_end  | displaypath |
+      | .   | a.txt      | /a.txt       | a.txt       |
+      | .   | foo/b.txt  | /foo/b.txt   | foo/b.txt   |
+      | foo | foo/b.txt  | /foo/b.txt   | b.txt       |
+      | foo | a.txt      | /a.txt       | ../a.txt    |
+      | .   | hi mom.txt | /hi mom.txt  | hi mom.txt  |
+      | .   | (x).txt    | /(x).txt     | (x).txt     |
+
+  @wip
+  Scenario: Handle changes involving multiple filenames properly (UI)
+    Certain operations (rename) can involve multiple filenames.
+
+    The ideal scenario is that the destination filename gets set as the path for
+    environment (so it can be references in git cmds), and the display shows a
+    pretty arrowized status, e.g. foo -> bar, which should also be path aware.
+
+    Given I am in a git repository
+    And an empty file named "a.txt"
+    And a directory named "foo"
+    And I successfully run the following commands:
+      | git add a.txt      |
+      | git commit -am.    |
+      | git mv a.txt b.txt |
+    When I successfully run `scmpuff status`
+    Then the stdout from "scmpuff status" should contain:
+      """
+      renamed:  [1] a.txt -> b.txt
+      """
+    When I cd to "foo"
+    When I successfully run `scmpuff status`
+    Then the stdout from "scmpuff status" should contain:
+      """
+      renamed:  [1] ../a.txt -> ../b.txt
+      """
+
+  @wip
+  Scenario: Handle changes involving multiple filenames properly (vars)
+    Given I am in a git repository
+    And an empty file named "a.txt"
+    And I successfully run the following commands:
+      | git add a.txt      |
+      | git commit -am.    |
+      | git mv a.txt b.txt |
+    When I successfully run `scmpuff status -f --display=false`
+    Then the stdout from "scmpuff status -f --display=false" should contain:
+      """
+      /tmp/aruba/b.txt\n
+      """
+    When I cd to "foo"
+    When I successfully run `scmpuff status`
+    Then the stdout from "scmpuff status -f --display=false" should contain:
+      """
+      /tmp/aruba/b.txt\n
+      """
+
+  Scenario: Status shows relative paths (scm_breeze reference)
+    SCM Breeze handles relative paths in a particular way.
 
     To do this, let's replicate the test_git_status_produces_relative_paths()
     test function from scm_breeze, located in status_shortcuts_test.sh:116,
