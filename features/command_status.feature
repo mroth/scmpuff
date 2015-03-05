@@ -79,14 +79,19 @@ Feature: status command
 
 
   @wip
-  Scenario Outline: Handles file path magic properly for untracked files
-    Given I am in a git repository
-      And a directory named "foo"
-      And an empty file named "foo/placeholder.txt"
-      And I successfully run `git add .`
-      And I successfully run `git commit -am.`
-    Given an empty file named "<gitpath>"
+  Scenario Outline: Handles file path magic properly for new & untracked files
+    You would think this would be the same across file groups, but in fact the
+    way `git status --porcelain` outputs these is different, so we need to test
+    this scenario seperately.
+
+    (For example, prior to a4f2282 new files would fail when untracked worked
+    fine -- the difference being git porcelain seems to want to escape/quote
+    filenames only once added to the index, weird huh?)
+
+    Given I am in the mocked git repository with commited subdirectory and file
+    And an empty file named "<gitpath>"
     And I cd to "<cwd>"
+    # UNTRACKED 'NEW FILE' CHANGES
     When I successfully run `scmpuff status`
     Then the stdout from "scmpuff status" should contain:
       """
@@ -97,31 +102,8 @@ Feature: status command
       """
       <abspath_end>
       """
-    Examples:
-      | cwd | gitpath    | abspath_end  | displaypath |
-      | .   | a.txt      | /a.txt       | a.txt       |
-      | .   | foo/b.txt  | /foo/b.txt   | foo/b.txt   |
-      | foo | foo/b.txt  | /foo/b.txt   | b.txt       |
-      | foo | a.txt      | /a.txt       | ../a.txt    |
-      | .   | hi mom.txt | /hi mom.txt  | hi mom.txt  |
-      | .   | (x).txt    | /(x).txt     | (x).txt     |
-
-  @wip
-  Scenario Outline: Handles file path magic properly for new files
-    You would think this would be the same as the previous test, but in fact
-    the way `git status --porcelain` outputs these is different, so we need
-    to test this scenario seperately. (For example, prior to a4f2282 this would
-    fail!)
-
-    Given I am in a git repository
-      And a directory named "foo"
-      And an empty file named "foo/placeholder.txt"
-      And I successfully run `git add .`
-      And I successfully run `git commit -am.`
-    Given an empty file named "<gitpath>"
-    # below is the one difference!
-    And I successfully run `git add .`
-    And I cd to "<cwd>"
+    # STAGED 'NEW FILE' CHANGES
+    Given I successfully run `git add -A`
     When I successfully run `scmpuff status`
     Then the stdout from "scmpuff status" should contain:
       """
@@ -140,6 +122,7 @@ Feature: status command
       | foo | a.txt      | /a.txt       | ../a.txt    |
       | .   | hi mom.txt | /hi mom.txt  | hi mom.txt  |
       | .   | (x).txt    | /(x).txt     | (x).txt     |
+
 
   @wip
   Scenario: Handle changes involving multiple filenames properly (UI)

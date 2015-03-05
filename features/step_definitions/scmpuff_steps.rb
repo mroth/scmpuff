@@ -1,3 +1,4 @@
+require 'fileutils'
 require 'aruba/api'
 
 Given(/^a git repository named "([^"]*)"$/) do |repo_name|
@@ -48,6 +49,26 @@ Given(/^I am in a complex working tree status matching scm_breeze tests$/) do
       """
     And I remove the file "deleted_file"
   }
+end
+
+# Create a filesystem mock of the git repo, and copy it in.
+# This speeds up tests because shell commands are the slowest thing, so we dont
+# want to rerun the same git init every iteration, rather we just copy a fresh
+# copy of the mocked directory!
+Given(/^I am in the mocked git repository with commited subdirectory and file$/) do
+  MOCK ||= File.join(current_dir, "..", "mock", "gitsubdir") #needs to be outside of aruba clobber dir
+  unless File.directory? MOCK
+    FileUtils.mkdir_p MOCK
+    Dir.chdir MOCK do
+      FileUtils.mkdir "foo"
+      FileUtils.touch "foo/placeholder.txt"
+      system("git init --quiet")
+      system("git add .")
+      system("git commit -m.")
+    end
+  end
+  FileUtils.cp_r MOCK, current_dir
+  cd "gitsubdir"
 end
 
 Given(/^the scmpuff environment variables have been cleared$/) do
