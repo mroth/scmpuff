@@ -155,6 +155,7 @@ Feature: status command
   Scenario: Handle changes involving multiple filenames properly (vars)
     Given I am in a git repository
     And an empty file named "a.txt"
+    And a directory named "foo"
     And I successfully run the following commands:
       | git add a.txt      |
       | git commit -am.    |
@@ -162,13 +163,13 @@ Feature: status command
     When I successfully run `scmpuff status -f --display=false`
     Then the stdout from "scmpuff status -f --display=false" should contain:
       """
-      /tmp/aruba/b.txt\n
+      /tmp/aruba/mygitrepo/b.txt\n
       """
     When I cd to "foo"
     When I successfully run `scmpuff status`
     Then the stdout from "scmpuff status -f --display=false" should contain:
       """
-      /tmp/aruba/b.txt\n
+      /tmp/aruba/mygitrepo/b.txt\n
       """
 
   Scenario: Status shows relative paths (scm_breeze reference)
