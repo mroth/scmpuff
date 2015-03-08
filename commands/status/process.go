@@ -156,6 +156,36 @@ func extractFile(chunk []byte, root, wd string) (absPath, relPath string) {
 	return
 }
 
+/*
+	 TODO: REPLICATE THIS LOGIC, INSTEAD OF STUFF PORTED FROM SCM_BREEZE.
+
+   Ignored files are not listed, unless --ignored option is in effect, in
+   which case XY are !!.
+
+   X          Y     Meaning
+   -------------------------------------------------
+             [MD]   not updated
+   M        [ MD]   updated in index
+   A        [ MD]   added to index
+   D         [ M]   deleted from index
+   R        [ MD]   renamed in index
+   C        [ MD]   copied in index
+   [MARC]           index and work tree matches
+   [ MARC]     M    work tree changed since index
+   [ MARC]     D    deleted in work tree
+   -------------------------------------------------
+   D           D    unmerged, both deleted
+   A           U    unmerged, added by us
+   U           D    unmerged, deleted by them
+   U           A    unmerged, added by them
+   D           U    unmerged, deleted by us
+   A           A    unmerged, both added
+   U           U    unmerged, both modified
+   -------------------------------------------------
+   ?           ?    untracked
+   !           !    ignored
+   -------------------------------------------------
+*/
 func extractChangeCodes(chunk []byte) []*change {
 	x := rune(chunk[0])
 	y := rune(chunk[1])
