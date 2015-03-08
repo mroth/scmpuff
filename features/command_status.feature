@@ -169,40 +169,6 @@ Feature: status command
       /tmp/aruba/mygitrepo/b.txt\n
       """
 
-  Scenario: Status shows relative paths (scm_breeze reference)
-    SCM Breeze handles relative paths in a particular way.
-
-    To do this, let's replicate the test_git_status_produces_relative_paths()
-    test function from scm_breeze, located in status_shortcuts_test.sh:116,
-    so that people who want to migrate over can have expected behavior.
-
-    Given I am in a git repository
-      And a directory named "dir1/sub1/subsub1"
-      And a directory named "dir1/sub2"
-      And a directory named "dir2"
-      And an empty file named "dir1/sub1/subsub1/testfile"
-      And an empty file named "dir1/sub2/testfile"
-      And an empty file named "dir2/testfile"
-      And I successfully run `git add .`
-
-    When I successfully run `scmpuff status`
-      Then the stdout from "scmpuff status" should contain "dir1/sub1/subsub1/testfile"
-    When I cd to "dir1"
-    And I successfully run `scmpuff status`
-      Then the stdout from "scmpuff status" should contain " sub1/subsub1/testfile"
-       And the stdout from "scmpuff status" should contain " sub2/testfile"
-       And the stdout from "scmpuff status" should contain "../dir2/testfile"
-    When I cd to "sub1"
-    And I successfully run `scmpuff status`
-      Then the stdout from "scmpuff status" should contain " subsub1/testfile"
-       And the stdout from "scmpuff status" should contain " ../sub2/testfile"
-       And the stdout from "scmpuff status" should contain "../../dir2/testfile"
-    When I cd to "subsub1"
-    And I successfully run `scmpuff status`
-      Then the stdout from "scmpuff status" should contain " testfile"
-       And the stdout from "scmpuff status" should contain " ../../sub2/testfile"
-       And the stdout from "scmpuff status" should contain "../../../dir2/testfile"
-
 
   Scenario: Status for a complex merge conflict
     Test by duplicating exactly the test_git_status_shortcuts_merge_conflicts()
