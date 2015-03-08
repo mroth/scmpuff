@@ -123,12 +123,13 @@ Feature: status command
       | .   | (x).txt    | /(x).txt     | (x).txt     |
 
 
-  Scenario: Handle changes involving multiple filenames properly (UI)
+  Scenario: Handle changes involving multiple filenames properly
     Certain operations (rename) can involve multiple filenames.
 
-    The ideal scenario is that the destination filename gets set as the path for
-    environment (so it can be references in git cmds), and the display shows a
-    pretty arrowized status, e.g. foo -> bar, which should also be path aware.
+    The ideal scenario is that the absolute destination filename gets set as the
+    path for environment (so it can be references in git cmds), and the display
+    shows a pretty arrowized status, e.g. foo -> bar, which should also be path
+    aware relative to current working directory (for both items!).
 
     Given I am in a git repository
     And an empty file named "a.txt"
@@ -142,28 +143,19 @@ Feature: status command
       """
       renamed:  [1] a.txt -> b.txt
       """
-    When I cd to "foo"
-    When I successfully run `scmpuff status`
-    Then the stdout from "scmpuff status" should contain:
-      """
-      renamed:  [1] ../a.txt -> ../b.txt
-      """
-
-  Scenario: Handle changes involving multiple filenames properly (vars)
-    Given I am in a git repository
-    And an empty file named "a.txt"
-    And a directory named "foo"
-    And I successfully run the following commands:
-      | git add a.txt      |
-      | git commit -am.    |
-      | git mv a.txt b.txt |
     When I successfully run `scmpuff status -f --display=false`
     Then the stdout from "scmpuff status -f --display=false" should contain:
       """
       /tmp/aruba/mygitrepo/b.txt\n
       """
-    When I cd to "foo"
+
+    Given I cd to "foo"
     When I successfully run `scmpuff status`
+    Then the stdout from "scmpuff status" should contain:
+      """
+      renamed:  [1] ../a.txt -> ../b.txt
+      """
+    When I successfully run `scmpuff status -f --display=false`
     Then the stdout from "scmpuff status -f --display=false" should contain:
       """
       /tmp/aruba/mygitrepo/b.txt\n
