@@ -36,8 +36,8 @@ type StatusItem struct {
 	msg         string      // msg to display representing the item status
 	col         ColorGroup  // which ColorGroup to use when printing item
 	group       StatusGroup // which StatusGroup item belongs to (Staged, etc...)
-	fileAbsPath string      // the absolute filepath for the item
-	fileRelPath string      // the filepath for the item relative to worktree
+	fileAbsPath string      // absolute filepath for the item
+	fileRelPath string      // display "path" for item relative to UX (may be multi-item!)
 }
 
 // NewStatusList is a convenience constructor that initializes a new StatusList

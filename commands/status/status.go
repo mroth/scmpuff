@@ -71,15 +71,31 @@ see 'scmpuff init'.)
 	return statusCmd
 }
 
-// Runs `git status --porcelain` and returns the results.
+// Runs `git status -z -b` and returns the results.
+//
+// Why z-mode? It lets us do machine parsing in a reliable cross-platform way.
+//
+//   There is also an alternate -z format recommended for machine parsing. In
+//   thatformat, the status field is the same, but some other things change.
+//   First, the -> is omitted from rename entries and the field order is
+//   reversed (e.g from -> to becomes to from). Second, a NUL (ASCII 0) follows
+//   each filename, replacing space as a field separator and the terminating
+//   newline (but a space still separates the status field from the first
+//   filename). Third, filenames containing special characters are not specially
+//   formatted; no quoting or backslash-escaping is performed.
+//
+// Okay, it also introduces some idiocy because it wasn't well thought out, but
+// it beats dealing with shell escaping and hoping we do it right across diff.
+// platforms and shells, I think...  see process.go for all the parsing we do
+// to make sense of it, this just grabs its output.
 //
 // If an error is encountered, the process will die fatally.
 func gitStatusOutput() []byte {
-	gso, err := exec.Command("git", "status", "--porcelain", "-b").Output()
+	gso, err := exec.Command("git", "status", "-z", "-b").Output()
 	if err != nil {
 		log.Fatal(err)
 	}
-	return bytes.Trim(gso, "\n")
+	return gso
 }
 
 // Returns the root for the git project.

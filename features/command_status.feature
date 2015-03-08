@@ -78,7 +78,6 @@ Feature: status command
       And the output should match /untracked: *\[4\] *untracked_file/
 
 
-  @wip
   Scenario Outline: Handles file path magic properly for new & untracked files
     You would think this would be the same across file groups, but in fact the
     way `git status --porcelain` outputs these is different, so we need to test
@@ -124,7 +123,6 @@ Feature: status command
       | .   | (x).txt    | /(x).txt     | (x).txt     |
 
 
-  @wip
   Scenario: Handle changes involving multiple filenames properly (UI)
     Certain operations (rename) can involve multiple filenames.
 
@@ -151,7 +149,6 @@ Feature: status command
       renamed:  [1] ../a.txt -> ../b.txt
       """
 
-  @wip
   Scenario: Handle changes involving multiple filenames properly (vars)
     Given I am in a git repository
     And an empty file named "a.txt"

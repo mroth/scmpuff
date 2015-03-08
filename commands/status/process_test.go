@@ -9,7 +9,7 @@ import (
 // actual cases in more specific methods
 func TestProcessChange(t *testing.T) {
 	chunk := []byte("A  HELLO.md")
-	actual := ProcessChange(chunk, "/tmp")[0]
+	actual := processChange(chunk, "/tmp", "/tmp")[0]
 
 	expectedChange := &change{
 		msg:   "  new file",
@@ -69,33 +69,34 @@ var testCasesExtractFile = []struct {
 	{
 		root:        "/tmp/foo",
 		wd:          "/tmp/foo",
-		chunk:       []byte("R  foo.txt -> bar.txt"),
-		expectedAbs: "/tmp/foo/foo.txt -> bar.txt", // same as scmbreeze, but problematic?
-		expectedRel: "foo.txt -> bar.txt",          // same as scmbreeze, but problematic?
+		chunk:       []byte("R  bar.txt\x00foo.txt"),
+		expectedAbs: "/tmp/foo/bar.txt",
+		expectedRel: "foo.txt -> bar.txt",
 	},
 	// following examples are ones where scm_breeze strips the escaping that
-	// git status --porcelain does in certain cases.  Using -z would have probably
-	// been a better way to go, but for now lets see if we can replicate it...
-	// (note: scm_breeze fails on complex cases of this, we dont use it as source
-	//  of truth for correctness!)
+	// git status --porcelain does in certain cases.  Now that we are using -z
+	// we dont have escaped characters in our output (or our tests), so this is
+	// fairly redundant as a unit test...
+	// (historical note of why we did this: scm_breeze uses the escaped versions
+	//  of output and can fail on complex cases of parsing it!)
 	{
 		root:        "/tmp/foo",
 		wd:          "/tmp/foo",
-		chunk:       []byte(`A  "hi there mom.txt"`),
+		chunk:       []byte(`A  hi there mom.txt`),
 		expectedAbs: "/tmp/foo/hi there mom.txt",
 		expectedRel: "hi there mom.txt",
 	},
 	{
 		root:        "/tmp/foo",
 		wd:          "/tmp/foo/bar",
-		chunk:       []byte(`?? "\"x.txt"`),
+		chunk:       []byte(`?? "x.txt`),
 		expectedAbs: `/tmp/foo/"x.txt`,
 		expectedRel: `../"x.txt`,
 	},
 	{
 		root:        "/tmp/foo",
 		wd:          "/tmp/foo",
-		chunk:       []byte(`?? "hi m\"o\"m.txt"`),
+		chunk:       []byte(`?? hi m"o"m.txt`),
 		expectedAbs: `/tmp/foo/hi m"o"m.txt`, //scmbreeze fails these with `hi m"o\`
 		expectedRel: `hi m"o"m.txt`,
 	},
@@ -164,7 +165,8 @@ func TestExtractChangeCodes(t *testing.T) {
 	for _, tc := range testCasesExtractChangeCodes {
 		actual := extractChangeCodes(tc.chunk)
 		if !reflect.DeepEqual(actual, tc.expected) {
-			t.Fatalf("processChange('%s'): expected %v, actual %v", tc.chunk, tc.expected, actual)
+			t.Fatalf("processChange('%s'): expected %v, actual %v",
+				tc.chunk, tc.expected, actual)
 		}
 	}
 }
@@ -211,9 +213,10 @@ var testCasesExtractBranch = []struct {
 
 func TestExtractBranch(t *testing.T) {
 	for _, tc := range testCasesExtractBranch {
-		actual := extractBranch(tc.chunk)
+		actual := ExtractBranch(tc.chunk)
 		if !reflect.DeepEqual(actual, tc.expected) {
-			t.Fatalf("processBranch('%s'): expected %v, actual %v", tc.chunk, tc.expected, actual)
+			t.Fatalf("processBranch('%s'): expected %v, actual %v",
+				tc.chunk, tc.expected, actual)
 		}
 	}
 }
