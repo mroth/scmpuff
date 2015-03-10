@@ -141,17 +141,17 @@ func (sl StatusList) printStatus(includeParseData, includeStatusOutput bool) {
 	b.Flush()
 }
 
-// - machine readable string for env var parsing of file list
-// - same format that smb_breeze uses (but without preceding @@FILES thing that
-//   creates extra shell parsing mess)
-// - needs to be returned in same order that file lists are outputted to screen,
-//   otherwise env vars won't match UI.
+// Machine readable string for environment variable parsing of file list in
+// the scmpuff_status() shell script.
+//
+// Needs to be returned in same order that file lists are outputted to screen,
+// otherwise env vars won't match UI.
 func (sl StatusList) dataForParsing() string {
 	items := make([]string, sl.numItems())
 	for i, si := range sl.orderedItems() {
 		items[i] = si.fileAbsPath
 	}
-	return strings.Join(items, "|")
+	return strings.Join(items, "\t")
 }
 
 // Returns the banner string to be used for printing.

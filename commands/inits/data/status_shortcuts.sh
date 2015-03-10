@@ -21,7 +21,7 @@ scmpuff_status() {
 
   # Export numbered env variables for each file
   scmpuff_clear_vars
-  IFS="|"
+  IFS=$'\t'
   local e=1
   for file in $files; do
     export $scmpuff_env_char$e="$file"

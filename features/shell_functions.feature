@@ -61,6 +61,25 @@ Feature: scmpuff_status function
       | bash  |
       | zsh   |
 
+  Scenario Outline: Sets proper environment variables in shell with weird filenames
+    Given I am in a git repository
+      And an empty file named "aa bb"
+      And an empty file named "bb|cc"
+      And an empty file named "cc*dd"
+    When I run `<shell>` interactively
+      And I type `eval "$(scmpuff init -s)"`
+      And I type "scmpuff_status"
+      And I type `echo -e "e1:$e1\ne2:$e2\ne3:$e3\ne4:$e4\n"`
+      And I type "exit"
+    Then the output should match /^e1:.*aa bb$/
+      And the output should match /^e2:.*bb\|cc$/
+      And the output should match /^e3:.*cc\*dd$/
+      And the output should match /^e4:$/
+    Examples:
+      | shell |
+      | bash  |
+      | zsh   |
+
   Scenario Outline: Clears extra environment variables from before
     Given I am in a complex working tree status matching scm_breeze tests
       And the scmpuff environment variables have been cleared
