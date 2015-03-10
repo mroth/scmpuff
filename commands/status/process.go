@@ -93,16 +93,6 @@ func decodeBranchPosition(bs []byte) (ahead, behind int) {
 	return
 }
 
-// basically a StatusItem minus the file information, for now just being
-// used to get results from the change code processing...
-// This could probably be encapsulated in StatusItem itself, but wary of adding
-// more nesting...
-type change struct {
-	msg   string
-	col   ColorGroup
-	group StatusGroup
-}
-
 /*
 ProcessChanges takes `git status -z` output and returns all status items.
 
@@ -233,8 +223,22 @@ func calcPaths(rootPath []byte, root, wd string) (absPath, relPath string) {
 	return
 }
 
+// basically a StatusItem minus the file information, for now just being
+// used to get results from the change code processing...
+// This could probably be encapsulated in StatusItem itself, but wary of adding
+// more nesting...
+// TODO: should either figure out a way to get rid of this or formalize it more.
+type change struct {
+	msg   string
+	col   ColorGroup
+	group StatusGroup
+}
+
 /*
-	 TODO: REPLICATE THIS LOGIC, INSTEAD OF STUFF PORTED FROM SCM_BREEZE.
+Extracts a git status "short code" into the proper UI "change" items we will
+display in our status output.
+
+Below documentation from git status:
 
    Ignored files are not listed, unless --ignored option is in effect, in
    which case XY are !!.
@@ -278,91 +282,49 @@ func extractChangeCodes(chunk []byte) []*change {
 }
 
 func decodePrimaryChangeCode(x, y rune) *change {
-	switch {
-	case x == 'D' && y == 'D': //DD
-		return &change{
-			"   both deleted",
-			del,
-			Unmerged,
-		}
-	case x == 'A' && y == 'U': //AU
-		return &change{
-			"    added by us",
-			neu,
-			Unmerged,
-		}
-	case x == 'U' && y == 'D': //UD
-		return &change{
-			"deleted by them",
-			del,
-			Unmerged,
-		}
-	case x == 'U' && y == 'A': //UA
-		return &change{
-			"  added by them",
-			neu,
-			Unmerged,
-		}
-	case x == 'D' && y == 'U': //DU
-		return &change{
-			"  deleted by us",
-			del,
-			Unmerged,
-		}
-	case x == 'A' && y == 'A': //AA
-		return &change{
-			"     both added",
-			neu,
-			Unmerged,
-		}
-	case x == 'U' && y == 'U': //UU
-		return &change{
-			"  both modified",
-			mod,
-			Unmerged,
-		}
-	case x == 'M': //          //M.
-		return &change{
-			"  modified",
-			mod,
-			Staged,
-		}
-	case x == 'A': //          //A.
-		return &change{
-			"  new file",
-			neu,
-			Staged,
-		}
-	case x == 'D': //          //D.
-		return &change{
-			"   deleted",
-			del,
-			Staged,
-		}
-	case x == 'R': //          //R.
-		return &change{
-			"   renamed",
-			ren,
-			Staged,
-		}
-	case x == 'C': //          //C.
-		return &change{
-			"    copied",
-			cpy,
-			Staged,
-		}
-	case x == 'T': //          //T.
-		return &change{
-			"typechange",
-			typ,
-			Staged,
-		}
-	case x == '?' && y == '?': //??
-		return &change{
-			" untracked",
-			unt,
-			Untracked,
-		}
+	xy := string(x) + string(y)
+
+	// unmerged cases are simple, only a single change UI is possible
+	//
+	// TODO: should we handle !! as well? need to determine if possible for user
+	// to enable it via their gitconfig where it would affect us.  we coud also
+	// allow it to be activated via CLI switch on our end too if desired.
+	switch xy {
+	case "DD":
+		return &change{"   both deleted", del, Unmerged}
+	case "AU":
+		return &change{"    added by us", neu, Unmerged}
+	case "UD":
+		return &change{"deleted by them", del, Unmerged}
+	case "UA":
+		return &change{"  added by them", neu, Unmerged}
+	case "DU":
+		return &change{"  deleted by us", del, Unmerged}
+	case "AA":
+		return &change{"     both added", neu, Unmerged}
+	case "UU":
+		return &change{"  both modified", mod, Unmerged}
+	case "??":
+		return &change{" untracked", unt, Untracked}
+	}
+
+	// staged changes are all single X cases
+	// right now we dont need to check the Y, because we consider a modifying Y to
+	// these to be a compound case that adds a secondary change in the UI, so that
+	// is currently handled in decodeSecondaryChangeCode()
+	switch x {
+	case 'M':
+		return &change{"  modified", mod, Staged}
+	case 'A':
+		return &change{"  new file", neu, Staged}
+	case 'D':
+		return &change{"   deleted", del, Staged}
+	case 'R':
+		return &change{"   renamed", ren, Staged}
+	case 'C':
+		return &change{"    copied", cpy, Staged}
+	case 'T':
+		return &change{"typechange", typ, Staged}
 	}
 
 	return nil
@@ -371,24 +333,12 @@ func decodePrimaryChangeCode(x, y rune) *change {
 func decodeSecondaryChangeCode(x, y rune) *change {
 	switch {
 	case y == 'M': //.M
-		return &change{
-			"  modified",
-			mod,
-			Unstaged,
-		}
+		return &change{"  modified", mod, Unstaged}
+	// Don't show deleted 'y' during a merge conflict.
 	case y == 'D' && x != 'D' && x != 'U': //[!D!U]D
-		// Don't show deleted 'y' during a merge conflict.
-		return &change{
-			"   deleted",
-			del,
-			Unstaged,
-		}
+		return &change{"   deleted", del, Unstaged}
 	case y == 'T': //.T
-		return &change{
-			"typechange",
-			typ,
-			Unstaged,
-		}
+		return &change{"typechange", typ, Unstaged}
 	}
 
 	return nil
