@@ -44,5 +44,21 @@ task "features:wip" => :build do
   sh "cucumber -s --tags=@wip"
 end
 
+# quick and dirty package script, will have to replace with something much more
+# robust and also cross platform down the line, but for sending to friends this
+# can work for now...
+desc "package for distribution"
+task :package => [:build] do
+  DEST = "builds/scmpuff-osx"
+  tagged_version = `git describe --tags`.chomp()
+  mkdir_p DEST
+  cp "bin/scmpuff",   DEST
+  cp "README.md",     DEST
+  cp "CHANGELOG.md",  DEST
+  cp "INSTALL.txt",   DEST
+  sh "tar -C builds -cz -f builds/scmpuff_osx_amd64_#{tagged_version}.tgz scmpuff-osx"
+end
+CLOBBER.include "builds"
+
 task :all => [:build, :test, :features]
 task :default => :all
