@@ -153,6 +153,18 @@ var testCasesExtractChangeCodes = []struct {
 		},
 	},
 	{
+		[]byte("R  after\x00before"),
+		[]*change{
+			&change{msg: "   renamed", col: ren, group: Staged},
+		},
+	},
+	{
+		[]byte("C  after\x00before"),
+		[]*change{
+			&change{msg: "    copied", col: cpy, group: Staged},
+		},
+	},
+	{
 		[]byte("AM added_then_modified_file"),
 		[]*change{
 			&change{msg: "  new file", col: neu, group: Staged},
@@ -165,7 +177,7 @@ func TestExtractChangeCodes(t *testing.T) {
 	for _, tc := range testCasesExtractChangeCodes {
 		actual := extractChangeCodes(tc.chunk)
 		if !reflect.DeepEqual(actual, tc.expected) {
-			t.Fatalf("processChange('%s'): expected %v, actual %v",
+			t.Fatalf("processChange('%s'): expected %+v, actual %+v",
 				tc.chunk, tc.expected, actual)
 		}
 	}

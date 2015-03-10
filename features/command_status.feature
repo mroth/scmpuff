@@ -162,6 +162,45 @@ Feature: status command
       """
 
 
+  Scenario: Handle change detection properly
+    Change detection is currently fairly rare in `git status`, mostly it only
+    happens after in index via diff or show.  But it can occur, so make sure we
+    support it when it happens, as it may be baked in better in the future.
+    Change detection naturally involves two filepaths, like rename.
+
+    In theory this is redundant with the "multiple filenames" scenario above,
+    but since change detection seems somewhat in flux we want to test for it
+    seperately in case its behavior changes in future versions of git.
+
+    Thanks to @peff on git mailing list for conditions to reproduce this.
+
+    Given I am in a git repository
+    And a 1000 byte file named "file"
+    And I successfully run the following commands:
+      | git add file       |
+      | git commit -m base |
+      | mv file other      |
+    Then I append to "file" with "foo"
+    And I successfully run `git add .`
+    # verify git behavior has not changed since this is hard to reproduce
+    When I successfully run `git status --short`
+    Then the stdout from "git status --short" should contain:
+      """
+      M  file
+      C  file -> other
+      """
+    # actual behavior test
+    When I successfully run `scmpuff status`
+    Then the stdout from "scmpuff status" should contain:
+      """
+      modified:  [1] file
+      """
+    And the stdout from "scmpuff status" should contain:
+      """
+      copied:  [2] file -> other
+      """
+
+
   Scenario: Status for a complex merge conflict
     Test by duplicating exactly the test_git_status_shortcuts_merge_conflicts()
     tests from scm_breeze.

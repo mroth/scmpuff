@@ -139,10 +139,10 @@ func ProcessChanges(s *bufio.Scanner, root string) (results []*StatusItem) {
 
 	for s.Scan() {
 		chunk := s.Bytes()
-		// ...if chunk represents a rename operation, need to append another chunk
+		// ...if chunk represents a rename or copy op, need to append another chunk
 		// to get the full change item, with NUL manually reinserted because scanner
 		// will extract past it.
-		if chunk[0] == 'R' && s.Scan() {
+		if (chunk[0] == 'R' || chunk[0] == 'C') && s.Scan() {
 			chunk = append(chunk, '\x00')
 			chunk = append(chunk, s.Bytes()...)
 		}
