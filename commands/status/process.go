@@ -370,17 +370,7 @@ func decodePrimaryChangeCode(x, y rune) *change {
 
 func decodeSecondaryChangeCode(x, y rune) *change {
 	switch {
-	// TODO: fix the below and restore now that my cluelessness about these being
-	// seperate statuses is reflected.
-	//
-	// So here's the thing, below case should never match, because [R.] earlier
-	// is going to nab it.  So I'm assuming it's an oversight in the script.
-	//
-	// it was introduced to scm_breeze in:
-	//   https://github.com/ndbroadbent/scm_breeze/pull/145/files
-	//
-	// case x == 'R' && y == 'M': //RM
-	case x != 'R' && y == 'M': //[!R]M
+	case y == 'M': //.M
 		return &change{
 			"  modified",
 			mod,
