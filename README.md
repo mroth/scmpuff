@@ -1,8 +1,6 @@
 # scmpuff :dash:
 
-![miley-puffs](http://media.giphy.com/media/nF8Sgd4X74be/giphy.gif)
-
-Makes working with git from the command line quicker by substituting numeric
+> Makes working with git from the command line quicker by substituting numeric
 shortcuts for files.
 
 <img width=568 src="http://f.cl.ly/items/2726271z170L2y0K3d0b/scmpuff_screenshot.png">
@@ -10,24 +8,29 @@ shortcuts for files.
 **scmpuff** is a minimalistic implementation of the core functionality of
 [SCM Breeze][scmbreeze], without many of the extras.
 
-It's focus is on simplicity, speed, and cross-platform support. The majority of
-the functionality is contained within a compiled binary, and the shell
-integration is under 100 lines of shell script.
+Its focus is on simplicity, speed, robustness, and cross-platform support. The
+majority of the functionality is contained within a compiled binary, and the
+shell integration is under 100 lines of shell script.
 
 **scmpuff** currently functions in `bash` and `zsh` in any *nix-like operating
 system. It's written with cross-platform support in mind, so hopefully we'll
 have it functioning on Windows soon as well.
 
+**scmpuff** is fully compatible with the most-excellent [hub].
+
 [scmbreeze]: https://github.com/ndbroadbent/scm_breeze
+[hub]: https://github.com/github/hub
 
 ## Installation
 
-For now, you have to do it manually.  If you have a Go dev setup, you can do:
+For now, you have to do it manually. Download the binary, and copy it to
+`/usr/local/bin` or somewhere else in your default `$PATH`.
+
+If you have a Go dev setup, you can do:
 
     go get github.com/mroth/scmpuff
 
-If you downloaded a binary, place it in `/usr/local/bin` or some other place
-on your system's default `PATH`.
+To build the most recent from source.
 
 Once this is semi-feature complete, I will work on binary cross-compilation and
 putting a package in Homebrew.
@@ -73,6 +76,9 @@ commands, e.g. `git add 2 3` or `git checkout 1`.**
 You can also use numeric ranges, e.g. `git reset 2-4`. Ranges can even be mixed
 with normal numeric operands.
 
+Behind the scenes, scmpuff is assigning filenames to sequential environment variables, e.g. `$e1`, `$e2`, so you can refer to those with other commands too
+if needed.
+
 By default, scmpuff will also define a few handy shortcuts to save your fingers,
 e.g. `ga`, `gd`, `gco`.  Check your aliases to see what they are.
 
@@ -85,12 +91,16 @@ e.g. `ga`, `gd`, `gco`.  Check your aliases to see what they are.
 
 ### How does it compare with scm_breeze?
 
-There are a number of notable features we don't have (on purpose):
+The short version: it does less, but what it does it should do faster and more
+reliably.
+
+The longer version... There are a number of notable features we don't have (on
+purpose):
 
  - Design Asset Management.
- - Keyboard "shortcuts".
+ - Keyboard combinations.
  - File indexing/search.
- - Pretty much anything beyond numeric filename substitution.
+ - ...Pretty much anything beyond numeric filename substitution.
 
 There are also some philosophical differences that underpin the design:
 
@@ -129,8 +139,8 @@ indispensable part of my daily workflow for years.
 That said, it does a lot more than I need, and I have a bit of an obsession with
 having my core tools being lean and mean. In addition, the cross-platform
 story is not great, and functionality on MacOSX/Darwin can be a bit buggy.  I've
-attempted to contribute some patches back to scm_breeze over the years, [with
-limited success][patches].
+attempted to contribute some [patches to scm_breeze over the years][patches],
+with limited success.
 
 That said, I don't see scmpuff as a replacement or competitor for scm_breeze,
 but rather as a complimentary tool for people who may prefer a "lite" version.
@@ -149,7 +159,7 @@ Time to init during shell startup:
 `scm_breeze: 0.09sec scmpuff: 0.01sec`
 
 Full color numbered status on a git repo with ~500 changes:  
-`scm_breeze: 1.14sec* scmpuff: 0.15sec`  
+`scm_breeze: 1.14sec* scmpuff: 0.13sec`  
 _Note: scm_breeze normally falls back to normal git status after a configurable
 `gs_max_changes=150`, which I modified here for testing._
 
