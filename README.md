@@ -16,25 +16,20 @@ shell integration is under 100 lines of shell script.
 system. It's written with cross-platform support in mind, so hopefully we'll
 have it functioning on Windows soon as well.
 
-**scmpuff** is fully compatible with the most-excellent [hub].
+**scmpuff** is fully compatible with the most-excellent [Hub][hub].
 
 [scmbreeze]: https://github.com/ndbroadbent/scm_breeze
 [hub]: https://github.com/github/hub
 
 ## Installation
 
-For now, you have to do it manually. Download the binary, and copy it to
-`/usr/local/bin` or somewhere else in your default `$PATH`.
+[Download] the binary for your platform, and copy it to `/usr/local/bin` or
+somewhere else in your  default `$PATH`.
 
-If you have a Go dev setup, you can do:
+Once this is semi-feature complete, I will work on getting a package in
+Homebrew etc.
 
-    go get github.com/mroth/scmpuff
-
-To build the most recent from source.
-
-Once this is semi-feature complete, I will work on binary cross-compilation and
-putting a package in Homebrew.
-
+[download]: https://github.com/mroth/scmpuff/releases/latest
 
 ## Setup
 
@@ -76,7 +71,8 @@ commands, e.g. `git add 2 3` or `git checkout 1`.**
 You can also use numeric ranges, e.g. `git reset 2-4`. Ranges can even be mixed
 with normal numeric operands.
 
-Behind the scenes, scmpuff is assigning filenames to sequential environment variables, e.g. `$e1`, `$e2`, so you can refer to those with other commands too
+Behind the scenes, scmpuff is assigning filenames to sequential environment
+variables, e.g. `$e1`, `$e2`, so you can refer to those with other commands too
 if needed.
 
 By default, scmpuff will also define a few handy shortcuts to save your fingers,
@@ -89,7 +85,7 @@ e.g. `ga`, `gd`, `gco`.  Check your aliases to see what they are.
 
 :information_desk_person: I like to say "scum puff." But I'm weird.
 
-### How does it compare with scm_breeze?
+### How does it compare with SCM Breeze?
 
 The short version: it does less, but what it does it should do faster and more
 reliably.
@@ -104,20 +100,20 @@ purpose):
 
 There are also some philosophical differences that underpin the design:
 
- - *"Do one thing well, and avoid doing anything else."*
+ - **“Do one thing well, and avoid doing anything else.”**
 
- - *Don't set any environment variables that are unnecessary.* scm_breeze has a
-   tendency to pollute the environment with quite a lot of variables, we avoid
+ - **Don't set any environment variables that are unnecessary.** scm_breeze has
+   a tendency to pollute the environment with quite a lot of variables, we avoid
    this as much as possible here.
 
- - *Do as much as possible in cross-platform compiled code, as little as
-   possible in shell script.* Shell script can be slow, brittle, and hard to
+ - **Do as much as possible in cross-platform compiled code, as little as
+   possible in shell script.** Shell script can be slow, brittle, and hard to
    maintain, and in particular is problematic for cross-platform utilities due
    to subtle difference between implementations. `scmpuff` contains under 100
    lines of shell script total (compared to ~2000 in scm_breeze), and effort
    is made to keep it as simple as possible.
 
- - _Rigorously test all interactions with the operating system._ scmpuff has a
+ - **Rigorously test all interactions with the operating system.** scmpuff has a
    robust (and growing) set of integration tests that aim to verify the behavior
    of the program across different shells and operating systems.
 
@@ -128,7 +124,7 @@ in your shell initialization.  Then, if you wish to remap them, simple modify
 your default aliases wherever you normally do, but add aliases mapped to the
 scmpuff shell functions, e.g. `alias gs='scmpuff_status'`.
 
-### Okay but really, _why_ did you fork SCM Breeze?
+### Okay but really, _why_ did you clone SCM Breeze?
 Well, you see, I went drinking with some of the IoJS guys and one thing led to
 another and when I woke up I had a bad hangover and noticed my text editor was
 open...
@@ -137,14 +133,13 @@ Okay in all seriousness, SCM Breeze is a great tool, and has been an
 indispensable part of my daily workflow for years.
 
 That said, it does a lot more than I need, and I have a bit of an obsession with
-having my core tools being lean and mean. In addition, the cross-platform
-story is not great, and functionality on MacOSX/Darwin can be a bit buggy.  I've
-attempted to contribute some [patches to scm_breeze over the years][patches],
-with limited success.
+having my core tools being lean and mean. In addition, the cross-platform story
+is not great, and functionality on MacOSX/Darwin in particular can be a bit
+buggy.  I've attempted to contribute some [patches to SCM Breeze over the
+years][patches], but felt like it was time for a rewrite with a different focus
+and philosophy.
 
-That said, I don't see scmpuff as a replacement or competitor for scm_breeze,
-but rather as a complimentary tool for people who may prefer a "lite" version.
-So in my mind, it's really not a fork!
+That said, I don't see scmpuff as a competitor for scm_breeze, but rather as a complimentary tool for people who may prefer a "lite" version.
 
 [patches]: https://github.com/ndbroadbent/scm_breeze/issues?q=author%3Amroth
 
@@ -152,16 +147,22 @@ So in my mind, it's really not a fork!
 ## Benchmarks
 
 In normal usage I've always found scm_breeze to be acceptably fast, but scmpuff
-should be faster, so here are some informal benchmarks, measured on my 2011
-MacBook Air.
+should be roughly an order of magnitude faster, so here are some informal
+benchmarks, measured on my 2011 MacBook Air.
 
-Time to init during shell startup:  
-`scm_breeze: 0.09sec scmpuff: 0.01sec`
+Time to init during shell startup:
 
-Full color numbered status on a git repo with ~500 changes:  
-`scm_breeze: 1.14sec* scmpuff: 0.13sec`  
+    scm_breeze: 0.09sec
+    scmpuff:   <0.01sec
+
+Full color numbered status on a complex git repo with ~500 work tree changes:
+
+    scm_breeze: 1.14sec*
+    scmpuff:    0.13sec
+
 _Note: scm_breeze normally falls back to normal git status after a configurable
-`gs_max_changes=150`, which I modified here for testing._
+`$gs_max_changes=150`, which I modified here for testing. For comparison, I get
+about `0.08sec` for a plain `git status`._
 
 
 ## Development
