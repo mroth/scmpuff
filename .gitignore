@@ -1,0 +1,7 @@
+bin/
+builds/
+junk/
+tmp/
+.bundle/
+Gemfile.lock
+
