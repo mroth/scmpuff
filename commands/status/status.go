@@ -108,7 +108,7 @@ func gitProjectRoot() string {
 		// we want to capture and handle status 128 in a pretty way
 		if err.Error() == "exit status 128" {
 			msg := "Not a git repository (or any of the parent directories)"
-			fmt.Fprintf(os.Stderr, "\033[0;31m"+msg+"\n")
+			fmt.Fprintf(os.Stderr, "\033[0;31m"+msg+"\033[0m\n")
 			os.Exit(128)
 		}
 		// or, some other sort of error?

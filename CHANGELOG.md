@@ -5,6 +5,8 @@ This project tries to adhere to [Semantic Versioning](http://semver.org/).
 - Switch to `gonut` instead of `godep` for more reliable builds.
 
 ## 0.0.3 - Unreleased
+### Fixed
+- Reset ANSI colors properly after "Not a git repository" error.
 
 ## 0.0.2 - 2015-03-10
 ### Changed
