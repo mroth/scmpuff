@@ -14,7 +14,7 @@ file BINDATA => [*SH_SCRIPTS] do
 end
 
 CLEAN.include(BINDATA) if File.exists? BINDATA
-CLEAN.include("tmp")   if File.directory? "tmp"
+CLEAN.include FileList.new("tmp/*")
 
 desc "bootstrap gotool dependencies"
 task :bootstrap do
