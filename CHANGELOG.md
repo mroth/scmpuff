@@ -3,9 +3,13 @@ This project tries to adhere to [Semantic Versioning](http://semver.org/).
 
 ## 0.0.3 - Unreleased
 ### Changed
+Two build-chain changes that should make it possible for the project to be
+compiled by end-users via just `go get` (making the build script only required
+for developers):
 - Switched to using `nut` for dependency management, which overwrites import
-  paths instead of modifying GOPATH.  This should make the build chain simpler
-  down the line.
+  paths instead of modifying `$GOPATH`.
+- Vendor bindata generation.
+
 ### Fixed
 - Reset ANSI colors properly after "Not a git repository" error.
 
