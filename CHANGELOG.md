@@ -1,10 +1,11 @@
 # Change Log
 This project tries to adhere to [Semantic Versioning](http://semver.org/).
 
-## Planned for the future
-- Switch to `gonut` instead of `godep` for more reliable builds.
-
 ## 0.0.3 - Unreleased
+### Changed
+- Switched to using `nut` for dependency management, which overwrites import
+  paths instead of modifying GOPATH.  This should make the build chain simpler
+  down the line.
 ### Fixed
 - Reset ANSI colors properly after "Not a git repository" error.
 

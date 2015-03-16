@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/spf13/cobra"
+	"github.com/mroth/scmpuff/vendor/_nuts/github.com/spf13/cobra"
 )
 
 var introCmd = &cobra.Command{

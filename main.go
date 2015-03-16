@@ -5,7 +5,8 @@ import (
 	"github.com/mroth/scmpuff/commands/inits"
 	"github.com/mroth/scmpuff/commands/status"
 	"github.com/mroth/scmpuff/commands/version"
-	"github.com/spf13/cobra"
+
+	"github.com/mroth/scmpuff/vendor/_nuts/github.com/spf13/cobra"
 )
 
 var puffCmd = &cobra.Command{

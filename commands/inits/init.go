@@ -3,7 +3,7 @@ package inits
 import (
 	"fmt"
 
-	"github.com/spf13/cobra"
+	"github.com/mroth/scmpuff/vendor/_nuts/github.com/spf13/cobra"
 )
 
 // Since the flags are defined and used in different locations, we need to

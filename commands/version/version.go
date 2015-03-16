@@ -3,7 +3,7 @@ package version
 import (
 	"fmt"
 
-	"github.com/spf13/cobra"
+	"github.com/mroth/scmpuff/vendor/_nuts/github.com/spf13/cobra"
 )
 
 // the name of this software

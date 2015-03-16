@@ -1,18 +1,14 @@
 #!/usr/bin/env bash
 # Usage: build
 #
-# Run go build with godep
+# Run go build with dependencies
 #
 # Author: Jingwen Owen Ou
 # Modified: Matthew Rothenberg
-
-if [ ! -x $GOPATH/bin/godep ]; then
-  script/bootstrap
-fi
 
 if [ ! -x $GOPATH/bin/go-bindata ]; then
   script/bootstrap
 fi
 
-$GOPATH/bin/godep go generate ./...
-$GOPATH/bin/godep go build -o bin/scmpuff
+go generate ./...
+go build -o bin/scmpuff

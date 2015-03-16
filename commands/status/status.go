@@ -7,7 +7,7 @@ import (
 	"os"
 	"os/exec"
 
-	"github.com/spf13/cobra"
+	"github.com/mroth/scmpuff/vendor/_nuts/github.com/spf13/cobra"
 )
 
 // CommandStatus processes 'git status --porcelain', and exports numbered

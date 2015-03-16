@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Usage: bootstrap
 #
-# Installs all Gotool dependencies for build process
+# Installs all Gotool dependencies for development environment
 
-go get github.com/tools/godep
+go get github.com/gophergala/nut
 go get github.com/jteeuwen/go-bindata/...
