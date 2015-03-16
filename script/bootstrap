@@ -3,5 +3,10 @@
 #
 # Installs all Gotool dependencies for development environment
 
-go get github.com/gophergala/nut
-go get github.com/jteeuwen/go-bindata/...
+if [ ! -x $GOPATH/bin/nut ]; then
+  go get github.com/gophergala/nut
+fi
+
+if [ ! -x $GOPATH/bin/go-bindata ]; then
+  go get github.com/jteeuwen/go-bindata/...
+fi

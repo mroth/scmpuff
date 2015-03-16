@@ -10,15 +10,20 @@ SH_SCRIPTS = FileList.new("commands/inits/data/*.sh")
 # if any shell scripts change, clean intermediary files then regenerate bindata
 file BINDATA => [*SH_SCRIPTS] do
   FileUtils.rm(BINDATA, :verbose => true) if File.exists? BINDATA
-  sh "go generate ./commands/inits"
+  sh "script/generate"
 end
 
 CLEAN.include(BINDATA) if File.exists? BINDATA
 CLEAN.include FileList.new("tmp/*")
 
-desc "bootstrap gotool dependencies"
+desc "bootstrap all gotool dependencies"
 task :bootstrap do
   sh "script/bootstrap"
+end
+
+desc "generates bindata files"
+task :generate do
+  sh "script/generate"
 end
 
 desc "builds the binary"
@@ -26,7 +31,7 @@ task :build => BINDATA do
   sh "script/build"
 end
 
-desc "builds & installs the binary"
+desc "builds & installs the binary to $GOPATH/bin"
 task :install => :build do
   sh "go install"
 end
