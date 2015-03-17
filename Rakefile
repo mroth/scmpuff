@@ -5,7 +5,6 @@ require 'rake/clean'
 # versus in the build script.
 BINDATA    = "commands/inits/bindata.go"
 file BINDATA => :generate
-CLEAN.include(BINDATA) if File.exists? BINDATA
 CLEAN.include FileList.new("tmp/*")
 
 # convenience bootstrap all for getting started
