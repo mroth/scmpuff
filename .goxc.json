@@ -1,0 +1,9 @@
+{
+	"ArtifactsDest": "builds",
+	"TasksExclude": [
+		"deb",
+		"deb-dev"
+	],
+	"BuildConstraints": "linux darwin windows",
+	"ConfigVersion": "0.9"
+}
