@@ -15,7 +15,7 @@ function git() {
     checkout|diff|rm|reset)
       eval "$(scmpuff expand --relative -- "$SCMPUFF_GIT_CMD" "$@")";;
     add)
-      eval "$(scmpuff expand "$SCMPUFF_GIT_CMD" "$@")"
+      eval "$(scmpuff expand -- "$SCMPUFF_GIT_CMD" "$@")"
       scmpuff_status;;
     *)
       "$SCMPUFF_GIT_CMD" "$@";;

@@ -1,6 +1,10 @@
 # Change Log
 This project tries to adhere to [Semantic Versioning](http://semver.org/).
 
+### 0.1.0 - In development
+### Fixed
+- Fixed optional flag passing for `git add` wrapper.
+
 ## 0.0.3 - 2015-03-16
 ### Changed
 Two build-chain changes that should make it possible for the project to be
