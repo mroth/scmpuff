@@ -21,7 +21,6 @@ before_install:
 install:
   - export PATH="$HOME/gopath/bin:$PATH"
   - bundle install --jobs 3 --retry 3
-  - script/bootstrap
   - script/build
 
 script:
