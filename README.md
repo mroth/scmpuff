@@ -90,79 +90,14 @@ e.g. `ga`, `gd`, `gco`.  Check your aliases to see what they are.
 The short version: it does less, but what it does it should do faster and more
 reliably.
 
-The longer version... There are a number of notable features we don't have (on
-purpose):
-
- - Design Asset Management.
- - Keyboard combinations.
- - File indexing/search.
- - ...Pretty much anything beyond numeric filename substitution.
-
-There are also some philosophical differences that underpin the design:
-
- - **“Do one thing well, and avoid doing anything else.”**
-
- - **Don't set any environment variables that are unnecessary.** scm_breeze has
-   a tendency to pollute the environment with quite a lot of variables, we avoid
-   this as much as possible here.
-
- - **Do as much as possible in cross-platform compiled code, as little as
-   possible in shell script.** Shell script can be slow, brittle, and hard to
-   maintain, and in particular is problematic for cross-platform utilities due
-   to subtle difference between implementations. `scmpuff` contains under 100
-   lines of shell script total (compared to ~2000 in scm_breeze), and effort
-   is made to keep it as simple as possible.
-
- - **Rigorously test all interactions with the operating system.** scmpuff has a
-   robust (and growing) set of integration tests that aim to verify the behavior
-   of the program across different shells and operating systems.
-
+The long, detailed version for existing SCM Breeze users (including benchmarks):
+https://github.com/mroth/scmpuff/wiki/scmpuff-vs-SCM-Breeze
 
 ### Can I disable or change the default git shortcut alias names?
 You can disable them via passing `--aliases=false` to the `scmpuff init` call
 in your shell initialization.  Then, if you wish to remap them, simple modify
 your default aliases wherever you normally do, but add aliases mapped to the
 scmpuff shell functions, e.g. `alias gs='scmpuff_status'`.
-
-### Okay but really, _why_ did you clone SCM Breeze?
-Well, you see, I went drinking with some of the IoJS guys and one thing led to
-another and when I woke up I had a bad hangover and noticed my text editor was
-open...
-
-Okay in all seriousness, SCM Breeze is a great tool, and has been an
-indispensable part of my daily workflow for years.
-
-That said, it does a lot more than I need, and I have a bit of an obsession with
-having my core tools being lean and mean. In addition, the cross-platform story
-is not great, and functionality on MacOSX/Darwin in particular can be a bit
-buggy.  I've attempted to contribute some [patches to SCM Breeze over the
-years][patches], but felt like it was time for a rewrite with a different focus
-and philosophy.
-
-That said, I don't see scmpuff as a competitor for scm_breeze, but rather as a complimentary tool for people who may prefer a "lite" version.
-
-[patches]: https://github.com/ndbroadbent/scm_breeze/issues?q=author%3Amroth
-
-
-## Benchmarks
-
-In normal usage I've always found scm_breeze to be acceptably fast, but scmpuff
-should be roughly an order of magnitude faster, so here are some informal
-benchmarks, measured on my 2011 MacBook Air.
-
-Time to init during shell startup:
-
-    scm_breeze: 0.09sec
-    scmpuff:   <0.01sec
-
-Full color numbered status on a complex git repo with ~500 work tree changes:
-
-    scm_breeze: 1.14sec*
-    scmpuff:    0.13sec
-
-_Note: scm_breeze normally falls back to normal git status after a configurable
-`$gs_max_changes=150`, which I modified here for testing. For comparison, I get
-about `0.08sec` for a plain `git status`._
 
 
 ## Development
