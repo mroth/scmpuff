@@ -8,4 +8,4 @@ exclude:
   - README.md
   - Rakefile
   - Gemfile
-
+  - builds
