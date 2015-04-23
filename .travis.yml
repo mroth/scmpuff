@@ -16,7 +16,7 @@ install:
 
 script:
   - go test ./...
-  - bundle exec cucumber -s --tags=~@wip
+  - bundle exec cucumber -s --tags=~@wip --tags=~@recent-git-only
 
 branches:
   except:

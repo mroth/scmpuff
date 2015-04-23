@@ -162,6 +162,7 @@ Feature: status command
       """
 
 
+  @recent-git-only
   Scenario: Handle change detection properly
     Change detection is currently fairly rare in `git status`, mostly it only
     happens after in index via diff or show.  But it can occur, so make sure we
