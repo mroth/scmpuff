@@ -7,10 +7,10 @@ shortcuts for files.
 
 <img width=568 src="http://f.cl.ly/items/2726271z170L2y0K3d0b/scmpuff_screenshot.png">
 
-**scmpuff** is a minimalistic implementation of the core functionality of
+**scmpuff** is a minimalistic reinterpretation of the core functionality of
 [SCM Breeze][scmbreeze], without many of the extras.
 
-Its focus is on simplicity, speed, robustness, and cross-platform support. The
+It is focused on simplicity, speed, robustness, and cross-platform support. The
 majority of the functionality is contained within a compiled binary, and the
 shell integration is under 100 lines of shell script.
 
@@ -28,8 +28,7 @@ have it functioning on Windows soon as well.
 [Download] the binary for your platform, and copy it to `/usr/local/bin` or
 somewhere else in your  default `$PATH`.
 
-Once this is semi-feature complete, I will work on getting a package in
-Homebrew etc.
+Once this is popular enough, I will work on getting a package in Homebrew etc.
 
 [download]: https://github.com/mroth/scmpuff/releases/latest
 
@@ -42,7 +41,7 @@ To initialize shell functions, add the following to your `~/.bash_profile` or
 
     eval "$(scmpuff init -s)"
 
-This will define the scmpuff shell functions as well as some git shortcuts.
+This will define the scmpuff shell functions as well as some handy shortcuts.
 
 
 ## Usage
@@ -89,13 +88,13 @@ e.g. `ga`, `gd`, `gco`.  Check your aliases to see what they are.
 
 ### How does it compare with SCM Breeze?
 
-The short version: it does less, but what it does it should do faster and more
-reliably.
+The short version: it does less, but is faster and should be significantly more
+stable and reliable, especially across different platforms.
 
-The long, detailed version for existing SCM Breeze users (including benchmarks):
+The long, detailed version:
 https://github.com/mroth/scmpuff/wiki/scmpuff-vs-SCM-Breeze
 
-### Can I disable or change the default git shortcut alias names?
+### Can I disable or change the default git shortcut aliases?
 You can disable them via passing `--aliases=false` to the `scmpuff init` call
 in your shell initialization.  Then, if you wish to remap them, simple modify
 your default aliases wherever you normally do, but add aliases mapped to the
