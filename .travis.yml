@@ -9,10 +9,6 @@ before_install:
   - rvm --version
   - bundle --version
   - gem --version
-  # lets check the following, because if GOPATH is set properly, we can set PATH
-  # more intelligently in the install steps
-  - go env
-  - echo $PATH
 
 install:
   - export PATH="$HOME/gopath/bin:$PATH"
@@ -21,7 +17,7 @@ install:
 
 script:
   - go test ./...
-  - bundle exec rake features
+  - bundle exec cucumber -s --tags=~@wip
 
 branches:
   except:
