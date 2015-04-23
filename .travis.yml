@@ -6,13 +6,10 @@ go:
 before_install:
   - export BUNDLE_GEMFILE=$PWD/Gemfile
   - ruby --version
-  - rvm --version
-  - bundle --version
-  - gem --version
+  - export PATH=~/bin:"$PATH"
 
 install:
-  - export PATH="$HOME/gopath/bin:$PATH"
-  - bundle install --jobs 3 --retry 3
+  - bundle install --path "$HOME/build/$TRAVIS_REPO_SLUG/vendor/bundle" --jobs 3 --retry 3
   - script/build
 
 script:
