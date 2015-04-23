@@ -102,7 +102,7 @@ Feature: status command
       <abspath_end>
       """
     # STAGED 'NEW FILE' CHANGES
-    Given I successfully run `git add -A`
+    Given I successfully run `git add "<displaypath>"`
     When I successfully run `scmpuff status`
     Then the stdout from "scmpuff status" should contain:
       """
