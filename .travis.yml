@@ -7,6 +7,7 @@ before_install:
   - export BUNDLE_GEMFILE=$PWD/Gemfile
   - ruby --version
   - export PATH=~/bin:"$PATH"
+  - curl -fsSL https://ci-cache.s3.amazonaws.com/tmux-zsh.ubuntu.tgz | tar -xz -C ~
 
 install:
   - bundle install --path "$HOME/build/$TRAVIS_REPO_SLUG/vendor/bundle" --jobs 3 --retry 3
