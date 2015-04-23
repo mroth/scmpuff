@@ -4,8 +4,9 @@ go:
   - 1.4
 
 before_install:
-  - export BUNDLE_GEMFILE=$PWD/Gemfile
   - ruby --version
+  - git --version
+  - export BUNDLE_GEMFILE=$PWD/Gemfile
   - export PATH=~/bin:"$PATH"
   - curl -fsSL https://ci-cache.s3.amazonaws.com/tmux-zsh.ubuntu.tgz | tar -xz -C ~
 
