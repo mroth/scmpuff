@@ -1,13 +1,9 @@
+sudo: false
 language: go
 go:
   - 1.4
 
 before_install:
-  # make sure we have git, bash, and zsh installed to test on
-  - sudo apt-get update -qq
-  - sudo apt-get install -qq zsh git
-  # we need Ruby too, for our Aruba feature integration tests
-  - rvm use 2.2.1 --install --binary --fuzzy
   - export BUNDLE_GEMFILE=$PWD/Gemfile
   - ruby --version
   - rvm --version
@@ -30,3 +26,7 @@ script:
 branches:
   except:
     - gh-pages
+
+cache:
+  directories:
+    - vendor/bundle
