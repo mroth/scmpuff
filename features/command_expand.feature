@@ -63,3 +63,12 @@ Feature: command expansion at command line
     Then the stdout from "scmpuff expand 1" should contain "/tmp/aruba/xxx.jpg"
     When I successfully run `scmpuff expand -r -- 1`
     Then the stdout from "scmpuff expand -r -- 1" should contain "../../xxx.jpg"
+
+  Scenario: Don't trim empty string args when expanding command
+    There are certain situations where someone would want to actually pass an
+    empty string arg, so we need to make sure we don't trim that out.
+    Essentially we want to avoid the error condition reported here:
+    https://github.com/ndbroadbent/scm_breeze/issues/167
+
+    When I successfully run `scmpuff expand -- hub commit --allow-empty --allow-empty-message -m ''`
+    Then the output should match /hub\tcommit\t--allow-empty\t--allow-empty-message\t-m\t\'\'/

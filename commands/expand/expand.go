@@ -59,6 +59,14 @@ func Process(args []string) string {
 	var processedArgs []string
 	for _, arg := range expand(args) {
 		processed := escape(evaluateEnvironment(arg))
+
+		// if we still ended up with a totally blank arg, escape it here.
+		// we handle this as a special case rather than in expandArg because we
+		// don't want it to be subject to normal escaping.
+		if processed == "" {
+			processed = "''"
+		}
+
 		processedArgs = append(processedArgs, processed)
 	}
 
