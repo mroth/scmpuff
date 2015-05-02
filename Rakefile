@@ -28,7 +28,7 @@ end
 
 desc "builds & installs the binary to $GOPATH/bin"
 task :install => :build do
-  sh "go install"
+  cp "bin/scmpuff", "#{ENV['GOPATH']}/bin/scmpuff"
 end
 
 desc "run unit tests"
