@@ -3,4 +3,5 @@ builds/
 junk/
 tmp/
 .bundle/
+_site/
 Gemfile.lock
