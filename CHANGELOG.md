@@ -1,7 +1,7 @@
 # Change Log
 This project tries to adhere to [Semantic Versioning](http://semver.org/).
 
-## 0.1.1 - In development
+## 0.1.1 - 2015-08-02
 ### Fixed
 - Allow for passing along empty arguments during expansion.
 
