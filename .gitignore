@@ -5,3 +5,4 @@ tmp/
 .bundle/
 _site/
 Gemfile.lock
+.goxc.local.json

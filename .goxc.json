@@ -1,9 +1,19 @@
 {
 	"ArtifactsDest": "builds",
+	"Tasks": [
+		"default",
+		"publish-github"
+	],
 	"TasksExclude": [
 		"deb",
 		"deb-dev"
 	],
 	"BuildConstraints": "linux darwin windows",
+	"TaskSettings": {
+		"publish-github": {
+			"owner": "mroth",
+			"repository": "scmpuff"
+		}
+	},
 	"ConfigVersion": "0.9"
 }
