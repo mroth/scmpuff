@@ -28,9 +28,10 @@ have it functioning on Windows soon as well.
 [Download] the binary for your platform, and copy it to `/usr/local/bin` or
 somewhere else in your  default `$PATH`.
 
-Once this is popular enough, I will work on getting a package in Homebrew etc.
+Alternately, if you use [homebrew], you can just: `brew install scmpuff`. :beer:
 
 [download]: https://github.com/mroth/scmpuff/releases/latest
+[homebrew]: http://brew.sh
 
 ## Setup
 
