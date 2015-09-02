@@ -52,6 +52,17 @@ Feature: command expansion at command line
       | so(dumb).jpg   | so\(dumb\).jpg   |
       | hi mom.txt     | hi\ mom.txt      |
       | "x.txt         | \"x.txt          |
+      | wt;af.gif      | wt\;af.gif       |
+
+  Scenario: Semicolons in commit messages
+    Given a git repository named "whatever"
+      And I cd to "whatever"
+      And a 4 byte file named "a.txt"
+      And I successfully run the following commands:
+        | git add a.txt                               |
+      When I successfully run `scmpuff expand -- git commit -m "foo; bar"`
+      Then the stderr should not contain anything
+        And the output should match /git\tcommit\t-m\tfoo\\;\\ bar/
 
   Scenario: Allow user to specify --relative paths
     Given a directory named "foo"
