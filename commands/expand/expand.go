@@ -50,7 +50,7 @@ Takes a list of digits (1 4 5) or numeric ranges (1-5) or even both.`,
 
 var expandArgDigitMatcher = regexp.MustCompile("^[0-9]{0,4}$")
 var expandArgRangeMatcher = regexp.MustCompile("^([0-9]+)-([0-9]+)$")
-var shellEscaper = regexp.MustCompile("([\\^()\\[\\]<>' \"])")
+var shellEscaper = regexp.MustCompile("([\\^()\\[\\]<>' \";])")
 
 // Process expands args and performs all substitution, etc.
 //
