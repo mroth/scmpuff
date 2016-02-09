@@ -221,6 +221,10 @@ var testCasesExtractBranch = []struct {
 		[]byte("## upstream...upstream/master [ahead 5, behind 3]"),
 		&BranchInfo{name: "upstream", ahead: 5, behind: 3},
 	},
+	{
+		[]byte("## 3.0...origin/3.0 [ahead 1]"),
+		&BranchInfo{name: "3.0", ahead: 1, behind: 0},
+	},
 }
 
 func TestExtractBranch(t *testing.T) {
