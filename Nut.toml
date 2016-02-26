@@ -1,7 +1,0 @@
-[application]
-name = "scmpuff"
-authors = ["Matthew Rothenberg <mroth@mroth.info>"]
-
-[dependencies]
-"github.com/spf13/cobra" = "9e7273d5469dd5e04a35fd8823ba510117448c0b"
-"github.com/spf13/pflag" = "11b7cf8387a31f278486eaad758162830eca8c73"
