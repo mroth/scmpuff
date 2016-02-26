@@ -67,7 +67,7 @@ func ExtractBranch(bs []byte) *BranchInfo {
 }
 
 func decodeBranchName(bs []byte) string {
-	re := regexp.MustCompile(`^## (?:Initial commit on )?([^ \.]+)`)
+	re := regexp.MustCompile(`^## (?:Initial commit on )?(\S+?)(?:\.{3}|$)`)
 	m := re.FindSubmatch(bs)
 	if m == nil {
 		log.Fatalf("Failed to parse branch name for output: [%s]", bs)
