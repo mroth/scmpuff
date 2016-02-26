@@ -1,6 +1,15 @@
 # Change Log
 This project tries to adhere to [Semantic Versioning](http://semver.org/).
 
+## 0.2.0 - In Development
+### Changed
+- Updated build toolchain for compiling in Go 1.6 and beyond.
+
+### Fixed
+- Fix for truncated branch names containing periods (issue #12)
+- Allow for semicolons in commit messages (PR #7, thx @creature)
+
+
 ## 0.1.1 - 2015-08-02
 ### Fixed
 - Allow for passing along empty arguments during expansion.
