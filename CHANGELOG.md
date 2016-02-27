@@ -1,7 +1,7 @@
 # Change Log
 This project tries to adhere to [Semantic Versioning](http://semver.org/).
 
-## 0.2.0 - In Development
+## 0.2.0 - 2016-02-27
 ### Changed
 - Updated build toolchain for compiling in Go 1.6 and beyond.
 
