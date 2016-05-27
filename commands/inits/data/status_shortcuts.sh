@@ -40,14 +40,11 @@ scmpuff_status() {
 # Clear numbered env variables
 scmpuff_clear_vars() {
   local scmpuff_env_char="e"
-  local i
+  local i=0
+  local env_var_i=${scmpuff_env_char}${i}
 
-  for (( i=1; i<=999; i++ )); do
-    local env_var_i=${scmpuff_env_char}${i}
-    if [[ -n ${env_var_i} ]]; then
-      unset ${env_var_i}
-    else
-      break
-    fi
+  until [ "${env_var_i+is_null}" ]; do
+    unset ${env_var_i}
+    env_var_i=${scmpuff_env_char}$(( ++i ))
   done
 }
