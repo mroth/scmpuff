@@ -8,7 +8,7 @@ export SCMPUFF_GIT_CMD="$(\which git)"
 # Wrap git with the 'hub' github wrapper, if installed
 if type hub > /dev/null 2>&1; then export SCMPUFF_GIT_CMD="hub"; fi
 
-function git() {
+git() {
   case $1 in
     commit|blame|log|rebase|merge)
       eval "$(scmpuff expand -- "$SCMPUFF_GIT_CMD" "$@")";;
