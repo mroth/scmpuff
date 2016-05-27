@@ -21,13 +21,16 @@ scmpuff_status() {
 
   # Export numbered env variables for each file
   scmpuff_clear_vars
-  IFS=$'\t'
+  IFS_CUR=$IFS
+  # Some shells (pdksh) do not support ANSI C Quoting, i.e. $'\t'
+  # This temporary IFS is a literal tab character, not a space. 
+  IFS='	' 
   local e=1
   for file in $files; do
     export $scmpuff_env_char$e="$file"
     let e++
   done
-  IFS=$' \t\n'
+  IFS=$IFS_CUR
 
   # Print status (from line two onward)
   echo "$cmd_output" | tail -n +2
