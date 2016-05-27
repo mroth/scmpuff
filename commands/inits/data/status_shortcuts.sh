@@ -39,15 +39,10 @@ scmpuff_status() {
   if [ -n "$ZSH_VERSION" ]; then unsetopt shwordsplit; fi;
 }
 
-
 # Clear numbered env variables
 scmpuff_clear_vars() {
-  local scmpuff_env_char="e"
-  local i=0
-  local env_var_i=${scmpuff_env_char}${i}
-
-  until [ "${env_var_i+is_null}" ]; do
-    unset ${env_var_i}
-    env_var_i=${scmpuff_env_char}$(( ++i ))
+  for v in $(set | sed -n 's_^\(e[1-9][0-9]*\)=.*_\1_p')
+  do
+    unset $v
   done
 }
