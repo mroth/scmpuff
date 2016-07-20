@@ -53,6 +53,7 @@ Feature: command expansion at command line
       | hi mom.txt     | hi\ mom.txt      |
       | "x.txt         | \"x.txt          |
       | wt;af.gif      | wt\;af.gif       |
+      | foo\|bar       | foo\\\|bar       |
 
   Scenario: Semicolons in commit messages
     Given a git repository named "whatever"
