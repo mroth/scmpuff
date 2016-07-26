@@ -21,13 +21,16 @@ scmpuff_status() {
 
   # Export numbered env variables for each file
   scmpuff_clear_vars
-  IFS=$'\t'
+  IFS_CUR=$IFS
+  # Some shells (pdksh) do not support ANSI C Quoting, i.e. $'\t'
+  # This temporary IFS is a literal tab character, not a space. 
+  IFS='	' 
   local e=1
   for file in $files; do
     export $scmpuff_env_char$e="$file"
     let e++
   done
-  IFS=$' \t\n'
+  IFS=$IFS_CUR
 
   # Print status (from line two onward)
   echo "$cmd_output" | tail -n +2
@@ -36,18 +39,10 @@ scmpuff_status() {
   if [ -n "$ZSH_VERSION" ]; then unsetopt shwordsplit; fi;
 }
 
-
 # Clear numbered env variables
 scmpuff_clear_vars() {
-  local scmpuff_env_char="e"
-  local i
-
-  for (( i=1; i<=999; i++ )); do
-    local env_var_i=${scmpuff_env_char}${i}
-    if [[ -n ${env_var_i} ]]; then
-      unset ${env_var_i}
-    else
-      break
-    fi
+  for v in $(set | sed -n 's_^\(e[1-9][0-9]*\)=.*_\1_p')
+  do
+    unset $v
   done
 }
