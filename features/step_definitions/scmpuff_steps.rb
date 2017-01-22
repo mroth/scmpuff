@@ -28,6 +28,12 @@ Given(/^I switch to git branch "([^"]*)"$/) do |branch_name|
   }
 end
 
+Given(/^I switch to existing git branch "([^"]*)"$/) do |branch_name|
+  steps %Q{
+    Given I successfully run `git checkout #{branch_name}`
+  }
+end
+
 Given(/^I clone "(.*?)" to "(.*?)"$/) do |r1, r2|
   steps %Q{
     Given I successfully run `git clone #{r1}/.git #{r2}`

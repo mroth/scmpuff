@@ -229,6 +229,14 @@ var testCasesExtractBranch = []struct {
 		[]byte("## 3.0...origin/3.0 [ahead 1]"),
 		&BranchInfo{name: "3.0", ahead: 1, behind: 0},
 	},
+	{
+		[]byte("## HEAD (no branch)"),
+		&BranchInfo{name: "HEAD (no branch)", ahead: 0, behind: 0},
+	},
+	{
+		[]byte("## HEAD (no branch)UU both_modified.txt"),
+		&BranchInfo{name: "HEAD (no branch)", ahead: 0, behind: 0},
+	},
 }
 
 func TestExtractBranch(t *testing.T) {

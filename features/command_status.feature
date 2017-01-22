@@ -248,3 +248,27 @@ Feature: status command
     Then the output should match /both deleted: *\[[0-9]*\] *renamed_file/
     Then the output should match /added by them: *\[[0-9]*\] *renamed_file_on_branch/
     Then the output should match /added by us: *\[[0-9]*\] *renamed_file_on_master/
+
+  Scenario: Status for a handling a conflict when rebasing
+    Given I am in a git repository
+    And a file named "file_with_conflict" with:
+      """
+      original content
+      """
+    And I successfully run `git add file_with_conflict`
+    And I successfully run `git commit -m "Original content"`
+    
+    When I switch to git branch "foobar"
+    And I append to "file_with_conflict" with "a change from foobar"
+    And I successfully run `git add file_with_conflict`
+    And I successfully run `git commit -m "Edited in branch foobar"`
+
+    When I switch to existing git branch "master"
+    And I append to "file_with_conflict" with "a change from master"
+    And I successfully run `git add file_with_conflict`
+    And I successfully run `git commit -m "Edited in branch master"`
+
+    When I switch to existing git branch "foobar"
+    And I run `git rebase master`
+    And I successfully run `scmpuff status`
+    Then the output should match /On branch: HEAD \(no branch\)/
