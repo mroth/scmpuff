@@ -1,6 +1,7 @@
 {
 	"ImportPath": "github.com/mroth/scmpuff",
-	"GoVersion": "go1.6",
+	"GoVersion": "go1.8",
+	"GodepVersion": "v79",
 	"Packages": [
 		"./..."
 	],
@@ -11,11 +12,11 @@
 		},
 		{
 			"ImportPath": "github.com/spf13/cobra",
-			"Rev": "65a708cee0a4424f4e353d031ce440643e312f92"
+			"Rev": "ee4055870c2d5f7ce112642377e32c9929c3bbaf"
 		},
 		{
 			"ImportPath": "github.com/spf13/pflag",
-			"Rev": "7f60f83a2c81bc3c3c0d5297f61ddfa68da9d3b7"
+			"Rev": "9ff6c6923cfffbcd502984b8e0c80539a94968b7"
 		}
 	]
 }
