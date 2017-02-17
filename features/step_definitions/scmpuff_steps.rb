@@ -2,40 +2,46 @@ require 'fileutils'
 require 'aruba/api'
 
 Given(/^a git repository named "([^"]*)"$/) do |repo_name|
-  steps %Q{
+  steps %(
     Given I successfully run `git init --quiet #{repo_name}`
-  }
+  )
 end
 
 Given(/^I am in a git repository named "([^"]*)"$/) do |repo_name|
-  steps %Q{
+  steps %(
     Given a git repository named "#{repo_name}"
     And I cd to "#{repo_name}"
-  }
+  )
 end
 
 Given(/^I am in a git repository$/) do
   repo_name = 'mygitrepo'
-  steps %Q{
+  steps %(
     Given a git repository named "#{repo_name}"
     And I cd to "#{repo_name}"
-  }
+  )
 end
 
 Given(/^I switch to git branch "([^"]*)"$/) do |branch_name|
-  steps %Q{
+  steps %(
     Given I successfully run `git checkout -b #{branch_name}`
-  }
+  )
+end
+
+Given(/^I switch to existing git branch "([^"]*)"$/) do |branch_name|
+  steps %(
+    Given I successfully run `git checkout #{branch_name}`
+  )
 end
 
 Given(/^I clone "(.*?)" to "(.*?)"$/) do |r1, r2|
-  steps %Q{
+  steps %(
     Given I successfully run `git clone #{r1}/.git #{r2}`
-  }
+  )
 end
 
 Given(/^I am in a complex working tree status matching scm_breeze tests$/) do
-  steps %Q{
+  steps %(
     Given I am in a git repository
     And an empty file named "deleted_file"
     And I successfully run `git add deleted_file`
@@ -48,7 +54,7 @@ Given(/^I am in a complex working tree status matching scm_breeze tests$/) do
       changed contents lolol
       """
     And I remove the file "deleted_file"
-  }
+  )
 end
 
 # Create a filesystem mock of the git repo, and copy it in.
