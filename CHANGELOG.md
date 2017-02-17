@@ -1,10 +1,11 @@
 # Change Log
 This project tries to adhere to [Semantic Versioning](http://semver.org/).
 
-## 0.2.1 - In Development
+## 0.2.1 - 2017-02-17
 ### Fixed
 - Fix for expanding filenames containing a `|` character. (#21)
-
+- Allow scmpuff_status to handle detached git states. (#24, thx @bikezilla)
+- Rebuilt binaries with more recent Go to avoid macOS errors. (fixes #23)
 
 ## 0.2.0 - 2016-02-27
 ### Changed
