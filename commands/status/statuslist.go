@@ -284,7 +284,7 @@ func (si StatusItem) display(displayNum int) string {
 	// which seems slow so maybe we will skip this for now?
 	//
 	// note to future self: format would add a final " %s" to output printf to
-	// accomodate.
+	// accommodate.
 
 	groupCol := "\033[0;" + groupColorMap[si.group]
 	return fmt.Sprintf(

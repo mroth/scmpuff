@@ -11,7 +11,7 @@ import (
 )
 
 var NAME = "scmpuff"
-var VERSION = "0.?.? (not using buildscript)" // overriden via build scripts
+var VERSION = "0.?.? (not using buildscript)" // overridden via build scripts
 
 var puffCmd = &cobra.Command{
 	Use:   "scmpuff",

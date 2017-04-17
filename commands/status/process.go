@@ -112,7 +112,7 @@ when we process it earlier, but the results are binary identical.)
 
 This is a complicated process because the format is weird. Each line is a
 variable length number of columns (2-3), but the separator for 1-2 is a space
-(but the content of columns can contain spaces too!), and the seperator for 2-3
+(but the content of columns can contain spaces too!), and the separator for 2-3
 is a NUL character (ASCII 0), *if* there is a third column. But here's where it
 gets wacky: NUL is also the entry terminator (rather than a LF like in normal
 porcelain mode)
