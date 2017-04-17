@@ -47,22 +47,22 @@ type StatusItem struct {
 func NewStatusList() *StatusList {
 	return &StatusList{
 		groups: map[StatusGroup]*FileGroup{
-			Staged: &FileGroup{
+			Staged: {
 				group: Staged,
 				desc:  "Changes to be committed",
 				items: make([]*StatusItem, 0),
 			},
-			Unmerged: &FileGroup{
+			Unmerged: {
 				group: Unmerged,
 				desc:  "Unmerged paths",
 				items: make([]*StatusItem, 0),
 			},
-			Unstaged: &FileGroup{
+			Unstaged: {
 				group: Unstaged,
 				desc:  "Changes not staged for commit",
 				items: make([]*StatusItem, 0),
 			},
-			Untracked: &FileGroup{
+			Untracked: {
 				group: Untracked,
 				desc:  "Untracked files",
 				items: make([]*StatusItem, 0),

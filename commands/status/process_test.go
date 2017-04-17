@@ -131,44 +131,44 @@ var testCasesExtractChangeCodes = []struct {
 	{
 		[]byte("A  HELLO.md"),
 		[]*change{
-			&change{msg: "  new file", col: neu, group: Staged},
+			{msg: "  new file", col: neu, group: Staged},
 		},
 	},
 	{
 		[]byte(" M script/benchmark"),
 		[]*change{
-			&change{msg: "  modified", col: mod, group: Unstaged},
+			{msg: "  modified", col: mod, group: Unstaged},
 		},
 	},
 	{
 		[]byte("?? .travis.yml"),
 		[]*change{
-			&change{msg: " untracked", col: unt, group: Untracked},
+			{msg: " untracked", col: unt, group: Untracked},
 		},
 	},
 	{
 		[]byte(" D deleted_file"),
 		[]*change{
-			&change{msg: "   deleted", col: del, group: Unstaged},
+			{msg: "   deleted", col: del, group: Unstaged},
 		},
 	},
 	{
 		[]byte("R  after\x00before"),
 		[]*change{
-			&change{msg: "   renamed", col: ren, group: Staged},
+			{msg: "   renamed", col: ren, group: Staged},
 		},
 	},
 	{
 		[]byte("C  after\x00before"),
 		[]*change{
-			&change{msg: "    copied", col: cpy, group: Staged},
+			{msg: "    copied", col: cpy, group: Staged},
 		},
 	},
 	{
 		[]byte("AM added_then_modified_file"),
 		[]*change{
-			&change{msg: "  new file", col: neu, group: Staged},
-			&change{msg: "  modified", col: mod, group: Unstaged},
+			{msg: "  new file", col: neu, group: Staged},
+			{msg: "  modified", col: mod, group: Unstaged},
 		},
 	},
 }

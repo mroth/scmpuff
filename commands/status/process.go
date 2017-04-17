@@ -199,7 +199,7 @@ absolute and display paths.
 */
 func extractFile(chunk []byte, root, wd string) (absPath, relPath string) {
 	// file identifier starts at pos4 and continues to EOL
-	filePortion := chunk[3:len(chunk)]
+	filePortion := chunk[3:]
 	files := bytes.SplitN(filePortion, []byte{'\x00'}, 2)
 
 	n := len(files)
