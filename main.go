@@ -10,8 +10,12 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// NAME of the program, hardcoded for consistency
 var NAME = "scmpuff"
-var VERSION = "0.?.? (not using buildscript)" // overridden via build scripts
+
+// VERSION is the default version of the program
+// ...in almost all cases this should be overriden by the buildscript.
+var VERSION = "0.?.? (not using buildscript)"
 
 var puffCmd = &cobra.Command{
 	Use:   "scmpuff",
