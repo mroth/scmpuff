@@ -2,6 +2,7 @@ package status
 
 import (
 	"fmt"
+	"path/filepath"
 	"reflect"
 	"testing"
 )
@@ -27,7 +28,7 @@ func TestProcessChange(t *testing.T) {
 	})
 
 	t.Run("abspath", func(t *testing.T) {
-		if actual.fileAbsPath != "/tmp/HELLO.md" {
+		if actual.fileAbsPath != filepath.FromSlash("/tmp/HELLO.md") {
 			t.Fatal("absolute path did not match expected")
 		}
 	})
@@ -50,36 +51,36 @@ var testCasesExtractFile = []struct {
 		root:        "/",
 		wd:          "/",
 		chunk:       []byte(" M script/benchmark"),
-		expectedAbs: "/script/benchmark",
-		expectedRel: "script/benchmark",
+		expectedAbs: filepath.FromSlash("/script/benchmark"),
+		expectedRel: filepath.FromSlash("script/benchmark"),
 	},
 	{
 		root:        "/tmp",
 		wd:          "/tmp",
 		chunk:       []byte(" M script/benchmark"),
-		expectedAbs: "/tmp/script/benchmark",
-		expectedRel: "script/benchmark",
+		expectedAbs: filepath.FromSlash("/tmp/script/benchmark"),
+		expectedRel: filepath.FromSlash("script/benchmark"),
 	},
 	{
 		root:        "/tmp/foo/bar//",
 		wd:          "/tmp/foo/bar/unicorn",
 		chunk:       []byte("?? unicorn/magic/xxx"),
-		expectedAbs: "/tmp/foo/bar/unicorn/magic/xxx",
-		expectedRel: "magic/xxx",
+		expectedAbs: filepath.FromSlash("/tmp/foo/bar/unicorn/magic/xxx"),
+		expectedRel: filepath.FromSlash("magic/xxx"),
 	},
 	{
 		root:        "/tmp/foo/bar//",
 		wd:          "/tmp/foo/bar/unicorn/magic",
 		chunk:       []byte("?? narwhal/disco/yyy"),
-		expectedAbs: "/tmp/foo/bar/narwhal/disco/yyy",
-		expectedRel: "../../narwhal/disco/yyy",
+		expectedAbs: filepath.FromSlash("/tmp/foo/bar/narwhal/disco/yyy"),
+		expectedRel: filepath.FromSlash("../../narwhal/disco/yyy"),
 	},
 	{
 		root:        "/tmp/foo",
 		wd:          "/tmp/foo",
 		chunk:       []byte("R  bar.txt\x00foo.txt"),
-		expectedAbs: "/tmp/foo/bar.txt",
-		expectedRel: "foo.txt -> bar.txt",
+		expectedAbs: filepath.FromSlash("/tmp/foo/bar.txt"),
+		expectedRel: filepath.FromSlash("foo.txt -> bar.txt"),
 	},
 	// following examples are ones where scm_breeze strips the escaping that
 	// git status --porcelain does in certain cases.  Now that we are using -z
@@ -91,22 +92,22 @@ var testCasesExtractFile = []struct {
 		root:        "/tmp/foo",
 		wd:          "/tmp/foo",
 		chunk:       []byte(`A  hi there mom.txt`),
-		expectedAbs: "/tmp/foo/hi there mom.txt",
-		expectedRel: "hi there mom.txt",
+		expectedAbs: filepath.FromSlash("/tmp/foo/hi there mom.txt"),
+		expectedRel: filepath.FromSlash("hi there mom.txt"),
 	},
 	{
 		root:        "/tmp/foo",
 		wd:          "/tmp/foo/bar",
 		chunk:       []byte(`?? "x.txt`),
-		expectedAbs: `/tmp/foo/"x.txt`,
-		expectedRel: `../"x.txt`,
+		expectedAbs: filepath.FromSlash(`/tmp/foo/"x.txt`),
+		expectedRel: filepath.FromSlash(`../"x.txt`),
 	},
 	{
 		root:        "/tmp/foo",
 		wd:          "/tmp/foo",
 		chunk:       []byte(`?? hi m"o"m.txt`),
-		expectedAbs: `/tmp/foo/hi m"o"m.txt`, //scmbreeze fails these with `hi m"o\`
-		expectedRel: `hi m"o"m.txt`,
+		expectedAbs: filepath.FromSlash(`/tmp/foo/hi m"o"m.txt`), //scmbreeze fails these with `hi m"o\`
+		expectedRel: filepath.FromSlash(`hi m"o"m.txt`),
 	},
 }
 
