@@ -4,8 +4,10 @@ go:
   - 1.7
   - 1.8
 
-before_install:
-  - curl -fsSL https://ci-cache.s3.amazonaws.com/tmux-zsh.ubuntu.tgz | tar -xz -C ~
+addons:
+  apt:
+    packages:
+      - zsh
 
 install:
   - bundle install --jobs 4 --retry 3 --path vendor/bundle
