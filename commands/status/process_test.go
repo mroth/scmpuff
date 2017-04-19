@@ -1,6 +1,8 @@
 package status
 
 import (
+	"fmt"
+	"path/filepath"
 	"reflect"
 	"testing"
 )
@@ -16,19 +18,26 @@ func TestProcessChange(t *testing.T) {
 		col:   neu,
 		group: Staged,
 	}
-	if actual.col != expectedChange.col ||
-		actual.group != expectedChange.group ||
-		actual.msg != expectedChange.msg {
-		t.Fatal("changes did not match expected")
-	}
 
-	if actual.fileAbsPath != "/tmp/HELLO.md" {
-		t.Fatal("absolute path did not match expected")
-	}
+	t.Run("changeset", func(t *testing.T) {
+		if actual.col != expectedChange.col ||
+			actual.group != expectedChange.group ||
+			actual.msg != expectedChange.msg {
+			t.Fatal("changes did not match expected")
+		}
+	})
 
-	if actual.fileRelPath == "" {
-		t.Fatal("relative path was not present")
-	}
+	t.Run("abspath", func(t *testing.T) {
+		if actual.fileAbsPath != filepath.FromSlash("/tmp/HELLO.md") {
+			t.Fatal("absolute path did not match expected")
+		}
+	})
+
+	t.Run("relpath", func(t *testing.T) {
+		if actual.fileRelPath == "" {
+			t.Fatal("relative path was not present")
+		}
+	})
 }
 
 var testCasesExtractFile = []struct {
@@ -42,36 +51,36 @@ var testCasesExtractFile = []struct {
 		root:        "/",
 		wd:          "/",
 		chunk:       []byte(" M script/benchmark"),
-		expectedAbs: "/script/benchmark",
-		expectedRel: "script/benchmark",
+		expectedAbs: filepath.FromSlash("/script/benchmark"),
+		expectedRel: filepath.FromSlash("script/benchmark"),
 	},
 	{
 		root:        "/tmp",
 		wd:          "/tmp",
 		chunk:       []byte(" M script/benchmark"),
-		expectedAbs: "/tmp/script/benchmark",
-		expectedRel: "script/benchmark",
+		expectedAbs: filepath.FromSlash("/tmp/script/benchmark"),
+		expectedRel: filepath.FromSlash("script/benchmark"),
 	},
 	{
 		root:        "/tmp/foo/bar//",
 		wd:          "/tmp/foo/bar/unicorn",
 		chunk:       []byte("?? unicorn/magic/xxx"),
-		expectedAbs: "/tmp/foo/bar/unicorn/magic/xxx",
-		expectedRel: "magic/xxx",
+		expectedAbs: filepath.FromSlash("/tmp/foo/bar/unicorn/magic/xxx"),
+		expectedRel: filepath.FromSlash("magic/xxx"),
 	},
 	{
 		root:        "/tmp/foo/bar//",
 		wd:          "/tmp/foo/bar/unicorn/magic",
 		chunk:       []byte("?? narwhal/disco/yyy"),
-		expectedAbs: "/tmp/foo/bar/narwhal/disco/yyy",
-		expectedRel: "../../narwhal/disco/yyy",
+		expectedAbs: filepath.FromSlash("/tmp/foo/bar/narwhal/disco/yyy"),
+		expectedRel: filepath.FromSlash("../../narwhal/disco/yyy"),
 	},
 	{
 		root:        "/tmp/foo",
 		wd:          "/tmp/foo",
 		chunk:       []byte("R  bar.txt\x00foo.txt"),
-		expectedAbs: "/tmp/foo/bar.txt",
-		expectedRel: "foo.txt -> bar.txt",
+		expectedAbs: filepath.FromSlash("/tmp/foo/bar.txt"),
+		expectedRel: filepath.FromSlash("foo.txt -> bar.txt"),
 	},
 	// following examples are ones where scm_breeze strips the escaping that
 	// git status --porcelain does in certain cases.  Now that we are using -z
@@ -83,39 +92,41 @@ var testCasesExtractFile = []struct {
 		root:        "/tmp/foo",
 		wd:          "/tmp/foo",
 		chunk:       []byte(`A  hi there mom.txt`),
-		expectedAbs: "/tmp/foo/hi there mom.txt",
-		expectedRel: "hi there mom.txt",
+		expectedAbs: filepath.FromSlash("/tmp/foo/hi there mom.txt"),
+		expectedRel: filepath.FromSlash("hi there mom.txt"),
 	},
 	{
 		root:        "/tmp/foo",
 		wd:          "/tmp/foo/bar",
 		chunk:       []byte(`?? "x.txt`),
-		expectedAbs: `/tmp/foo/"x.txt`,
-		expectedRel: `../"x.txt`,
+		expectedAbs: filepath.FromSlash(`/tmp/foo/"x.txt`),
+		expectedRel: filepath.FromSlash(`../"x.txt`),
 	},
 	{
 		root:        "/tmp/foo",
 		wd:          "/tmp/foo",
 		chunk:       []byte(`?? hi m"o"m.txt`),
-		expectedAbs: `/tmp/foo/hi m"o"m.txt`, //scmbreeze fails these with `hi m"o\`
-		expectedRel: `hi m"o"m.txt`,
+		expectedAbs: filepath.FromSlash(`/tmp/foo/hi m"o"m.txt`), //scmbreeze fails these with `hi m"o\`
+		expectedRel: filepath.FromSlash(`hi m"o"m.txt`),
 	},
 }
 
 func TestExtractFile(t *testing.T) {
 	for _, tc := range testCasesExtractFile {
-		actualAbs, actualRel := extractFile(tc.chunk, tc.root, tc.wd)
+		t.Run(fmt.Sprintf("[root:%s],[wd:%s]", tc.root, tc.wd), func(t *testing.T) {
+			actualAbs, actualRel := extractFile(tc.chunk, tc.root, tc.wd)
 
-		if actualAbs != tc.expectedAbs {
-			t.Fatalf(
-				"extractFile(%s)/absPath:\nexpect\t%v\nactual\t%v",
-				tc.chunk, tc.expectedAbs, actualAbs)
-		}
-		if actualRel != tc.expectedRel {
-			t.Fatalf(
-				"extractFile(%s)/relPath:\nexpect\t%v\nactual\t%v",
-				tc.chunk, tc.expectedRel, actualRel)
-		}
+			if actualAbs != tc.expectedAbs {
+				t.Fatalf(
+					"extractFile(%s)/absPath:\nexpect\t%v\nactual\t%v",
+					tc.chunk, tc.expectedAbs, actualAbs)
+			}
+			if actualRel != tc.expectedRel {
+				t.Fatalf(
+					"extractFile(%s)/relPath:\nexpect\t%v\nactual\t%v",
+					tc.chunk, tc.expectedRel, actualRel)
+			}
+		})
 	}
 }
 
@@ -175,11 +186,13 @@ var testCasesExtractChangeCodes = []struct {
 
 func TestExtractChangeCodes(t *testing.T) {
 	for _, tc := range testCasesExtractChangeCodes {
-		actual := extractChangeCodes(tc.chunk)
-		if !reflect.DeepEqual(actual, tc.expected) {
-			t.Fatalf("processChange('%s'): expected %+v, actual %+v",
-				tc.chunk, tc.expected, actual)
-		}
+		t.Run(string(tc.chunk[:]), func(t *testing.T) {
+			actual := extractChangeCodes(tc.chunk)
+			if !reflect.DeepEqual(actual, tc.expected) {
+				t.Fatalf("processChange('%s'): expected %+v, actual %+v",
+					tc.chunk, tc.expected, actual)
+			}
+		})
 	}
 }
 
@@ -241,10 +254,12 @@ var testCasesExtractBranch = []struct {
 
 func TestExtractBranch(t *testing.T) {
 	for _, tc := range testCasesExtractBranch {
-		actual := ExtractBranch(tc.chunk)
-		if !reflect.DeepEqual(actual, tc.expected) {
-			t.Fatalf("processBranch('%s'): expected %v, actual %v",
-				tc.chunk, tc.expected, actual)
-		}
+		t.Run(string(tc.chunk[:]), func(t *testing.T) {
+			actual := ExtractBranch(tc.chunk)
+			if !reflect.DeepEqual(actual, tc.expected) {
+				t.Fatalf("processBranch('%s'): expected %v, actual %v",
+					tc.chunk, tc.expected, actual)
+			}
+		})
 	}
 }

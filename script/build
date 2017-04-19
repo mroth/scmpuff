@@ -3,4 +3,9 @@
 #
 # Run go build without dependencies.
 
-go build -o bin/scmpuff -ldflags "-X main.VERSION=`./script/version`"
+TARGET="bin/scmpuff"
+if [[ $OS == Windows* ]]; then
+    TARGET="bin/scmpuff.exe"
+fi
+
+go build -o "$TARGET" -ldflags "-X main.VERSION=`./script/version`"

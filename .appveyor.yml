@@ -1,0 +1,42 @@
+version: "{build}"
+
+platform: x64
+
+branches:
+  except:
+    - gh-pages
+
+clone_folder: c:\gopath\src\github.com\mroth\scmpuff
+
+environment:
+  GOPATH: c:\gopath #TODO env matrix diff go versions?
+  RUBY_VERSION: Ruby23-x64
+
+cache:
+  - vendor/bundle -> Gemfile
+
+install:
+  # dynamically set the appveyor version number
+  - ps: $scmpuffver = .\script\version
+  - ps: $build = $env:appveyor_build_version
+  - ps: Update-AppveyorBuild -Version "$scmpuffver-$build"
+  # set up and verify our environment
+  - set PATH=C:\%RUBY_VERSION%\bin;%PATH%
+  - set PATH=%GOPATH%\bin;c:\go\bin;%PATH%
+  - go version
+  - ruby --version
+  - bash --version
+  - git --version
+  # TODO: install ruby dependencies for integration testing
+  - gem install bundler --quiet --no-ri --no-rdoc
+  - bundle install --jobs 4 --retry 3 --path vendor/bundle
+  - bundle exec cucumber --version
+
+build_script:
+  - .\script\build
+  - .\bin\scmpuff version
+
+test_script:
+  - go test ./...
+  # TODO: cucumber/aruba integration tests
+  # - bundle exec cucumber -s --tags=~@wip

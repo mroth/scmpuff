@@ -1,24 +1,28 @@
 sudo: false
 language: go
 go:
-  - 1.6
   - 1.7
   - 1.8
 
-before_install:
-  - curl -fsSL https://ci-cache.s3.amazonaws.com/tmux-zsh.ubuntu.tgz | tar -xz -C ~
+branches:
+  except:
+    - gh-pages
+
+addons:
+  apt:
+    packages:
+      - zsh
 
 install:
-  - bundle install --jobs 3 --retry 3 --path vendor/bundle
+  - bundle install --jobs 4 --retry 3 --path vendor/bundle
   - script/build
 
 script:
   - go test ./...
   - bundle exec cucumber -s --tags=~@wip --tags=~@recent-git-only
 
-branches:
-  except:
-    - gh-pages
+before_cache:
+  - bundle clean
 
 cache:
   directories:

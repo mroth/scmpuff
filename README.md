@@ -116,4 +116,4 @@ We assume you are both cloned into and have your $GOPATH properly set.
 Since we already have Ruby then for tests, we use a Rakefile instead of Makefile
 since it offers some niceties.  Do `rake -T` to see available tasks.
 
-`GO_VERSION >= 1.6` is required to build (or 1.5 with `GO15VENDOREXPERIMENT=1`).
+`GO_VERSION >= 1.7` is required to build.
