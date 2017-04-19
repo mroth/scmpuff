@@ -30,6 +30,7 @@ install:
   # TODO: install ruby dependencies for integration testing
   - gem install bundler --quiet --no-ri --no-rdoc
   - bundle install --jobs 4 --retry 3 --path vendor/bundle
+  - bundle exec cucumber --version
 
 build_script:
   - .\script\build
@@ -38,4 +39,4 @@ build_script:
 test_script:
   - go test ./...
   # TODO: cucumber/aruba integration tests
-  # - cucumber -s --tags=~@wip
+  # - bundle exec cucumber -s --tags=~@wip
