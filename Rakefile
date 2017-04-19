@@ -38,11 +38,11 @@ end
 
 desc "run integration tests"
 task :features => :build do
-  sh "cucumber -s --tags=~@wip"
+  sh "bundle exec cucumber -s --tags=~@wip"
 end
 
 task "features:wip" => :build do
-  sh "cucumber -s --tags=@wip"
+  sh "bundle exec cucumber -s --tags=@wip"
 end
 
 desc "package for distribution"
