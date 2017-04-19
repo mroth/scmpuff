@@ -62,7 +62,7 @@ end
 # want to rerun the same git init every iteration, rather we just copy a fresh
 # copy of the mocked directory!
 Given(/^I am in the mocked git repository with commited subdirectory and file$/) do
-  MOCK ||= File.join(current_dir, "..", "mock", "gitsubdir") #needs to be outside of aruba clobber dir
+  MOCK ||= File.join(expand_path(".."), "mock", "gitsubdir") #needs to be outside of aruba clobber dir
   unless File.directory? MOCK
     FileUtils.mkdir_p MOCK
     Dir.chdir MOCK do
@@ -73,13 +73,13 @@ Given(/^I am in the mocked git repository with commited subdirectory and file$/)
       system("git commit -m.")
     end
   end
-  FileUtils.cp_r MOCK, current_dir
+  FileUtils.cp_r MOCK, expand_path(".")
   cd "gitsubdir"
 end
 
 Given(/^the scmpuff environment variables have been cleared$/) do
   (1..50).each do |n|
-    set_env("e#{n}", nil)
+    delete_environment_variable "e#{n}"
   end
 end
 
@@ -89,13 +89,13 @@ Given(/^I override the environment variables to:/) do |table|
   table.hashes.each do |row|
     variable = row['variable'].to_s
     value = row['value'].to_s
-    set_env(variable, value)
+    set_environment_variable(variable, value)
   end
 end
 
 Given(/^I override environment variable "(.*?)" to the absolute path of "(.*?)"$/) do |e, f|
   filepath = File.expand_path File.join("tmp/aruba", f)
-  set_env(e, filepath)
+  set_environment_variable(e, filepath)
 end
 
 #
