@@ -4,6 +4,10 @@ go:
   - 1.7
   - 1.8
 
+branches:
+  except:
+    - gh-pages
+
 addons:
   apt:
     packages:
@@ -17,9 +21,8 @@ script:
   - go test ./...
   - bundle exec cucumber -s --tags=~@wip --tags=~@recent-git-only
 
-branches:
-  except:
-    - gh-pages
+before_cache:
+  - bundle clean
 
 cache:
   directories:
