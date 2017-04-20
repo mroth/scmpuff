@@ -94,9 +94,18 @@ Given(/^I override the environment variables to:/) do |table|
 end
 
 Given(/^I override environment variable "(.*?)" to the absolute path of "(.*?)"$/) do |e, f|
-  filepath = File.expand_path File.join("tmp/aruba", f)
+  filepath = expand_path(f)
   set_environment_variable(e, filepath)
 end
+
+#
+# Handle unknown absolute paths in output
+#
+Then(/^the stdout from "([^"]*)" should contain the absolute path of "([^"]*)"$/) do |cmd, f|
+  filepath = expand_path(f)
+  step %Q(the stdout from "#{cmd}" should contain "#{filepath}")
+end
+
 
 #
 # Backtick version for "when I type" step to enable passing quotation marks

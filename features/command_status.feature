@@ -143,10 +143,7 @@ Feature: status command
       renamed:  [1] a.txt -> b.txt
       """
     When I successfully run `scmpuff status -f --display=false`
-    Then the stdout from "scmpuff status -f --display=false" should contain:
-      """
-      /tmp/aruba/mygitrepo/b.txt\n
-      """
+    Then the stdout from "scmpuff status -f --display=false" should contain the absolute path of "b.txt"
 
     Given I cd to "foo"
     When I successfully run `scmpuff status`
@@ -155,10 +152,7 @@ Feature: status command
       renamed:  [1] ../a.txt -> ../b.txt
       """
     When I successfully run `scmpuff status -f --display=false`
-    Then the stdout from "scmpuff status -f --display=false" should contain:
-      """
-      /tmp/aruba/mygitrepo/b.txt\n
-      """
+    Then the stdout from "scmpuff status -f --display=false" should contain the absolute path of "../b.txt"
 
 
   @recent-git-only
