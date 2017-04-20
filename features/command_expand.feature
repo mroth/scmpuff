@@ -67,13 +67,13 @@ Feature: command expansion at command line
         And the output should match /git\tcommit\t-m\tfoo\\;\\ bar/
 
   Scenario: Allow user to specify --relative paths
-    Given a directory named "foo"
-      And a directory named "foo/bar"
-      And an empty file named "xxx.jpg"
-      And I cd to "foo/bar"
-    Given I override environment variable "e1" to the absolute path of "xxx.jpg"
-    When I successfully run `scmpuff expand 1`
-    Then the stdout from "scmpuff expand 1" should contain the absolute path of "xxx.jpg"
+    Given a directory named "foo/bar"
+    And an empty file named "xxx.jpg"
+    And I override environment variable "e1" to the absolute path of "xxx.jpg"
+
+    When I cd to "foo/bar"
+    And I successfully run `scmpuff expand 1`
+    Then the stdout from "scmpuff expand 1" should contain the absolute path of "../../xxx.jpg"
     When I successfully run `scmpuff expand -r -- 1`
     Then the stdout from "scmpuff expand -r -- 1" should contain "../../xxx.jpg"
 
