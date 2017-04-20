@@ -3,17 +3,16 @@ Feature: status command
   Background:
     Given a mocked home directory
 
-  @outside-repo
   Scenario: Appropriate error status when not in a git repo
     We can make this pretty, but we also want to be sure to use the same exit
     code as the normal 'git' command line client for consistency.
 
     When I run `scmpuff status`
-    Then the exit status should be 128
-    And the output should contain:
+    Then the output should contain:
       """
       Not a git repository (or any of the parent directories)
       """
+    And the exit status should be 128
 
   Scenario: Banner shows no changes when in an unchanged git repo
     Given I am in a git repository
@@ -257,7 +256,7 @@ Feature: status command
       """
     And I successfully run `git add file_with_conflict`
     And I successfully run `git commit -m "Original content"`
-    
+
     When I switch to git branch "foobar"
     And I append to "file_with_conflict" with "a change from foobar"
     And I successfully run `git add file_with_conflict`

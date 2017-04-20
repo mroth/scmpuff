@@ -6,7 +6,6 @@ Feature: scmpuff_status function
   Background:
     Given a mocked home directory
 
-  @outside-repo
   Scenario Outline: Handle error conditions from wrapped binary command
     It is possible for the underlying `scmpuff status` command wrapped by our
     shell function to produce errors, for example, when not in a git repository.
