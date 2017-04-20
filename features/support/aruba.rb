@@ -3,9 +3,7 @@ Aruba.configure do |config|
   # default is ".", but...
   # we want to move this OUTSIDE of the project directory though, since aruba
   # isolation is insufficient otherwise for git not to see the parent repo.
-  #
-  # TODO: make this OS sensitive
-  config.root_directory = '/tmp/'
+  config.root_directory = Dir.tmpdir
 
   # the working directory inside the root directory note that our hacky trick to
   # speed up mocks walks up one level from here and makes a sibling directory
