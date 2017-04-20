@@ -68,9 +68,11 @@ Given(/^I am in the mocked git repository with commited subdirectory and file$/)
     Dir.chdir MOCK do
       FileUtils.mkdir "foo"
       FileUtils.touch "foo/placeholder.txt"
-      system("git init --quiet")
-      system("git add .")
-      system("git commit -m.")
+      system "git init --quiet"
+      system "git config --local user.name 'scmpuff mocker'"
+      system "git config --local user.email mocked@scmpuff.github.io"
+      system "git add ."
+      system "git commit -m."
     end
   end
   FileUtils.cp_r MOCK, expand_path(".")
