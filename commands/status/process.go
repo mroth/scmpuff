@@ -67,7 +67,7 @@ func ExtractBranch(bs []byte) *BranchInfo {
 }
 
 func decodeBranchName(bs []byte) (branch string) {
-	branchRegex := regexp.MustCompile(`^## (?:Initial commit on )?(\S+?)(?:\.{3}|$)`)
+	branchRegex := regexp.MustCompile(`^## (?:Initial commit on )?(?:No commits yet on )?(\S+?)(?:\.{3}|$)`)
 	headRegex := regexp.MustCompile(`^## (HEAD \(no branch\))`)
 
 	branchMatch := branchRegex.FindSubmatch(bs)
