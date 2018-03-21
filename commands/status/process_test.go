@@ -239,6 +239,10 @@ var testCasesExtractBranch = []struct {
 		&BranchInfo{name: "master", ahead: 0, behind: 0},
 	},
 	{
+		[]byte("## No commits yet on master"),
+		&BranchInfo{name: "master", ahead: 0, behind: 0},
+	},
+	{
 		[]byte("## 3.0...origin/3.0 [ahead 1]"),
 		&BranchInfo{name: "3.0", ahead: 1, behind: 0},
 	},
