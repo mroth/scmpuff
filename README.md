@@ -1,5 +1,7 @@
 # scmpuff :dash:
 
+dummy change
+
 > Makes working with git from the command line quicker by substituting numeric
 shortcuts for files.
 
