@@ -3,8 +3,8 @@ package status
 import (
 	"bufio"
 	"bytes"
+	"errors"
 	"fmt"
-	"log"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -13,39 +13,48 @@ import (
 
 // Process takes the raw output of `git status --porcelain -b -z` and turns it
 // into a structured data type.
-func Process(gitStatusOutput []byte, root string) *StatusList {
+func Process(gitStatusOutput []byte, root string) (*StatusList, error) {
 	// initialize a statuslist to hold the results
 	results := NewStatusList()
 
-	// put the output into a bufferreader+scanner so we can consume it iteratively
+	// put output into bufferreader+scanner so we can consume it iteratively
 	scanner := bufio.NewScanner(bytes.NewReader(gitStatusOutput))
-
 	// the scanner needs a custom split function for splitting on NUL
-	scanNul := func(data []byte, atEOF bool) (advance int, token []byte, err error) {
-		for i, b := range data {
-			if b == '\x00' {
-				return i + 1, data[:i], nil
-			}
-		}
-		return 0, nil, nil
-	}
-	scanner.Split(scanNul)
+	scanner.Split(nulSplitFunc)
 
 	// branch output is first line
 	if !scanner.Scan() {
-		log.Println("Failed to read buffer when expecting branch status")
-		log.Fatal(scanner.Err())
+		return nil, fmt.Errorf("Failed to read buffer when expecting branch status: %v", scanner.Err())
 	}
 	branchBytes := scanner.Bytes()
-	results.branch = ExtractBranch(branchBytes)
+	branch, err := ExtractBranch(branchBytes)
+	if err != nil {
+		return nil, err
+	}
+	results.branch = branch
 
 	// give ProcessChanges the scanner and let it handle the rest
 	// (it does complicated stuff so it needs the entire scanner)
-	for _, r := range ProcessChanges(scanner, root) {
+	statuses, err := ProcessChanges(scanner, root)
+	if err != nil {
+		return nil, err
+	}
+	// put the results in the proper group
+	for _, r := range statuses {
 		results.groups[r.group].items = append(results.groups[r.group].items, r)
 	}
 
-	return results
+	return results, nil
+}
+
+// custom split function for splitting on NUL
+func nulSplitFunc(data []byte, atEOF bool) (advance int, token []byte, err error) {
+	for i, b := range data {
+		if b == '\x00' {
+			return i + 1, data[:i], nil
+		}
+	}
+	return 0, nil, nil
 }
 
 // ExtractBranch handles parsing the branch status from `status --porcelain -b`.
@@ -57,34 +66,34 @@ func Process(gitStatusOutput []byte, root string) *StatusList {
 // 		## master...origin/master
 // 		## master...origin/master [ahead 1]
 //
-func ExtractBranch(bs []byte) *BranchInfo {
-	b := BranchInfo{}
+func ExtractBranch(bs []byte) (*BranchInfo, error) {
+	name, err := decodeBranchName(bs)
+	if err != nil {
+		return nil, err
+	}
+	a, b := decodeBranchPosition(bs)
 
-	b.name = decodeBranchName(bs)
-	b.ahead, b.behind = decodeBranchPosition(bs)
-
-	return &b
+	return &BranchInfo{
+		name:   name,
+		ahead:  a,
+		behind: b,
+	}, nil
 }
 
-func decodeBranchName(bs []byte) (branch string) {
+func decodeBranchName(bs []byte) (string, error) {
 	branchRegex := regexp.MustCompile(`^## (?:Initial commit on )?(?:No commits yet on )?(\S+?)(?:\.{3}|$)`)
-	headRegex := regexp.MustCompile(`^## (HEAD \(no branch\))`)
-
 	branchMatch := branchRegex.FindSubmatch(bs)
 	if branchMatch != nil {
-		branch = string(branchMatch[1])
+		return string(branchMatch[1]), nil
 	}
 
+	headRegex := regexp.MustCompile(`^## (HEAD \(no branch\))`)
 	headMatch := headRegex.FindSubmatch(bs)
 	if headMatch != nil {
-		branch = string(headMatch[1])
+		return string(headMatch[1]), nil
 	}
 
-	if headMatch == nil && branchMatch == nil {
-		log.Fatalf("Failed to parse branch name for output: [%s]", bs)
-	}
-
-	return
+	return "", fmt.Errorf("Failed to parse branch name for output: [%s]", bs)
 }
 
 func decodeBranchPosition(bs []byte) (ahead, behind int) {
@@ -127,7 +136,7 @@ until we have consumed a full entry.
 We put up with this because it means no shell escaping, which should mean better
 cross-platform support. Better hope some Windows people end up using it someday!
 */
-func ProcessChanges(s *bufio.Scanner, root string) (results []*StatusItem) {
+func ProcessChanges(s *bufio.Scanner, root string) ([]*StatusItem, error) {
 
 	// Before we process any changes, get the Current Working Directory.
 	// We're going to need use to calculate absolute and relative filepaths for
@@ -138,19 +147,31 @@ func ProcessChanges(s *bufio.Scanner, root string) (results []*StatusItem) {
 		wd = root
 	}
 
+	var results []*StatusItem
 	for s.Scan() {
 		chunk := s.Bytes()
 		// ...if chunk represents a rename or copy op, need to append another chunk
 		// to get the full change item, with NUL manually reinserted because scanner
 		// will extract past it.
-		if (chunk[0] == 'R' || chunk[0] == 'C') && s.Scan() {
-			chunk = append(chunk, '\x00')
-			chunk = append(chunk, s.Bytes()...)
+		//
+		// Note that the underlying slice from previous scanner.Bytes() MAY be
+		// overridden by subsequent scans, so need to copy it to a new slice
+		// first before scanning to get the next token.
+		if chunk[0] == 'R' || chunk[0] == 'C' {
+			composite := make([]byte, len(chunk))
+			copy(composite, chunk)
+			s.Scan()
+			composite = append(composite, '\x00')
+			composite = append(composite, s.Bytes()...)
+			chunk = composite
 		}
-		results = append(results, processChange(chunk, wd, root)...)
+		statuses, err := processChange(chunk, wd, root)
+		if err != nil {
+			return results, err
+		}
+		results = append(results, statuses...)
 	}
-
-	return
+	return results, nil
 }
 
 // process change for a single item from a `git status -z`.
@@ -162,23 +183,26 @@ func ProcessChanges(s *bufio.Scanner, root string) (results []*StatusItem) {
 // See ProcessChanges (plural) for more details on that process.
 //
 // Note some change items can have multiple statuses, so this returns a slice.
-func processChange(chunk []byte, wd, root string) (results []*StatusItem) {
-
-	absolutePath, relativePath := extractFile(chunk, root, wd)
+func processChange(chunk []byte, wd, root string) ([]*StatusItem, error) {
+	var results []*StatusItem
+	absolutePath, relativePath, err := extractFile(chunk, root, wd)
+	if err != nil {
+		return nil, err
+	}
 
 	for _, c := range extractChangeCodes(chunk) {
-		result := &StatusItem{
+		r := &StatusItem{
 			msg:         c.msg,
 			col:         c.col,
 			group:       c.group,
 			fileAbsPath: absolutePath,
 			fileRelPath: relativePath,
 		}
-		results = append(results, result)
+		results = append(results, r)
 	}
 
 	if len(results) < 1 {
-		log.Fatalf(`
+		return nil, fmt.Errorf(`
 Failed to decode git status change code for chunk: [%s]
 Please file a bug including this error message as well as the output of:
 
@@ -187,7 +211,7 @@ git status --porcelain
 You can file the bug at: https://github.com/mroth/scmpuff/issues/
 		`, chunk)
 	}
-	return results
+	return results, nil
 }
 
 /*
@@ -197,7 +221,7 @@ absolute and display paths.
  - root: the absolute path to the git working tree
  - wd: current working directory path
 */
-func extractFile(chunk []byte, root, wd string) (absPath, relPath string) {
+func extractFile(chunk []byte, root, wd string) (absPath, relPath string, err error) {
 	// file identifier starts at pos4 and continues to EOL
 	filePortion := chunk[3:]
 	files := bytes.SplitN(filePortion, []byte{'\x00'}, 2)
@@ -205,7 +229,7 @@ func extractFile(chunk []byte, root, wd string) (absPath, relPath string) {
 	n := len(files)
 	switch {
 	case n < 1:
-		log.Fatalf("tried to process a change chunk with no file")
+		err = errors.New("tried to process a change chunk with no file")
 	case n > 1:
 		toFile, fromFile := files[0], files[1]
 		var toRelPath, fromRelPath string

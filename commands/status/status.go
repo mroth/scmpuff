@@ -38,7 +38,10 @@ see 'scmpuff init'.)
 			root := gitProjectRoot()
 			status := gitStatusOutput()
 
-			results := Process(status, root)
+			results, err := Process(status, root)
+			if err != nil {
+				log.Fatal(err)
+			}
 			results.printStatus(optsFilelist, optsDisplay)
 		},
 	}
