@@ -28,7 +28,7 @@ install:
   - bash --version
   - git --version
   # TODO: install ruby dependencies for integration testing
-  - gem install bundler --quiet --no-ri --no-rdoc
+  - gem install bundler --quiet --no-document
   - bundle install --jobs 4 --retry 3 --path vendor/bundle
   - bundle exec cucumber --version
 
