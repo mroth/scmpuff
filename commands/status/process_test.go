@@ -11,7 +11,11 @@ import (
 // actual cases in more specific methods
 func TestProcessChange(t *testing.T) {
 	chunk := []byte("A  HELLO.md")
-	actual := processChange(chunk, "/tmp", "/tmp")[0]
+	res, err := processChange(chunk, "/tmp", "/tmp")
+	actual := res[0]
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	expectedChange := &change{
 		msg:   "  new file",
@@ -114,7 +118,10 @@ var testCasesExtractFile = []struct {
 func TestExtractFile(t *testing.T) {
 	for _, tc := range testCasesExtractFile {
 		t.Run(fmt.Sprintf("[root:%s],[wd:%s]", tc.root, tc.wd), func(t *testing.T) {
-			actualAbs, actualRel := extractFile(tc.chunk, tc.root, tc.wd)
+			actualAbs, actualRel, err := extractFile(tc.chunk, tc.root, tc.wd)
+			if err != nil {
+				t.Fatal(err)
+			}
 
 			if actualAbs != tc.expectedAbs {
 				t.Fatalf(
@@ -259,7 +266,10 @@ var testCasesExtractBranch = []struct {
 func TestExtractBranch(t *testing.T) {
 	for _, tc := range testCasesExtractBranch {
 		t.Run(string(tc.chunk[:]), func(t *testing.T) {
-			actual := ExtractBranch(tc.chunk)
+			actual, err := ExtractBranch(tc.chunk)
+			if err != nil {
+				t.Fatal(err)
+			}
 			if !reflect.DeepEqual(actual, tc.expected) {
 				t.Fatalf("processBranch('%s'): expected %v, actual %v",
 					tc.chunk, tc.expected, actual)
