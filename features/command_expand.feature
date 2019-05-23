@@ -41,6 +41,10 @@ Feature: command expansion at command line
     When I successfully run `scmpuff expand -- git xxx "foo bar" 1`
     Then the output should match /git\txxx\tfoo\\ bar\ta.txt/
 
+  Scenario: Make sure args with globs get escaped on way back
+    When I successfully run `scmpuff expand -- git xxx --exclude='refs/wip/*' 1`
+    Then the output should contain "git	xxx	--exclude=refs/wip/\*	a.txt"
+
   Scenario Outline: Verify filenames with stupid characters are properly escaped
     Given I override the environment variables to:
       | variable | value      |
