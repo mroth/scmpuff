@@ -153,9 +153,17 @@ func ProcessChanges(s *bufio.Scanner, root string) ([]*StatusItem, error) {
 		// ...if chunk represents a rename or copy op, need to append another chunk
 		// to get the full change item, with NUL manually reinserted because scanner
 		// will extract past it.
-		if (chunk[0] == 'R' || chunk[0] == 'C') && s.Scan() {
-			chunk = append(chunk, '\x00')
-			chunk = append(chunk, s.Bytes()...)
+		//
+		// Note that the underlying slice from previous scanner.Bytes() MAY be
+		// overridden by subsequent scans, so need to copy it to a new slice
+		// first before scanning to get the next token.
+		if chunk[0] == 'R' || chunk[0] == 'C' {
+			composite := make([]byte, len(chunk))
+			copy(composite, chunk)
+			s.Scan()
+			composite = append(composite, '\x00')
+			composite = append(composite, s.Bytes()...)
+			chunk = composite
 		}
 		statuses, err := processChange(chunk, wd, root)
 		if err != nil {
