@@ -16,7 +16,7 @@ end
 # runs the generate script, which will bootstrap anything it needs in script
 desc "generates bindata files"
 task :generate do
-  sh "script/generate"
+  sh "go generate ./..."
 end
 
 # the unix build script does not force `generate` as prereq, but the task here

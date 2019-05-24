@@ -1,7 +1,0 @@
-#!/usr/bin/env bash
-# Usage: generate
-#
-# Generates the bindata files via go generate.
-# Requires go-bindata to be installed.
-
-go generate ./commands/inits
