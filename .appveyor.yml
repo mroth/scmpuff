@@ -9,7 +9,8 @@ branches:
 clone_folder: c:\gopath\src\github.com\mroth\scmpuff
 
 environment:
-  GOPATH: c:\gopath #TODO env matrix diff go versions?
+  GOPATH: c:\gopath
+  GO111MODULE: "on"
   RUBY_VERSION: Ruby23-x64
 
 cache:

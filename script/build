@@ -8,4 +8,4 @@ if [[ $OS == Windows* ]]; then
     TARGET="bin/scmpuff.exe"
 fi
 
-go build -o "$TARGET" -ldflags "-X main.VERSION=`./script/version`"
+go build -o "$TARGET" -ldflags "-X main.VERSION=$(./script/version)"

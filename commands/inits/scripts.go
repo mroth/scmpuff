@@ -8,8 +8,11 @@ import "fmt"
 //
 // The modtime is overridden so builds are reproducible across systems.
 // Thus requires version of go-bindata > 7362d4b6b2.
+//
+// We are currently using this maintained fork for now:
+// https://github.com/kevinburke/go-bindata
 
-//go:generate go-bindata -o bindata.go -ignore=README* -pkg=inits -modtime=1426541666 data
+//go:generate go-bindata -o bindata.go -ignore=README* -pkg=inits -modtime=1558658378 data
 
 func printScript() {
 	if outputScript {

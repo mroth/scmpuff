@@ -7,16 +7,10 @@ BINDATA    = "commands/inits/bindata.go"
 file BINDATA => :generate
 CLEAN.include FileList.new("tmp/*")
 
-# convenience bootstrap all for getting started
-desc "bootstrap all gotool dependencies"
-task :bootstrap do
-  sh "script/bootstrap"
-end
-
 # runs the generate script, which will bootstrap anything it needs in script
 desc "generates bindata files"
 task :generate do
-  sh "script/generate"
+  sh "go generate ./..."
 end
 
 # the unix build script does not force `generate` as prereq, but the task here
@@ -47,10 +41,9 @@ end
 
 desc "package for distribution"
 task :package do
-  tagged_version = `script/version`.chomp()
-  sh "goxc -pv='#{tagged_version}'"
+  sh "goreleaser release --rm-dist --skip-publish"
 end
-CLOBBER.include "builds"
+CLOBBER.include "dist"
 
 task :all => [:build, :test, :features]
 task :default => :all
