@@ -1,0 +1,31 @@
+before:
+  hooks:
+    - go mod download
+builds:
+- env:
+    - CGO_ENABLED=0
+  goos:
+    - linux
+    - darwin
+    - windows
+  goarch:
+    - amd64
+  ldflags:
+     - -s -w -X main.VERSION={{.Version}}
+archives:
+- replacements:
+    darwin: mac
+    amd64: x64
+  format_overrides:
+  - goos: windows
+    format: zip
+  files:
+    - LICENSE*
+    - README.md
+    - docs/*.txt
+checksum:
+  name_template: 'checksums.txt'
+snapshot:
+  name_template: "{{ .Tag }}-next"
+changelog:
+  skip: true

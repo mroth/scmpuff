@@ -41,10 +41,9 @@ end
 
 desc "package for distribution"
 task :package do
-  tagged_version = `script/version`.chomp()
-  sh "goxc -pv='#{tagged_version}'"
+  sh "goreleaser release --rm-dist --skip-publish"
 end
-CLOBBER.include "builds"
+CLOBBER.include "dist"
 
 task :all => [:build, :test, :features]
 task :default => :all
