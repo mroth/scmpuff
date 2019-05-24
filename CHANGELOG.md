@@ -1,5 +1,21 @@
 # Change Log
-This project tries to adhere to [Semantic Versioning](http://semver.org/).
+This project tries to adhere to [Semantic Versioning](https://semver.org/).
+
+## 0.3.0 - 2019-05-24
+Small fixes and no real feature changes, but enough build tooling was
+changed that this is being considered a minor release instead of patch.
+
+### Changed
+- Build tooling updated to more modern Go toolchain, removing some legacy/deprecated tools so that this actually can be maintained in 2019.
+    - Switch from Godep to go modules (and removed vendored modules).
+    - Switch release build cross-compile tool from goxc to goreleaser.
+    - go-bindata updates.
+- CLI library updated to recent version of Cobra.
+
+### Fixed
+- Fix processing statuses with very complex changesets (#45)
+- scmpuff expand should escape '*' (#44, thx @jdelStrother)
+- scmpuff status works on naked zero commit repo (#37, thx @zommerfelds)
 
 ## 0.2.1 - 2017-02-17
 ### Fixed
