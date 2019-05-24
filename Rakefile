@@ -7,12 +7,6 @@ BINDATA    = "commands/inits/bindata.go"
 file BINDATA => :generate
 CLEAN.include FileList.new("tmp/*")
 
-# convenience bootstrap all for getting started
-desc "bootstrap all gotool dependencies"
-task :bootstrap do
-  sh "script/bootstrap"
-end
-
 # runs the generate script, which will bootstrap anything it needs in script
 desc "generates bindata files"
 task :generate do
