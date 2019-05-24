@@ -2,9 +2,6 @@
 # Usage: generate
 #
 # Generates the bindata files via go generate.
-
-if [ ! -x $GOPATH/bin/go-bindata ]; then
-  script/bootstrap
-fi
+# Requires go-bindata to be installed.
 
 go generate ./commands/inits

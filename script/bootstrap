@@ -3,10 +3,6 @@
 #
 # Installs all Gotool dependencies for development environment
 
-if [ ! -x $GOPATH/bin/go-bindata ]; then
-  go get github.com/jteeuwen/go-bindata/...
-fi
-
 if [ ! -x $GOPATH/bin/goxc ]; then
   go get github.com/laher/goxc
 fi
