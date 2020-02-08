@@ -11,11 +11,11 @@ if type hub > /dev/null 2>&1; then export SCMPUFF_GIT_CMD="hub"; fi
 function git() {
   case $1 in
     commit|blame|log|rebase|merge)
-      eval "$(scmpuff expand -- "$SCMPUFF_GIT_CMD" "$@")";;
+      scmpuff exec -- "$SCMPUFF_GIT_CMD" "$@";;
     checkout|diff|rm|reset|restore)
-      eval "$(scmpuff expand --relative -- "$SCMPUFF_GIT_CMD" "$@")";;
+      scmpuff exec --relative -- "$SCMPUFF_GIT_CMD" "$@";;
     add)
-      eval "$(scmpuff expand -- "$SCMPUFF_GIT_CMD" "$@")"
+      scmpuff exec -- "$SCMPUFF_GIT_CMD" "$@"
       scmpuff_status;;
     *)
       "$SCMPUFF_GIT_CMD" "$@";;
