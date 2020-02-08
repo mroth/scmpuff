@@ -37,6 +37,10 @@ To initialize shell functions, add the following to your `~/.bash_profile` or
 
     eval "$(scmpuff init -s)"
 
+or for Fish, add the following to your `~/.config/fish/config.fish` file:
+
+    scmpuff init -s --shell=fish | source
+
 This will define the scmpuff shell functions as well as some handy shortcuts.
 
 
