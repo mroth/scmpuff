@@ -1,4 +1,4 @@
-package exec
+package arguments
 
 import (
 	"reflect"
@@ -21,7 +21,7 @@ func TestExpand(t *testing.T) {
 		// normal looking strings
 		args := strings.Split(tc.args, " ")
 		expected := strings.Split(tc.expected, " ")
-		actual := expand(args)
+		actual := Expand(args)
 		if !reflect.DeepEqual(actual, expected) {
 			t.Fatalf("ExpandArgs(%v): expected %v, actual %v", tc.args, expected, actual)
 		}
