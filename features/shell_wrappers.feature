@@ -101,3 +101,32 @@ Feature: optional wrapping of normal git cmds in the shell
       | shell |
       | bash  |
       | zsh   |
+
+  Scenario Outline: Wrapped `git add` can handle shell expansions
+    Given I am in a git repository
+      And an empty file named "file with spaces.txt"
+      And an empty file named "file2.txt"
+      And an empty file named "untracked file.txt"
+    When I run `<shell>` interactively
+      And I type `eval "$(scmpuff init -ws)"`
+      And I type "scmpuff_status"
+      And I type `FILE="file with spaces.txt"`
+      And I type `git add "$FILE" 2`
+      And I type "exit"
+    Then the exit status should be 0
+    And the output should contain:
+      """
+      new file:  [1] file with spaces.txt
+      """
+    And the output should contain:
+      """
+      new file:  [2] file2
+      """
+    And the output should contain:
+      """
+      untracked:  [3] untracked file.txt
+      """
+    Examples:
+      | shell |
+      | bash  |
+      | zsh   |
