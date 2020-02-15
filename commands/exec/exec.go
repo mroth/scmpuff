@@ -5,7 +5,7 @@ import (
 	"os"
 	"os/exec"
 
-	"github.com/mroth/scmpuff/commands/arguments"
+	"github.com/mroth/scmpuff/commands/internal/arguments"
 	"github.com/spf13/cobra"
 )
 

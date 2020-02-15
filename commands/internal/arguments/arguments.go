@@ -1,3 +1,5 @@
+// Package arguments contains shared functions for expanding
+// numeric arguments to the associated file names
 package arguments
 
 import (
@@ -10,7 +12,7 @@ import (
 var expandArgDigitMatcher = regexp.MustCompile("^[0-9]{0,4}$")
 var expandArgRangeMatcher = regexp.MustCompile("^([0-9]+)-([0-9]+)$")
 
-// Evaluates a string of arguments and expands environment variables.
+// EvaluateEnvironment evaluates a string of arguments and expands environment variables.
 func EvaluateEnvironment(arg string, expandRelative bool) string {
 	expandedArg := os.ExpandEnv(arg)
 	if expandRelative {
