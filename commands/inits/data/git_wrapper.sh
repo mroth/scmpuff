@@ -12,7 +12,7 @@ function git() {
   case $1 in
     commit|blame|log|rebase|merge)
       eval "$(scmpuff expand -- "$SCMPUFF_GIT_CMD" "$@")";;
-    checkout|diff|rm|reset)
+    checkout|diff|rm|reset|restore)
       eval "$(scmpuff expand --relative -- "$SCMPUFF_GIT_CMD" "$@")";;
     add)
       eval "$(scmpuff expand -- "$SCMPUFF_GIT_CMD" "$@")"
