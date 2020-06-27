@@ -2,8 +2,7 @@
 # Usage: build
 #
 # Run go build without dependencies.
-set -x
+set -ex
 
-TARGET="bin/scmpuff"
-
-go build -o "$TARGET" -ldflags "-X main.VERSION=$(./script/version)"
+VERSION="$(git describe --tags HEAD)"
+go build -o bin/scmpuff -ldflags "-X main.VERSION=${VERSION}"
