@@ -4,7 +4,7 @@ set -e
 
 version="$(git describe --tags HEAD 2>/dev/null || true)"
 if [ -z "$version" ]; then
-  version="v0.?.? (build script error)"
+  version="v0.0.X-buildscripterror"
 fi
 
 echo "${version#v}"
