@@ -2,10 +2,8 @@
 # Usage: build
 #
 # Run go build without dependencies.
+set -x
 
 TARGET="bin/scmpuff"
-if [[ $OS == Windows* ]]; then
-    TARGET="bin/scmpuff.exe"
-fi
 
 go build -o "$TARGET" -ldflags "-X main.VERSION=$(./script/version)"
