@@ -76,6 +76,9 @@ Feature: optional wrapping of normal git cmds in the shell
 
   Scenario Outline: Wrapped `git restore` works
     Given I am in a git repository
+      And a 2 byte file named "foo.bar"
+      And I successfully run `git add foo.bar`
+      And I successfully run `git commit -m "initial commit"`
       And a 4 byte file named "foo.bar"
       And I successfully run `git add foo.bar`
     When I run `<shell>` interactively
@@ -89,7 +92,7 @@ Feature: optional wrapping of normal git cmds in the shell
       """
       ➤ Changes not staged for commit
       #
-      #       new file:  [1] foo.bar
+      #       modified:  [1] foo.bar
       """
     Examples:
       | shell |
