@@ -11,8 +11,11 @@ jobs:
       fail-fast: false
     runs-on: ${{ matrix.platform }}
     steps:
-      - name: Checkout code
+      # current build script requires git history to create a version number
+      - name: Checkout code with full history
         uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
       - name: Setup Go
         uses: actions/setup-go@v2
         with:
