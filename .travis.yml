@@ -16,7 +16,7 @@ addons:
       - zsh
 
 install:
-  - bundle install --jobs 4 --retry 3 --path vendor/bundle
+  - bundle install --jobs 4 --retry 3 --path rbvendor/bundle
   - go mod download
 
 script:
@@ -29,5 +29,5 @@ before_cache:
 
 cache:
   directories:
-    - vendor/bundle
+    - rbvendor/bundle
     - $GOPATH/pkg/mod
