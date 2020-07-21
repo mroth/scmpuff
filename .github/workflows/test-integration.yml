@@ -30,6 +30,9 @@ jobs:
           ruby-version: '2.6'
       - name: Install Ruby dependencies
         run: bundle install --jobs 4 --retry 3 --path vendor/bundle
+      - name: Install ZSH on ubuntu
+        if: matrix.platform == 'ubuntu-latest'
+        run: sudo apt-get -y install zsh
       - name: Run integration Tests
         run: bundle exec cucumber -s --tags=~@wip --tags=~@recent-git-only
 
