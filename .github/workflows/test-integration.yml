@@ -20,14 +20,26 @@ jobs:
         uses: actions/setup-go@v2
         with:
           go-version: ${{ matrix.go-version }}
-      - name: Download Go dependencies
-        run: go mod download
+      - name: Cache Go modules
+        uses: actions/cache@v2
+        with:
+          path: ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
       - name: Build binary
         run: script/build
       - name: Setup Ruby
         uses: actions/setup-ruby@v1
         with:
           ruby-version: '2.6'
+      - name: Cache Ruby dependencies
+        uses: actions/cache@v2
+        with:
+          path: vendor/bundle
+          key: ${{ runner.os }}-gems-${{ hashFiles('**/Gemfile.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-gems-
       - name: Install Ruby dependencies
         run: bundle install --jobs 4 --retry 3 --path vendor/bundle
       - name: Install ZSH on ubuntu
