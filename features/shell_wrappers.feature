@@ -74,6 +74,7 @@ Feature: optional wrapping of normal git cmds in the shell
       | zsh   |
 
 
+  @recent-git-only
   Scenario Outline: Wrapped `git restore` works
     Given I am in a git repository
       And a 2 byte file named "foo.bar"
