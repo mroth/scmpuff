@@ -1,7 +1,7 @@
-sudo: false
+dist: bionic
 language: go
 go:
-  - 1.12
+  - 1.14
 
 env:
   - GO111MODULE=on
@@ -16,18 +16,18 @@ addons:
       - zsh
 
 install:
-  - bundle install --jobs 4 --retry 3 --path vendor/bundle
+  - bundle install --jobs 4 --retry 3 --path rbvendor/bundle
   - go mod download
 
 script:
   - go test ./...
   - script/build
-  - bundle exec cucumber -s --tags=~@wip --tags=~@recent-git-only
+  - bundle exec cucumber -s --tags=~@wip
 
 before_cache:
   - bundle clean
 
 cache:
   directories:
-    - vendor/bundle
+    - rbvendor/bundle
     - $GOPATH/pkg/mod
