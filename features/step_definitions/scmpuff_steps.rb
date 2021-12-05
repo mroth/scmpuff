@@ -69,6 +69,8 @@ Given(/^I am in the mocked git repository with commited subdirectory and file$/)
       FileUtils.mkdir "foo"
       FileUtils.touch "foo/placeholder.txt"
       system("git init --quiet")
+      system("git config --local user.name 'SCM Puff'")
+      system("git config --local user.email 'scmpuff@test.local'")
       system("git add .")
       system("git commit -m.")
     end
