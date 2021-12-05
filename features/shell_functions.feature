@@ -51,6 +51,7 @@ Feature: scmpuff_status function
       And I type "scmpuff_status"
       And I type `echo -e "e1:$e1\ne2:$e2\ne3:$e3\ne4:$e4\ne5:$e5\n"`
       And I type "exit"
+    And I stop the command "<shell>"
     Then the output should match /^e1:.*new_file$/
       And the output should match /^e2:.*deleted_file$/
       And the output should match /^e3:.*new_file$/
@@ -71,6 +72,7 @@ Feature: scmpuff_status function
       And I type "scmpuff_status"
       And I type `echo -e "e1:$e1\ne2:$e2\ne3:$e3\ne4:$e4\n"`
       And I type "exit"
+    And I stop the command "<shell>"
     Then the output should match /^e1:.*aa bb$/
       And the output should match /^e2:.*bb\|cc$/
       And the output should match /^e3:.*cc\*dd$/
