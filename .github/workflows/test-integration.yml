@@ -9,12 +9,18 @@ on:
 
 jobs:
   test:
+    runs-on: ${{ matrix.os }}
+    continue-on-error: ${{ matrix.experimental }}
     strategy:
+      fail-fast: false
       matrix:
         go-version: [1.17.x]
-        platform: [ubuntu-latest, macos-latest, windows-latest]
-      fail-fast: false
-    runs-on: ${{ matrix.platform }}
+        os: [ubuntu-latest, macos-latest]
+        experimental: [false]
+        include:
+          - os: windows-latest
+            go-version: 1.17.x
+            experimental: true
     steps:
       # current build script requires git history to create a version number
       - name: Checkout code with full history
@@ -40,7 +46,7 @@ jobs:
           ruby-version: '2.7'
           bundler-cache: true
       - name: Install ZSH on ubuntu
-        if: matrix.platform == 'ubuntu-latest'
+        if: matrix.os == 'ubuntu-latest'
         run: sudo apt-get -y install zsh
       - name: Run integration Tests
         run: bundle exec cucumber -s --tags="not @wip" --color
