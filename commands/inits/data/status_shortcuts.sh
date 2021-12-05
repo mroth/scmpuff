@@ -1,3 +1,5 @@
+# source file: status_shortcuts.sh
+# shellcheck shell=sh
 scmpuff_status() {
   local scmpuff_env_char="e"
 

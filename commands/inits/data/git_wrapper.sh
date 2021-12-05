@@ -1,3 +1,6 @@
+# source file: git_wrapper.sh
+# shellcheck shell=sh
+
 # Remove any existing git alias or function
 unalias git > /dev/null 2>&1
 unset -f git > /dev/null 2>&1
