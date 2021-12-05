@@ -62,6 +62,7 @@ Feature: optional wrapping of normal git cmds in the shell
       And I type "scmpuff_status"
       And I type "git reset 1"
       And I type "exit"
+    And I stop the command "<shell>"
     Then the exit status should be 0
     When I run `scmpuff status`
     Then the stdout from "scmpuff status" should contain:
@@ -87,6 +88,7 @@ Feature: optional wrapping of normal git cmds in the shell
       And I type "scmpuff_status"
       And I type "git restore --staged 1"
       And I type "exit"
+    And I stop the command "<shell>"
     Then the exit status should be 0
     When I run `scmpuff status`
     Then the stdout from "scmpuff status" should contain:
