@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 
+	"github.com/mroth/scmpuff/commands/exec"
 	"github.com/mroth/scmpuff/commands/expand"
 	"github.com/mroth/scmpuff/commands/inits"
 	"github.com/mroth/scmpuff/commands/status"
@@ -38,6 +39,7 @@ func main() {
 	puffCmd.AddCommand(introCmd)
 	puffCmd.AddCommand(versionCmd)
 	puffCmd.AddCommand(inits.CommandInit())
+	puffCmd.AddCommand(exec.CommandExec())
 	puffCmd.AddCommand(expand.CommandExpand())
 	puffCmd.AddCommand(status.CommandStatus())
 
