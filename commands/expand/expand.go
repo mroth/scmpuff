@@ -20,11 +20,12 @@ var expandRelative bool
 func CommandExpand() *cobra.Command {
 
 	var expandCmd = &cobra.Command{
-		Use:   "expand <shortcuts...>",
+		Use:   "expand [flags] <shortcuts...>",
 		Short: "Expands numeric shortcuts",
 		Long: `Expands numeric shortcuts to their full filepath.
 
 Takes a list of digits (1 4 5) or numeric ranges (1-5) or even both.`,
+		Example: "$ scmpuff expand 1-2\n/tmp/foo.txt    /tmp/bar.txt",
 		Run: func(cmd *cobra.Command, args []string) {
 			if len(args) < 1 {
 				cmd.Usage()
@@ -73,4 +74,3 @@ func Process(args []string) string {
 func escape(arg string) string {
 	return shellEscaper.ReplaceAllString(arg, "\\$1")
 }
-

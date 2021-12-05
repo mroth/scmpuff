@@ -11,7 +11,7 @@ import (
 
 var expandRelative bool
 
-// CommandExec expands numeric arguments then execs the command
+// CommandExec expands numeric arguments then executes the command directly.
 //
 // Allows expansion of numbered shortcuts, ranges of shortcuts, or standard paths.
 // Numbered shortcut variables are produced by various commands, such as:
@@ -20,8 +20,10 @@ var expandRelative bool
 func CommandExec() *cobra.Command {
 
 	var expandCmd = &cobra.Command{
-		Use:   "exec <shortcuts...>",
-		Short: "Execute cmd with numeric shortcuts",
+		Use:     "exec [flags] <command> <shortcuts...>",
+		Example: "$ scmpuff exec git add 1-4",
+		Aliases: []string{"execute"},
+		Short:   "Execute cmd with numeric shortcuts",
 		Long: `Expands numeric shortcuts to their full filepath and executes the command.
 
 Takes a list of digits (1 4 5) or numeric ranges (1-5) or even both.`,
@@ -72,4 +74,3 @@ func Process(args []string) []string {
 
 	return processedArgs
 }
-
