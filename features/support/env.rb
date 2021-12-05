@@ -12,5 +12,6 @@ end
 # since tmp/aruba is nested within the git repo of this program, we need to
 # be somewhere else to test behavior of the binary when outside the git repo.
 Before('@outside-repo') do
-  cd "/tmp/aruba/scmpuff"
+  tmpdir = Dir.mktmpdir("aruba")
+  cd tmpdir
 end
