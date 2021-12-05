@@ -1,40 +1,29 @@
 package inits
 
-import "fmt"
+import (
+	_ "embed"
+	"fmt"
+)
 
-// the below go:generate directive will automatically generate a bindata.go file
-// which wraps the contents of the data directory so we can include text files
-// in our distributed binary directly.
-//
-// The modtime is overridden so builds are reproducible across systems.
-// Thus requires version of go-bindata > 7362d4b6b2.
-//
-// We are currently using this maintained fork for now:
-// https://github.com/kevinburke/go-bindata
+//go:embed data/status_shortcuts.sh
+var scriptStatusShortcuts string
 
-//go:generate go-bindata -o bindata.go -ignore=README* -pkg=inits -modtime=1558658378 data
+//go:embed data/aliases.sh
+var scriptAliases string
+
+//go:embed data/git_wrapper.sh
+var scriptGitWrapper string
 
 func printScript() {
 	if outputScript {
-		fmt.Println(assetString("data/status_shortcuts.sh"))
+		fmt.Println(scriptStatusShortcuts)
 	}
 
 	if includeAliases {
-		fmt.Println(assetString("data/aliases.sh"))
+		fmt.Println(scriptAliases)
 	}
 
 	if wrapGit {
-		fmt.Println(assetString("data/git_wrapper.sh"))
+		fmt.Println(scriptGitWrapper)
 	}
-}
-
-// returns the string data for an embedded data script
-func assetString(file string) string {
-	data, err := Asset(file)
-	if err != nil {
-		// Asset was not found. This should be impossible unless something goes
-		// wrong during compilation build process, so panic!
-		panic(fmt.Sprintf("Could not find bindata asset file: %v", file))
-	}
-	return string(data)
 }

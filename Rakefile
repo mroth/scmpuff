@@ -1,10 +1,6 @@
 require 'rake/clean'
 
-# special case: we have a bindata file which should be regenerated if source
-# file changes.  this is needed during development only, so we handle that here
-# versus in the build script.
-BINDATA    = "commands/inits/bindata.go"
-file BINDATA => :generate
+# aruba's default tmp directory is local
 CLEAN.include FileList.new("tmp/*")
 
 # runs the generate script, which will bootstrap anything it needs in script
@@ -26,13 +22,13 @@ task :install => :build do
 end
 
 desc "run unit tests"
-task :test => BINDATA do
+task :test do
   sh "go test ./..."
 end
 
 desc "run integration tests"
 task :features => :build do
-  sh "bundle exec cucumber -s --tags=~@wip"
+  sh "bundle exec cucumber -s --tags='not @wip'"
 end
 
 task "features:wip" => :build do
