@@ -1,12 +1,17 @@
-on: [push, pull_request]
-# TODO: exclude gh-pages branch
+on:
+  push:
+    branches-ignore:
+      - 'gh-pages'
+  pull_request:
+    branches-ignore:
+      - 'gh-pages'
 
 name: Unit Tests
 jobs:
   test:
     strategy:
       matrix:
-        go-version: [1.14.x]
+        go-version: [1.17.x]
         platform: [ubuntu-latest, macos-latest, windows-latest]
       fail-fast: false
     runs-on: ${{ matrix.platform }}
