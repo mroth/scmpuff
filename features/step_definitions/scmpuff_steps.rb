@@ -62,7 +62,7 @@ end
 # want to rerun the same git init every iteration, rather we just copy a fresh
 # copy of the mocked directory!
 Given(/^I am in the mocked git repository with commited subdirectory and file$/) do
-  MOCK ||= File.join(current_directory, "..", "mock", "gitsubdir") #needs to be outside of aruba clobber dir
+  MOCK ||= File.join(aruba.current_directory, "..", "mock", "gitsubdir") #needs to be outside of aruba clobber dir
   unless File.directory? MOCK
     FileUtils.mkdir_p MOCK
     Dir.chdir MOCK do
@@ -73,7 +73,7 @@ Given(/^I am in the mocked git repository with commited subdirectory and file$/)
       system("git commit -m.")
     end
   end
-  FileUtils.cp_r MOCK, current_directory
+  FileUtils.cp_r MOCK, aruba.current_directory
   cd "gitsubdir"
 end
 
