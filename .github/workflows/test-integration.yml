@@ -10,17 +10,21 @@ on:
 jobs:
   test:
     runs-on: ${{ matrix.os }}
-    continue-on-error: ${{ matrix.experimental }}
+    # continue-on-error: ${{ matrix.experimental }}
     strategy:
       fail-fast: false
       matrix:
         go-version: [1.17.x]
         os: [ubuntu-latest, macos-latest]
-        experimental: [false]
-        include:
-          - os: windows-latest
-            go-version: 1.17.x
-            experimental: true
+        # NOTE: continue-on-error still marks test as failed in UI, see 
+        # https://github.com/actions/toolkit/issues/399. Disabling expected
+        # failing Windows integration test for now to avoid confusion.
+        #
+        # experimental: [false]
+        # include:
+        #   - os: windows-latest
+        #     go-version: 1.17.x
+        #     experimental: true
     steps:
       # current build script requires git history to create a version number
       - name: Checkout code with full history
