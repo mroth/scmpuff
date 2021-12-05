@@ -1,7 +1,12 @@
-on: [push, pull_request]
-# TODO: exclude gh-pages branch
-
 name: Integration Tests
+on:
+  push:
+    branches-ignore:
+      - 'gh-pages'
+  pull_request:
+    branches-ignore:
+      - 'gh-pages'
+
 jobs:
   test:
     strategy:
