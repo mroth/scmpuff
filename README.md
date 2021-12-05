@@ -3,10 +3,6 @@
 > Makes working with git from the command line quicker by substituting numeric
 shortcuts for files.
 
-[![Build Status](https://travis-ci.org/mroth/scmpuff.svg?branch=master)](https://travis-ci.org/mroth/scmpuff)
-[![Go Report Card](https://goreportcard.com/badge/github.com/mroth/scmpuff)](https://goreportcard.com/report/github.com/mroth/scmpuff)
-[![Chat on Gitter](https://badges.gitter.im/scmpuff/Lobby.svg)](https://gitter.im/scmpuff/Lobby)
-
 <img width=568 src="http://f.cl.ly/items/2726271z170L2y0K3d0b/scmpuff_screenshot.png">
 
 **scmpuff** is a minimalistic reinterpretation of the core functionality of
