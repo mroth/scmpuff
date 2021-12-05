@@ -35,21 +35,12 @@ jobs:
       - name: Build binary
         run: script/build
       - name: Setup Ruby
-        uses: actions/setup-ruby@v1
+        uses: ruby/setup-ruby@v1
         with:
           ruby-version: '2.3'
-      - name: Cache Ruby dependencies
-        uses: actions/cache@v2
-        with:
-          path: vendor/bundle
-          key: ${{ runner.os }}-gems-${{ hashFiles('**/Gemfile.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-gems-
-      - name: Install Ruby dependencies
-        run: bundle install --jobs 4 --retry 3 --path vendor/bundle
+          bundler-cache: true
       - name: Install ZSH on ubuntu
         if: matrix.platform == 'ubuntu-latest'
         run: sudo apt-get -y install zsh
       - name: Run integration Tests
         run: bundle exec cucumber -s --tags=~@wip --tags=~@recent-git-only
-
