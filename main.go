@@ -24,6 +24,10 @@ var puffCmd = &cobra.Command{
 	Long: `scmpuff extends common git commands with numeric filename shortcuts.
 
 If you are just getting started, try the intro!`,
+
+	// disable default completions introduced in cobra v1.2.0, we will want to
+	// customize if we provide these in the future.
+	CompletionOptions: cobra.CompletionOptions{DisableDefaultCmd: true},
 }
 
 var versionCmd = &cobra.Command{
