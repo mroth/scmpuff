@@ -9,7 +9,7 @@ scmpuff_status() {
   # Run scmpuff status, store output
   # (`local` needs to be on its own line otherwise exit code is swallowed!)
   local cmd_output
-  cmd_output="$(/usr/bin/env scmpuff status --filelist $@)"
+  cmd_output=$(/usr/bin/env scmpuff status --filelist "$@")
 
   # if there was an error, exit prematurely, and pass along the exit code
   # (STDOUT was swallowed but not STDERR, so user should still see error msg)
@@ -19,17 +19,19 @@ scmpuff_status() {
   fi
 
   # Fetch list of files (from first line of script output)
+  local files
   files="$(echo "$cmd_output" | head -n 1)"
 
   # Export numbered env variables for each file
   scmpuff_clear_vars
-  IFS=$'\t'
+  IFS=$(printf '\t')
   local e=1
+  local file
   for file in $files; do
     export $scmpuff_env_char$e="$file"
-    let e++
+    e=$((e+1))
   done
-  IFS=$' \t\n'
+  IFS=$(printf ' \t\n')
 
   # Print status (from line two onward)
   echo "$cmd_output" | tail -n +2
@@ -42,14 +44,14 @@ scmpuff_status() {
 # Clear numbered env variables
 scmpuff_clear_vars() {
   local scmpuff_env_char="e"
-  local i
-
-  for (( i=1; i<=999; i++ )); do
-    local env_var_i=${scmpuff_env_char}${i}
-    if [[ -n ${env_var_i} ]]; then
+  local i=0
+  while [ $i -le 999 ]; do
+    env_var_i=${scmpuff_env_char}${i}
+    if [ -n "$env_var_i" ]; then
       unset ${env_var_i}
     else
       break
     fi
+    i=$((i+1))
   done
 }

@@ -9,7 +9,7 @@ unset -f git > /dev/null 2>&1
 SCMPUFF_GIT_CMD=${SCMPUFF_GIT_CMD:-"$(\which git)"}
 export SCMPUFF_GIT_CMD
 
-function git() {
+git() {
   case $1 in
     commit|blame|log|rebase|merge)
       scmpuff exec -- "$SCMPUFF_GIT_CMD" "$@";;
