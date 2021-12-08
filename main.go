@@ -17,7 +17,7 @@ var NAME = "scmpuff"
 
 // VERSION is the default version of the program
 // ...in almost all cases this should be overriden by the buildscript.
-var VERSION = "0.?.? (not using buildscript)"
+var VERSION = "0.0.0-development"
 
 var puffCmd = &cobra.Command{
 	Use:   "scmpuff",

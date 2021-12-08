@@ -1,19 +1,11 @@
 require 'rake/clean'
+CLEAN.include FileList.new("tmp/*") # aruba's default tmp directory is local
 
-# aruba's default tmp directory is local
-CLEAN.include FileList.new("tmp/*")
-
-# runs the generate script, which will bootstrap anything it needs in script
-desc "generates bindata files"
-task :generate do
-  sh "go generate ./..."
-end
-
-# the unix build script does not force `generate` as prereq, but the task here
-# does since we want to always make sure to be up to date with any changes made
 desc "builds the binary"
-task :build => :generate do
-  sh "script/build"
+task :build do
+  # note starting in go1.18 this information will be available via go version -m
+  version = `git describe --tags HEAD`
+  sh "go", "build", "-o", "bin/scmpuff", "-ldflags", "-X main.VERSION=#{version}"
 end
 
 desc "builds & installs the binary to $GOPATH/bin"

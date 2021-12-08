@@ -42,13 +42,13 @@ jobs:
           key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
           restore-keys: |
             ${{ runner.os }}-go-
-      - name: Build binary
-        run: script/build
       - name: Setup Ruby
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: '2.7'
           bundler-cache: true
+      - name: Build binary
+        run: rake build
       - name: Install ZSH on ubuntu
         if: matrix.os == 'ubuntu-latest'
         run: sudo apt-get -y install zsh

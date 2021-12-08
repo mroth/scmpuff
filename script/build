@@ -1,8 +1,0 @@
-#!/usr/bin/env bash
-# Usage: build
-#
-# Run go build without dependencies.
-set -ex
-
-VERSION="$(git describe --tags HEAD)"
-go build -o bin/scmpuff -ldflags "-X main.VERSION=${VERSION}"
