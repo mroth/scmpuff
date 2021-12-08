@@ -1,4 +1,0 @@
-Copy `scmpuff` to /usr/local/bin or somewhere else in your PATH.
-
-Run `scmpuff intro` to get started, it should give you instructions to
-set up your shell.
