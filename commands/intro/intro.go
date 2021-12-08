@@ -1,4 +1,4 @@
-package main
+package intro
 
 import (
 	"fmt"
@@ -6,7 +6,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var introCmd = &cobra.Command{
+var IntroCmd = &cobra.Command{
 	Use:   "intro",
 	Short: "Displays an introduction to scmpuff",
 	Long:  `Displays an introduction to using scmpuff.`,

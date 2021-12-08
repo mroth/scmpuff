@@ -6,6 +6,7 @@ import (
 	"github.com/mroth/scmpuff/commands/exec"
 	"github.com/mroth/scmpuff/commands/expand"
 	"github.com/mroth/scmpuff/commands/inits"
+	"github.com/mroth/scmpuff/commands/intro"
 	"github.com/mroth/scmpuff/commands/status"
 
 	"github.com/spf13/cobra"
@@ -40,8 +41,8 @@ var versionCmd = &cobra.Command{
 }
 
 func main() {
-	puffCmd.AddCommand(introCmd)
 	puffCmd.AddCommand(versionCmd)
+	puffCmd.AddCommand(intro.IntroCmd)
 	puffCmd.AddCommand(inits.CommandInit())
 	puffCmd.AddCommand(exec.CommandExec())
 	puffCmd.AddCommand(expand.CommandExpand())
