@@ -5,7 +5,7 @@ desc "builds the binary"
 task :build do
   # note starting in go1.18 this information will be available via go version -m
   version = `git describe --tags HEAD`
-  sh "go", "build", "-o", "bin/scmpuff", "-ldflags", "-X main.VERSION=#{version}"
+  sh "go", "build", "-o", "bin/scmpuff", "-mod=readonly", "-ldflags", "-X main.VERSION=#{version}"
 end
 
 desc "builds & installs the binary to $GOPATH/bin"
