@@ -3,7 +3,8 @@ unalias git > /dev/null 2>&1
 unset -f git > /dev/null 2>&1
 
 # Use the full path to git to avoid infinite loop with git function
-export SCMPUFF_GIT_CMD="$(\which git)"
+SCMPUFF_GIT_CMD=${SCMPUFF_GIT_CMD:-"$(\which git)"}
+export SCMPUFF_GIT_CMD
 
 function git() {
   case $1 in
