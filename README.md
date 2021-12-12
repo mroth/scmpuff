@@ -16,10 +16,7 @@ shell integration is under 100 lines of shell script.
 system. It's written with cross-platform support in mind, so hopefully we'll
 have it functioning on Windows soon as well.
 
-**scmpuff** is fully compatible with the most-excellent [Hub][hub].
-
 [scmbreeze]: https://github.com/ndbroadbent/scm_breeze
-[hub]: https://github.com/github/hub
 
 ## Installation
 
@@ -87,8 +84,8 @@ e.g. `ga`, `gd`, `gco`.  Check your aliases to see what they are.
 
 ### How does it compare with SCM Breeze?
 
-The short version: it does less, but is faster and should be significantly more
-stable and reliable, especially across different platforms.
+The short version: it does less, but is faster and should be more stable and
+reliable, especially across different platforms.
 
 The long, detailed version:
 https://github.com/mroth/scmpuff/wiki/scmpuff-vs-SCM-Breeze
@@ -99,15 +96,12 @@ in your shell initialization.  Then, if you wish to remap them, simple modify
 your default aliases wherever you normally do, but add aliases mapped to the
 scmpuff shell functions, e.g. `alias gs='scmpuff_status'`.
 
+### I want to use scmpuff in conjunction with [hub][hub] or something else that I've aliased git to, how would I do so?
 
-## Development
+By default, scmpuff will attempt to utilize the absolute path of whatever `git`
+it finds in your system PATH, ignoring existing shell aliases.  If you want to
+use a different binary, set `$SCMPUFF_GIT_CMD` in your shell to the path, for
+example, `export SCMPUFF_GIT_CMD=/usr/local/bin/hub`.
 
-While the build process itself does not require it, development uses Ruby for
-integration testing because of the excellent Cucumber/Aruba package for testing
-CLI tools.
+[hub]: https://github.com/github/hub
 
-Thus, to bootstrap, you will need to have Ruby and bundler installed on your
-system.  Do `bundle install` to get the dev environment going.
-
-Since we already have Ruby then for tests, we use a Rakefile instead of Makefile
-since it offers some niceties.  Do `rake -T` to see available tasks.
