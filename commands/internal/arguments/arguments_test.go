@@ -65,10 +65,10 @@ func TestEvaluateEnvironment(t *testing.T) {
 		t.Skip("failed to get wd, cannot test")
 	}
 
-	fakegitAbsPath := filepath.Join(wd, "/testdata/bin/fakegit")
+	fakegitAbsPath := filepath.Join(wd, "testdata", "bin", "fakegit")
 	t.Setenv("SCMPUFF_GIT_CMD", fakegitAbsPath)
-	t.Setenv("e1", filepath.Join(wd, "/testdata/a.txt"))
-	t.Setenv("e2", filepath.Join(wd, "/testdata/b.txt"))
+	t.Setenv("e1", filepath.Join(wd, "testdata", "a.txt"))
+	t.Setenv("e2", filepath.Join(wd, "testdata", "b.txt"))
 	t.Setenv("FOO_USER", "not_a_file")
 
 	t.Logf("$CWD=%v", wd)
@@ -85,16 +85,15 @@ func TestEvaluateEnvironment(t *testing.T) {
 		{name: "not an env var", arg: "eee", expandRelative: false, want: "eee"},
 		{name: "not file absolute", arg: "$FOO_USER", expandRelative: false, want: "not_a_file"},
 		{name: "not file relative", arg: "$FOO_USER", expandRelative: true, want: "not_a_file"},
-		{name: "absolute file", arg: "$e1", expandRelative: false, want: filepath.Join(wd, "/testdata/a.txt")},
-		{name: "relative file", arg: "$e1", expandRelative: true, want: "testdata/a.txt"},
+		{name: "absolute file", arg: "$e1", expandRelative: false, want: filepath.Join(wd, "testdata", "a.txt")},
+		{name: "relative file", arg: "$e1", expandRelative: true, want: filepath.FromSlash("testdata/a.txt")},
 		{name: "path binary dont convert relative - abs", arg: "$SCMPUFF_GIT_CMD", expandRelative: false, want: fakegitAbsPath},
 		{name: "path binary dont convert relative - rel", arg: "$SCMPUFF_GIT_CMD", expandRelative: true, want: fakegitAbsPath},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			// filepath.ToSlash for windows compatibility since our test case wants assume output on unix like systems
-			if got := filepath.ToSlash(EvaluateEnvironment(tt.arg, tt.expandRelative)); got != tt.want {
+			if got := EvaluateEnvironment(tt.arg, tt.expandRelative); got != tt.want {
 				t.Errorf("EvaluateEnvironment(%v, %v) = %v, want %v", tt.arg, tt.expandRelative, got, tt.want)
 			}
 		})
