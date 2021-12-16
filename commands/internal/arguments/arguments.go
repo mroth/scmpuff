@@ -12,28 +12,42 @@ import (
 var expandArgDigitMatcher = regexp.MustCompile("^[0-9]{0,4}$")
 var expandArgRangeMatcher = regexp.MustCompile("^([0-9]+)-([0-9]+)$")
 
-// EvaluateEnvironment evaluates a string of arguments and expands environment variables.
+// EvaluateEnvironment evaluates a single arguments and expands environment
+// variables.
+//
+// TODO: For scmpuff-managed position variables only (e.g. $e1, etc), the
+// variable is expanded into a locatable file path, and expandRelative is true,
+// it will be converted into a relative path when possible.
 func EvaluateEnvironment(arg string, expandRelative bool) string {
-	expandedArg := os.ExpandEnv(arg)
-	if expandRelative {
-		return convertToRelativeIfFilePath(expandedArg)
+	expanded := os.ExpandEnv(arg)
+	wasChanged := (expanded != arg)
+	if wasChanged && expandRelative {
+		relPath, err := convertToRelativeIfFilePath(expanded)
+		if err == nil {
+			return relPath
+		}
 	}
-	return expandedArg
+	return expanded
 }
 
 // For a given arg, try to determine if it represents a file, and if so, convert
 // it to a relative filepath.
 //
 // Otherwise (or if any error conditions occur) return it unmolested.
-func convertToRelativeIfFilePath(arg string) string {
-	if _, err := os.Stat(arg); err == nil {
-		wd, err1 := os.Getwd()
-		relPath, err2 := filepath.Rel(wd, arg)
-		if err1 == nil && err2 == nil {
-			return relPath
-		}
+func convertToRelativeIfFilePath(arg string) (string, error) {
+	_, err := os.Stat(arg)
+	if err != nil {
+		return arg, err
 	}
-	return arg
+	wd, err := os.Getwd()
+	if err != nil {
+		return arg, err
+	}
+	relPath, err := filepath.Rel(wd, arg)
+	if err != nil {
+		return arg, err
+	}
+	return relPath, nil
 }
 
 // Expand takes the list of arguments received from the command line and expands
