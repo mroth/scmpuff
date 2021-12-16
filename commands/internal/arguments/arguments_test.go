@@ -93,7 +93,8 @@ func TestEvaluateEnvironment(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := EvaluateEnvironment(tt.arg, tt.expandRelative); got != tt.want {
+			// filepath.ToSlash for windows compatibility since our test case wants assume output on unix like systems
+			if got := filepath.ToSlash(EvaluateEnvironment(tt.arg, tt.expandRelative)); got != tt.want {
 				t.Errorf("EvaluateEnvironment(%v, %v) = %v, want %v", tt.arg, tt.expandRelative, got, tt.want)
 			}
 		})
