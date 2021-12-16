@@ -102,3 +102,43 @@ Feature: scmpuff_status function
       | shell |
       | bash  |
       | zsh   |
+
+  Scenario Outline: default SCMPUFF_GIT_CMD is set to absolute path of a git command
+    When I run `<shell>` interactively
+      And I type `eval "$(scmpuff init -s)"`
+      And I type "echo $SCMPUFF_GIT_CMD"
+      And I type "exit"
+    And I stop the command "<shell>"
+    Then the output should match %r<^/.+/git$>
+    # ^^ is absolute path to git: begins with a /, and ends with /git
+    Examples:
+      | shell |
+      | bash  |
+      | zsh   |
+
+  Scenario Outline: SCMPUFF_GIT_CMD is set to absolute path of a git command, eliminating aliases
+    When I run `<shell>` interactively
+      And I type "alias git=/foo/bar"
+      And I type `eval "$(scmpuff init -s)"`
+      And I type "echo $SCMPUFF_GIT_CMD"
+      And I type "exit"
+    And I stop the command "<shell>"
+    Then the output should match %r<^/.+/git$>
+    # ^^ is absolute path to git: begins with a /, and ends with /git
+    Examples:
+      | shell |
+      | bash  |
+      | zsh   |
+
+  Scenario Outline: SCMPUFF_GIT_CMD respects existing environment variables
+    When I run `<shell>` interactively
+      And I type "export SCMPUFF_GIT_CMD=/foo/hub"
+      And I type `eval "$(scmpuff init -s)"`
+      And I type "echo $SCMPUFF_GIT_CMD"
+      And I type "exit"
+    And I stop the command "<shell>"
+    Then the output should contain exactly "/foo/hub"
+    Examples:
+      | shell |
+      | bash  |
+      | zsh   |
