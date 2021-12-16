@@ -69,16 +69,33 @@ Feature: command expansion at command line
       Then the stderr should not contain anything
         And the output should match /git\tcommit\t-m\tfoo\\;\\ bar/
 
-  Scenario: Allow user to specify --relative paths
+  Scenario Outline: Allow user to specify --relative paths
     Given a directory named "foo"
       And a directory named "foo/bar"
       And an empty file named "xxx.jpg"
       And I cd to "foo/bar"
     Given I override environment variable "e1" to the absolute path of "xxx.jpg"
-    When I successfully run `scmpuff expand 1`
-    Then the stdout from "scmpuff expand 1" should contain "/tmp/aruba/xxx.jpg"
-    When I successfully run `scmpuff expand -r -- 1`
-    Then the stdout from "scmpuff expand -r -- 1" should contain "../../xxx.jpg"
+    When I successfully run `<cmd>`
+    Then the output should match <output_regex>
+    Examples:
+      | cmd                    | output_regex                 |
+      | scmpuff expand 1       | %r<^\S*/tmp/aruba/xxx\.jpg$> |
+      | scmpuff expand -r -- 1 | %r<\.\./\.\./xxx\.jpg>       |
+
+  Scenario Outline: Do not convert anything other than special variables to --relative paths
+    Given a directory named "foo"
+      And a directory named "foo/bar"
+      And an empty file named "fakegit"
+      And an empty file named "xxx.jpg"
+      And I cd to "foo/bar"
+    Given I override environment variable "SCMPUFF_GIT_CMD" to the absolute path of "fakegit"
+      And I override environment variable "e1" to the absolute path of "xxx.jpg"
+    When I successfully run `<cmd>`
+    Then the output should match <output_regex>
+    Examples:
+      | cmd                                              | output_regex                                                  |
+      | scmpuff expand -- $SCMPUFF_GIT_CMD checkout 1    | %r<^\S*/tmp/aruba/fakegit\tcheckout\t\S*/tmp/aruba/xxx\.jpg$> |
+      | scmpuff expand -r -- $SCMPUFF_GIT_CMD checkout 1 | %r<^\S*/tmp/aruba/fakegit\tcheckout\t\.\./\.\./xxx\.jpg$>    |
 
   Scenario: Don't trim empty string args when expanding command
     There are certain situations where someone would want to actually pass an
