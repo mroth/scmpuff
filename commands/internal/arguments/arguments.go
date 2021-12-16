@@ -9,19 +9,22 @@ import (
 	"strconv"
 )
 
-var expandArgDigitMatcher = regexp.MustCompile("^[0-9]{0,4}$")
-var expandArgRangeMatcher = regexp.MustCompile("^([0-9]+)-([0-9]+)$")
+var (
+	expandArgDigitMatcher = regexp.MustCompile("^[0-9]{0,4}$")
+	expandArgRangeMatcher = regexp.MustCompile("^([0-9]+)-([0-9]+)$")
+	managedEnvVar         = regexp.MustCompile(`^\$e\d+$`)
+)
 
 // EvaluateEnvironment evaluates a single arguments and expands environment
 // variables.
 //
-// TODO: For scmpuff-managed position variables only (e.g. $e1, etc), the
-// variable is expanded into a locatable file path, and expandRelative is true,
-// it will be converted into a relative path when possible.
+// For scmpuff-managed position variables only (e.g. $e1, etc), the variable is
+// expanded into a locatable file path, and expandRelative is true, it will be
+// converted into a relative path when possible.
 func EvaluateEnvironment(arg string, expandRelative bool) string {
 	expanded := os.ExpandEnv(arg)
 	wasChanged := (expanded != arg)
-	if wasChanged && expandRelative {
+	if wasChanged && expandRelative && managedEnvVar.MatchString(arg) {
 		relPath, err := convertToRelativeIfFilePath(expanded)
 		if err == nil {
 			return relPath

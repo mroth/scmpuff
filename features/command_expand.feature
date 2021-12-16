@@ -69,7 +69,6 @@ Feature: command expansion at command line
       Then the stderr should not contain anything
         And the output should match /git\tcommit\t-m\tfoo\\;\\ bar/
 
-  @wip
   Scenario Outline: Allow user to specify --relative paths
     Given a directory named "foo"
       And a directory named "foo/bar"
@@ -83,7 +82,6 @@ Feature: command expansion at command line
       | scmpuff expand 1       | %r<^\S*/tmp/aruba/xxx\.jpg$> |
       | scmpuff expand -r -- 1 | %r<\.\./\.\./xxx\.jpg>       |
 
-  @wip
   Scenario Outline: Do not convert anything other than special variables to --relative paths
     Given a directory named "foo"
       And a directory named "foo/bar"
