@@ -1,6 +1,10 @@
 before:
   hooks:
     - go mod download
+
+gomod:
+  proxy: true
+
 builds:
 - env:
     - CGO_ENABLED=0
@@ -10,21 +14,37 @@ builds:
     - windows
   goarch:
     - amd64
+    - arm64
   ldflags:
      - -s -w -X main.VERSION={{.Version}}
+
+universal_binaries:
+- replace: false
+
 archives:
 - replacements:
-    darwin: mac
+    darwin: macOS
     amd64: x64
   format_overrides:
   - goos: windows
     format: zip
-  files:
-    - LICENSE*
-    - README.md
+
 checksum:
   name_template: 'checksums.txt'
 snapshot:
   name_template: "{{ .Tag }}-next"
+
+brews:
+  - name: scmpuff
+    description: Adds numbered shortcuts for common git commands.
+    homepage: https://mroth.github.io/scmpuff/
+    license: MIT
+    tap:
+      owner: mroth
+      name: homebrew-tap
+    test: |
+      ENV["e1"] = "abc"
+      assert_equal "abc", shell_output("#{bin}/scmpuff expand 1").strip
+
 changelog:
   skip: true
