@@ -10,10 +10,10 @@ Feature: optional wrapping of normal git cmds in the shell
       And a 4 byte file named "foo.bar"
       And a 4 byte file named "bar.foo"
     When I run `<shell>` interactively
-      And I type `eval "$(scmpuff init -ws)"`
+      And I initialize scmpuff in `<shell>`
       And I type "scmpuff_status"
       And I type "git add 1"
-      And I type "exit"
+      And I close the shell `<shell>`
     Then the output should contain:
       """
       # On branch: master  |  [*] => $e*
@@ -31,22 +31,24 @@ Feature: optional wrapping of normal git cmds in the shell
       | shell |
       | bash  |
       | zsh   |
+      | fish  |
 
 
   Scenario Outline: Wrapped `git add` can handle files with spaces properly
     Given I am in a git repository
       And an empty file named "file with spaces.txt"
     When I run `<shell>` interactively
-      And I type `eval "$(scmpuff init -ws)"`
+      And I initialize scmpuff in `<shell>`
       And I type "scmpuff_status"
       And I type "git add 1"
-      And I type "exit"
+      And I close the shell `<shell>`
     Then the exit status should be 0
     And the output should match /new file:\s+\[1\] file with spaces.txt/
     Examples:
       | shell |
       | bash  |
       | zsh   |
+      | fish  |
 
 
   Scenario Outline: Wrapped `git reset` can handle files with spaces properly
@@ -58,11 +60,10 @@ Feature: optional wrapping of normal git cmds in the shell
       And an empty file named "file with spaces.txt"
     And I successfully run `git add "file with spaces.txt"`
     When I run `<shell>` interactively
-      And I type `eval "$(scmpuff init -ws)"`
+      And I initialize scmpuff in `<shell>`
       And I type "scmpuff_status"
       And I type "git reset 1"
-      And I type "exit"
-    And I stop the command "<shell>"
+      And I close the shell `<shell>`
     Then the exit status should be 0
     When I run `scmpuff status`
     Then the stdout from "scmpuff status" should contain:
@@ -73,6 +74,7 @@ Feature: optional wrapping of normal git cmds in the shell
       | shell |
       | bash  |
       | zsh   |
+      | fish  |
 
 
   @recent-git-only
@@ -84,11 +86,10 @@ Feature: optional wrapping of normal git cmds in the shell
       And a 4 byte file named "foo.bar"
       And I successfully run `git add foo.bar`
     When I run `<shell>` interactively
-      And I type `eval "$(scmpuff init -ws)"`
+      And I initialize scmpuff in `<shell>`
       And I type "scmpuff_status"
       And I type "git restore --staged 1"
-      And I type "exit"
-    And I stop the command "<shell>"
+      And I close the shell `<shell>`
     Then the exit status should be 0
     When I run `scmpuff status`
     Then the stdout from "scmpuff status" should contain:
@@ -101,6 +102,7 @@ Feature: optional wrapping of normal git cmds in the shell
       | shell |
       | bash  |
       | zsh   |
+      | fish  |
 
   Scenario Outline: Wrapped `git add` can handle shell expansions
     Given I am in a git repository
@@ -108,12 +110,11 @@ Feature: optional wrapping of normal git cmds in the shell
       And an empty file named "file2.txt"
       And an empty file named "untracked file.txt"
     When I run `<shell>` interactively
-      And I type `eval "$(scmpuff init -ws)"`
+      And I initialize scmpuff in `<shell>`
       And I type "scmpuff_status"
-      And I type `FILE="file with spaces.txt"`
+      And I type `<setfile>`
       And I type `git add "$FILE" 2`
-      And I type "exit"
-    Then the exit status should be 0
+      And I close the shell `<shell>`
     And the output should contain:
       """
       new file:  [1] file with spaces.txt
@@ -126,7 +127,9 @@ Feature: optional wrapping of normal git cmds in the shell
       """
       untracked:  [3] untracked file.txt
       """
+    Then the exit status should be 0
     Examples:
-      | shell |
-      | bash  |
-      | zsh   |
+      | shell | setfile                         |
+      | bash  | FILE="file with spaces.txt"     |
+      | zsh   | FILE="file with spaces.txt"     |
+      | fish  | set FILE "file with spaces.txt" |
