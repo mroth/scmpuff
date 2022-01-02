@@ -3,12 +3,11 @@
 function scmpuff_status
     scmpuff_clear_vars
     set -lx scmpuff_env_char "e"
-    set -l cmd_output (/usr/bin/env scmpuff status --filelist $argv ^/dev/null)
+    set -l cmd_output (/usr/bin/env scmpuff status --filelist $argv)
     set -l es "$status"
 
     if test $es -ne 0
-        git status
-        return $status
+        return $es
     end
 
     set -l files (string split \t $cmd_output[1])
@@ -25,7 +24,7 @@ end
 
 function scmpuff_clear_vars
     set -l scmpuff_env_char "e"
-    set -l scmpuff_env_vars (set -x | awk '{print $1}' | grep -E '^'$scmpuff_env_char'\d+')
+    set -l scmpuff_env_vars (set -x | awk '{print $1}' | grep -E '^'$scmpuff_env_char'[0-9]+')
 
     for v in $scmpuff_env_vars
         set -e $v
