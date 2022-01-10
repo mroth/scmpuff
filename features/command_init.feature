@@ -7,6 +7,11 @@ Feature: init command
     When I successfully run `scmpuff init -s`
     Then the output should contain "scmpuff_status()"
 
+  Scenario: init with an unrecognized shell should produce an error
+    When I run `scmpuff init --shell=oil`
+    Then the exit status should be 1
+    Then the output should contain "Unrecognized shell 'oil'"
+
   Scenario Outline: --aliases controls short aliases in output (default: yes)
     When I successfully run `scmpuff init <flags>`
     Then the output <should?> contain "alias gs='scmpuff_status'"

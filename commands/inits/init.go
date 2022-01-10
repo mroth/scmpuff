@@ -2,6 +2,7 @@ package inits
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/spf13/cobra"
 )
@@ -27,13 +28,19 @@ This should probably be evaluated in your shell startup.
     `,
 		Run: func(cmd *cobra.Command, args []string) {
 			// If someone's using the old -s/--show flag, opt-in to the newer --shell=sh option
-			if legacyShow  {
+			if legacyShow {
 				shellType = "sh"
 			}
-			if shellType != "" {
-				printScript()
-			} else {
+			switch shellType {
+			case "":
 				fmt.Println(helpString())
+
+			case "sh", "bash", "zsh", "fish":
+				printScript()
+
+			default:
+				fmt.Fprintf(os.Stderr, "Unrecognized shell '%s'\n", shellType)
+				os.Exit(1)
 			}
 		},
 		// Watch out for accidental args caused by NoOptDefVal (https://github.com/spf13/cobra/issues/866)
