@@ -21,12 +21,10 @@ var scriptGitWrapper string
 var scriptGitWrapperFish string
 
 func printScript() {
-	if outputScript {
-		if shellType == "fish" {
-			fmt.Println(scriptStatusShortcutsFish)
-		} else {
-			fmt.Println(scriptStatusShortcuts)
-		}
+	if shellType == "fish" {
+		fmt.Println(scriptStatusShortcutsFish)
+	} else {
+		fmt.Println(scriptStatusShortcuts)
 	}
 
 	if includeAliases {

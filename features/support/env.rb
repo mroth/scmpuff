@@ -18,7 +18,7 @@ end
 
 When(/I initialize scmpuff in `(.*)`/) do |shell|
   if shell == "fish"
-    type %{scmpuff init -s --shell=fish | source}
+    type %{scmpuff init -w --shell=fish | source}
   else
     type %{eval "$(scmpuff init -ws)"}
   end

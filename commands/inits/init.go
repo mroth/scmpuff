@@ -10,7 +10,7 @@ import (
 // define a variable outside with the correct scope to assign the flag to work
 // with.
 var includeAliases bool
-var outputScript bool
+var legacyShow bool
 var wrapGit bool
 var shellType string
 
@@ -26,12 +26,18 @@ Outputs the bash/zsh/fish initialization script for scmpuff.
 This should probably be evaluated in your shell startup.
     `,
 		Run: func(cmd *cobra.Command, args []string) {
-			if outputScript {
+			// If someone's using the old -s/--show flag, opt-in to the newer --shell=sh option
+			if legacyShow  {
+				shellType = "sh"
+			}
+			if shellType != "" {
 				printScript()
 			} else {
 				fmt.Println(helpString())
 			}
 		},
+		// Watch out for accidental args caused by NoOptDefVal (https://github.com/spf13/cobra/issues/866)
+		Args: cobra.NoArgs,
 	}
 
 	// --aliases
@@ -41,12 +47,13 @@ This should probably be evaluated in your shell startup.
 		"Include short aliases for convenience",
 	)
 
-	// --show
-	InitCmd.Flags().BoolVarP(
-		&outputScript,
-		"show", "s", false,
+	// --show (deprecated in favor of --shell)
+	InitCmd.Flags().BoolVar(
+		&legacyShow,
+		"show", false,
 		"Output scmpuff initialization scripts",
 	)
+	InitCmd.Flags().MarkHidden("show")
 
 	// --wrap
 	InitCmd.Flags().BoolVarP(
@@ -58,9 +65,10 @@ This should probably be evaluated in your shell startup.
 	// --shell
 	InitCmd.Flags().StringVarP(
 		&shellType,
-		"shell", "", "sh",
+		"shell", "s", "",
 		"Set shell type - 'sh' (for bash/zsh), or 'fish'",
 	)
+	InitCmd.Flag("shell").NoOptDefVal = "sh"
 
 	return InitCmd
 }
@@ -69,9 +77,9 @@ This should probably be evaluated in your shell startup.
 func helpString() string {
 	return `# Initialize scmpuff by adding the following to ~/.bash_profile or ~/.zshrc:
 
-eval "$(scmpuff init -s --shell=sh)"
+eval "$(scmpuff init --shell=sh)"
 
 # or the following to ~/.config/fish/config.fish:
 
-scmpuff init -s --shell=fish | source`
+scmpuff init --shell=fish | source`
 }
