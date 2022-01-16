@@ -22,21 +22,31 @@ func CommandInit() *cobra.Command {
 		Use:   "init",
 		Short: "Output initialization script",
 		Long: `
-Outputs the bash/zsh/fish initialization script for scmpuff.
+Outputs the shell initialization script for scmpuff.
 
-This should probably be evaluated in your shell startup.
+Initialize scmpuff by adding the following to your ~/.bash_profile or ~/.zshrc:
+
+    eval "$(scmpuff init --shell=sh)"
+
+For fish shell, add the following to ~/.config/fish/config.fish instead:
+
+    scmpuff init --shell=fish | source
+
+There are a number of flags to customize the shell integration.
     `,
 		Run: func(cmd *cobra.Command, args []string) {
-			// If someone's using the old -s/--show flag, opt-in to the newer --shell=sh option
+			// If someone's using the old ---show flag, opt-in to the newer --shell defaults
 			if legacyShow {
-				shellType = "sh"
+				shellType = defaultShellType()
 			}
 			switch shellType {
 			case "":
-				fmt.Println(helpString())
+				cmd.Help()
+				os.Exit(0)
 
 			case "sh", "bash", "zsh", "fish":
 				printScript()
+				os.Exit(0)
 
 			default:
 				fmt.Fprintf(os.Stderr, "Unrecognized shell '%s'\n", shellType)
@@ -51,7 +61,7 @@ This should probably be evaluated in your shell startup.
 	InitCmd.Flags().BoolVarP(
 		&includeAliases,
 		"aliases", "a", true,
-		"Include short aliases for convenience",
+		"Include short git aliases",
 	)
 
 	// --show (deprecated in favor of --shell)
@@ -73,20 +83,15 @@ This should probably be evaluated in your shell startup.
 	InitCmd.Flags().StringVarP(
 		&shellType,
 		"shell", "s", "",
-		"Set shell type - 'sh' (for bash/zsh), or 'fish'",
+		"Output shell type: sh | bash | zsh | fish",
 	)
-	InitCmd.Flag("shell").NoOptDefVal = "sh"
+	InitCmd.Flag("shell").NoOptDefVal = defaultShellType()
 
 	return InitCmd
 }
 
-// TODO: check for proper shell version
-func helpString() string {
-	return `# Initialize scmpuff by adding the following to ~/.bash_profile or ~/.zshrc:
-
-eval "$(scmpuff init --shell=sh)"
-
-# or the following to ~/.config/fish/config.fish:
-
-scmpuff init --shell=fish | source`
+// defaultShell returns the shellType assumed if user does not specify.
+// in the future, we may wish to customize this based on the $SHELL variable.
+func defaultShellType() string {
+	return "sh"
 }
