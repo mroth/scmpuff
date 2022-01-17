@@ -3,20 +3,19 @@ package inits
 import (
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/spf13/cobra"
 )
 
-// Since the flags are defined and used in different locations, we need to
-// define a variable outside with the correct scope to assign the flag to work
-// with.
-var includeAliases bool
-var legacyShow bool
-var wrapGit bool
-var shellType string
-
 // CommandInit generates the command handler for `scmpuff init`
 func CommandInit() *cobra.Command {
+	var (
+		shellType      string
+		includeAliases bool
+		wrapGit        bool
+		legacyShow     bool
+	)
 
 	var InitCmd = &cobra.Command{
 		Use:   "init",
@@ -39,13 +38,18 @@ There are a number of flags to customize the shell integration.
 			if legacyShow {
 				shellType = defaultShellType()
 			}
-			switch shellType {
+
+			switch strings.ToLower(shellType) {
 			case "":
 				cmd.Help()
 				os.Exit(0)
 
-			case "sh", "bash", "zsh", "fish":
-				printScript()
+			case "sh", "bash", "zsh":
+				fmt.Println(bashCollection.Output(wrapGit, includeAliases))
+				os.Exit(0)
+
+			case "fish":
+				fmt.Println(fishCollection.Output(wrapGit, includeAliases))
 				os.Exit(0)
 
 			default:

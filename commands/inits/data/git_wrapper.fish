@@ -1,6 +1,5 @@
 # Based on https://github.com/arbelt/fish-plugin-scmpuff,
 # with scmpuff-exec support (https://github.com/mroth/scmpuff/pull/49)
-
 functions -e git
 
 set -q SCMPUFF_GIT_CMD; or set -x SCMPUFF_GIT_CMD (which git)

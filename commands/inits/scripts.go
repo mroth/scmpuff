@@ -2,7 +2,7 @@ package inits
 
 import (
 	_ "embed"
-	"fmt"
+	"strings"
 )
 
 //go:embed data/status_shortcuts.sh
@@ -20,22 +20,34 @@ var scriptGitWrapper string
 //go:embed data/git_wrapper.fish
 var scriptGitWrapperFish string
 
-func printScript() {
-	if shellType == "fish" {
-		fmt.Println(scriptStatusShortcutsFish)
-	} else {
-		fmt.Println(scriptStatusShortcuts)
-	}
+type scriptCollection struct {
+	statusShortcuts string
+	gitWrapper      string
+	aliases         string
+}
 
-	if includeAliases {
-		fmt.Println(scriptAliases)
-	}
+var bashCollection = scriptCollection{
+	statusShortcuts: scriptStatusShortcuts,
+	gitWrapper:      scriptGitWrapper,
+	aliases:         scriptAliases,
+}
 
+var fishCollection = scriptCollection{
+	statusShortcuts: scriptStatusShortcutsFish,
+	gitWrapper:      scriptGitWrapperFish,
+	aliases:         scriptAliases,
+}
+
+func (sc scriptCollection) Output(wrapGit, aliases bool) string {
+	var b strings.Builder
+	b.WriteString(sc.statusShortcuts)
 	if wrapGit {
-		if shellType == "fish" {
-			fmt.Println(scriptGitWrapperFish)
-		} else {
-			fmt.Println(scriptGitWrapper)
-		}
+		b.WriteRune('\n')
+		b.WriteString(sc.gitWrapper)
 	}
+	if aliases {
+		b.WriteRune('\n')
+		b.WriteString(sc.aliases)
+	}
+	return b.String()
 }
