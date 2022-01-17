@@ -3,6 +3,7 @@ package inits
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -97,5 +98,13 @@ There are a number of flags to customize the shell integration.
 // defaultShell returns the shellType assumed if user does not specify.
 // in the future, we may wish to customize this based on the $SHELL variable.
 func defaultShellType() string {
+	if shellenv, ok := os.LookupEnv("SHELL"); ok {
+		base := filepath.Base(shellenv)
+		switch base {
+		case "sh", "bash", "zsh", "fish":
+			return base
+		}
+	}
+
 	return "sh"
 }
