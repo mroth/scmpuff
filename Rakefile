@@ -10,7 +10,11 @@ end
 
 desc "builds & installs the binary to $GOPATH/bin"
 task :install => :build do
-  cp "bin/scmpuff", "#{ENV['GOPATH']}/bin/scmpuff"
+  # Don't cp directly over an existing file - it causes problems with Apple code signing.
+  # https://developer.apple.com/documentation/security/updating_mac_software
+  destination = "#{ENV['GOPATH']}/bin/scmpuff"
+  rm destination if File.exist?(destination)
+  cp "bin/scmpuff", destination
 end
 
 desc "run unit tests"
