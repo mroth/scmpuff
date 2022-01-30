@@ -7,6 +7,11 @@ Feature: init command
     When I successfully run `scmpuff init -s`
     Then the output should contain "scmpuff_status()"
 
+  Scenario: init with an unrecognized shell should produce an error
+    When I run `scmpuff init --shell=oil`
+    Then the exit status should be 1
+    Then the output should contain "Unrecognized shell 'oil'"
+
   Scenario Outline: --aliases controls short aliases in output (default: yes)
     When I successfully run `scmpuff init <flags>`
     Then the output <should?> contain "alias gs='scmpuff_status'"
@@ -32,12 +37,14 @@ Feature: init command
 
   Scenario Outline: Evaling init -s defines status shortcuts in environment
     When I run `<shell>` interactively
-      And I type `eval "$(scmpuff init -s)"`
+      And I initialize scmpuff in `<shell>`
       And I type "type scmpuff_status"
       And I type "type scmpuff_clear_vars"
-      And I type "exit"
+      And I close the shell `<shell>`
     Then the output should not contain "not found"
     Examples:
       | shell |
       | bash  |
       | zsh   |
+      | fish  |
+

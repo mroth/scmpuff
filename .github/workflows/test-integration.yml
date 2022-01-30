@@ -42,8 +42,11 @@ jobs:
           bundler-cache: true
       - name: Build binary
         run: rake build
-      - name: Install ZSH on ubuntu
+      - name: Install shells on ubuntu
         if: matrix.os == 'ubuntu-latest'
-        run: sudo apt-get -y install zsh
+        run: sudo apt-get -y install zsh fish
+      - name: Install shells on macos
+        if: matrix.os == 'macos-latest'
+        run: brew install fish
       - name: Run integration Tests
         run: bundle exec cucumber -s --tags="not @wip" --color

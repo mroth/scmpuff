@@ -15,3 +15,19 @@ Before('@outside-repo') do
   tmpdir = Dir.mktmpdir("aruba")
   cd tmpdir
 end
+
+When(/I initialize scmpuff in `(.*)`/) do |shell|
+  if shell == "fish"
+    type %{scmpuff init -w --shell=fish | source}
+  else
+    type %{eval "$(scmpuff init -ws)"}
+  end
+end
+
+When(/I close the shell `(.*)`/) do |shell|
+  status_var = shell == "fish" ? "$status" : "$?"
+  type "exit #{status_var}"
+  # fish doesn't run the inputted commands until stdin is closed
+  close_input
+  step("I stop the command \"#{shell}\"")
+end
