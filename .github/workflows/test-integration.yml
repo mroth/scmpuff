@@ -28,7 +28,7 @@ jobs:
     steps:
       # current build script requires git history to create a version number
       - name: Checkout code with full history
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
       - name: Setup Go
