@@ -15,22 +15,35 @@ var testExpandCases = []struct {
 	{"1 3 7", "$e1 $e3 $e7"},
 	{"1-3 6", "$e1 $e2 $e3 $e6"},
 	{"seven 2-5 1", "seven $e2 $e3 $e4 $e5 $e1"},
-	// Test cases for https://github.com/mroth/scmpuff/issues/69
-	{"log -1 1", "log -1 $e1"},
-	{"log -n1 2", "log -n1 $e2"},
-	{"log -n 1 2", "log -n 1 $e2"},
+	/*
+		Testcases for https://github.com/mroth/scmpuff/issues/69, git subcommand
+		that can accept a dangling numeric argument. This is annoying because it
+		looks like a scmpuff numeric ref, so we'll have to special case those if
+		we want to allow this git porcelain CLI parsing behavior.
+	*/
+	{"log -1 1", "log -1 $e1"},                       // was not an issue to begin with
+	{"log -n1 2", "log -n1 $e2"},                     // was not an issue to begin with
+	{"log -n 1", "log -n 1"},                         // simple case
+	{"log -n 1 2", "log -n 1 $e2"},                   // simple case
+	{"log --max-count 1 2", "log --max-count 1 $e2"}, // other log instances
+	{"log --skip 1 2", "log --skip 1 $e2"},           // other log instances
+	{"log --min-parents 2 --max-parents 5 1-3", "log --min-parents 2 --max-parents 5 $e1 $e2 $e3"},
+	{"log -g -n 1 -i 1", "log -g -n 1 -i $e1"}, // mixed in
+	{"rm -n 1", "rm -n $e1"}, // don't just check for -n, its subcommand specific
 }
 
 func TestExpand(t *testing.T) {
 	for _, tc := range testExpandCases {
-		// split here to emulate what Cobra will pass us but still write tests with
-		// normal looking strings
-		args := strings.Split(tc.args, " ")
-		expected := strings.Split(tc.expected, " ")
-		actual := Expand(args)
-		if !reflect.DeepEqual(actual, expected) {
-			t.Errorf("ExpandArgs(%v): expected %v, actual %v", tc.args, expected, actual)
-		}
+		t.Run(tc.args, func(t *testing.T) {
+			// split here to emulate what Cobra will pass us but still write tests with
+			// normal looking strings
+			args := strings.Split(tc.args, " ")
+			expected := strings.Split(tc.expected, " ")
+			actual := Expand(args)
+			if !reflect.DeepEqual(actual, expected) {
+				t.Errorf("ExpandArgs(%v): expected %v, actual %v", tc.args, expected, actual)
+			}
+		})
 	}
 }
 
