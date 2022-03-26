@@ -15,6 +15,10 @@ var testExpandCases = []struct {
 	{"1 3 7", "$e1 $e3 $e7"},
 	{"1-3 6", "$e1 $e2 $e3 $e6"},
 	{"seven 2-5 1", "seven $e2 $e3 $e4 $e5 $e1"},
+	// Test cases for https://github.com/mroth/scmpuff/issues/69
+	{"log -1 1", "log -1 $e1"},
+	{"log -n1 2", "log -n1 $e2"},
+	{"log -n 1 2", "log -n 1 $e2"},
 }
 
 func TestExpand(t *testing.T) {
@@ -25,7 +29,7 @@ func TestExpand(t *testing.T) {
 		expected := strings.Split(tc.expected, " ")
 		actual := Expand(args)
 		if !reflect.DeepEqual(actual, expected) {
-			t.Fatalf("ExpandArgs(%v): expected %v, actual %v", tc.args, expected, actual)
+			t.Errorf("ExpandArgs(%v): expected %v, actual %v", tc.args, expected, actual)
 		}
 	}
 }
@@ -44,7 +48,7 @@ func TestExpandArg(t *testing.T) {
 	for _, tc := range testExpandArgCases {
 		actual := expandArg(tc.arg)
 		if !reflect.DeepEqual(actual, tc.expected) {
-			t.Fatalf("ExpandArg(%v): expected %v, actual %v", tc.arg, tc.expected, actual)
+			t.Errorf("ExpandArg(%v): expected %v, actual %v", tc.arg, tc.expected, actual)
 		}
 	}
 }
