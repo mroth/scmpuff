@@ -21,18 +21,19 @@ var testExpandCases = []struct {
 		looks like a scmpuff numeric ref, so we'll have to special case those if
 		we want to allow this git porcelain CLI parsing behavior.
 	*/
-	{"log -1 1", "log -1 $e1"},                       // was not an issue to begin with
-	{"log -n1 2", "log -n1 $e2"},                     // was not an issue to begin with
-	{"log -n 1", "log -n 1"},                         // simple case
-	{"log -n 1 2", "log -n 1 $e2"},                   // simple case
-	{"log --max-count 1 2", "log --max-count 1 $e2"}, // other log instances
-	{"log --skip 1 2", "log --skip 1 $e2"},           // other log instances
-	{"log --min-parents 2 --max-parents 5 1-3", "log --min-parents 2 --max-parents 5 $e1 $e2 $e3"},
-	{"log -g -n 1 -i 1", "log -g -n 1 -i $e1"}, // mixed in
-	{"rm -n 1", "rm -n $e1"}, // don't just check for -n, its subcommand specific
+	{"git log -1 1", "git log -1 $e1"},                       // was not an issue to begin with
+	{"git log -n1 2", "git log -n1 $e2"},                     // was not an issue to begin with
+	{"git log -n 1", "git log -n 1"},                         // simple case
+	{"git log -n 1 2", "git log -n 1 $e2"},                   // simple case
+	{"git log --max-count 1 2", "git log --max-count 1 $e2"}, // other log instances
+	{"git log --skip 1 2", "git log --skip 1 $e2"},           // other log instances
+	{"git log --min-parents 2 --max-parents 5 1-3", "git log --min-parents 2 --max-parents 5 $e1 $e2 $e3"},
+	{"git log -g -n 1 -i 1", "git log -g -n 1 -i $e1"}, // mixed in
+	{"git rm -n 1", "git rm -n $e1"},                   // don't just check for -n, its subcommand specific
 }
 
 func TestExpand(t *testing.T) {
+	t.Setenv("SCMPUFF_GIT_CMD", "git")
 	for _, tc := range testExpandCases {
 		t.Run(tc.args, func(t *testing.T) {
 			// split here to emulate what Cobra will pass us but still write tests with

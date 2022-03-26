@@ -60,10 +60,33 @@ func convertToRelativeIfFilePath(arg string) (string, error) {
 // environment variable symbolic representation,
 func Expand(args []string) []string {
 	var results []string
-	for _, arg := range args {
-		results = append(results, expandArg(arg)...)
+	for i, arg := range args {
+		// for special casing, try to understand if we are expanding a full git
+		// command invocation, so we can apply edge case rules
+		if refuseExpandArg(args, i) {
+			results = append(results, arg)
+		} else {
+			results = append(results, expandArg(arg)...)
+		}
 	}
 	return results
+}
+
+func refuseExpandArg(args []string, pos int) bool {
+	// at least two args, first being the registered git cmd, and we're past those
+	if len(args) <= 2 || args[0] != os.Getenv("SCMPUFF_GIT_CMD") || pos < 2 {
+		return false
+	}
+
+	switch args[1] {
+	case "log":
+		switch args[pos-1] { //check previous arg
+		case "-n", "--max-count", "--skip", "--min-parents", "--max-parents":
+			return true
+		}
+	}
+
+	return false
 }
 
 // expandArg "expands" a single argument we received on the command line.
