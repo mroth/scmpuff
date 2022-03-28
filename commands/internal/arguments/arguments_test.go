@@ -30,6 +30,12 @@ var testExpandCases = []struct {
 	{"git log --min-parents 2 --max-parents 5 1-3", "git log --min-parents 2 --max-parents 5 $e1 $e2 $e3"},
 	{"git log -g -n 1 -i 1", "git log -g -n 1 -i $e1"}, // mixed in
 	{"git rm -n 1", "git rm -n $e1"},                   // don't just check for -n, its subcommand specific
+	// more evaluated edge cases...
+	// git diff -U<n> does not allow space
+	// git blame -M and -C take optional integers, but no space
+	// git blame -L <start> (not <start>,<end>) is an edge case to handle
+	{"git blame -L 1 1", "git blame -L 1 $e1"},
+	// TODO: git rebase -C<n> is not documented with a space, but needs to be tested to see if it accepts one
 }
 
 func TestExpand(t *testing.T) {

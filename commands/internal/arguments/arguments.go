@@ -80,8 +80,13 @@ func refuseExpandArg(args []string, pos int) bool {
 
 	switch args[1] {
 	case "log":
-		switch args[pos-1] { //check previous arg
+		switch args[pos-1] {
 		case "-n", "--max-count", "--skip", "--min-parents", "--max-parents":
+			return true
+		}
+	case "blame":
+		switch args[pos-1] {
+		case "-L":
 			return true
 		}
 	}
