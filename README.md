@@ -18,6 +18,7 @@ have it functioning on Windows soon as well.
 
 [scmbreeze]: https://github.com/ndbroadbent/scm_breeze
 
+
 ## Installation
 
 [Download] the binary for your platform, and copy it to `/usr/local/bin` or
@@ -26,22 +27,25 @@ somewhere else in your  default `$PATH`.
 Alternately, if you use [homebrew], you can just: `brew install scmpuff`. :beer:
 
 [download]: https://github.com/mroth/scmpuff/releases/latest
-[homebrew]: http://brew.sh
+[homebrew]: https://brew.sh
+
 
 ## Setup
 
-Currently scmpuff supports bash and zsh for all functionality.
+Currently scmpuff supports bash, zsh and [fish] for all functionality.
 
 To initialize shell functions, add the following to your `~/.bash_profile` or
 `~/.zshrc` file:
 
     eval "$(scmpuff init -s)"
 
-or for Fish, add the following to your `~/.config/fish/config.fish` file:
+or for fish, add the following to your `~/.config/fish/config.fish` file:
 
-    scmpuff init -s --shell=fish | source
+    scmpuff init --shell=fish | source
 
 This will define the scmpuff shell functions as well as some handy shortcuts.
+
+[fish]: https://fishshell.com/
 
 
 ## Usage
