@@ -1,3 +1,5 @@
+# source file: aliases.sh
+# shellcheck shell=sh
 alias gs='scmpuff_status'
 alias ga='git add'
 alias gd='git diff'
