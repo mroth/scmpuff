@@ -6,3 +6,4 @@ tmp/
 _site/
 Gemfile.lock
 .goxc.local.json
+*.exe
