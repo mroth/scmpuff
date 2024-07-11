@@ -11,8 +11,8 @@ var scriptStatusShortcuts string
 //go:embed data/status_shortcuts.fish
 var scriptStatusShortcutsFish string
 
-////go:embed data/status_shortcuts.pwsh
-//var scriptStatusShortcutsPwsh string
+//go:embed data/status_shortcuts.ps1
+var scriptStatusShortcutsPwsh string
 
 //go:embed data/aliases.sh
 var scriptAliases string
@@ -45,7 +45,7 @@ var fishCollection = scriptCollection{
 }
 
 var pwshCollection = scriptCollection{
-	//statusShortcuts: scriptStatusShortcutsPwsh,
+	statusShortcuts: scriptStatusShortcutsPwsh,
 	gitWrapper:      scriptGitWrapperPwsh,
 	aliases:         scriptAliases,
 }

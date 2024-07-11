@@ -13,7 +13,7 @@ function git {
     }
     "^add$" {
       & scmpuff expand -- $SCMPUFF_GIT_CMD $args
-      scmpuff status
+      scmpuff_status
     }
     default {
       & $SCMPUFF_GIT_CMD $args
