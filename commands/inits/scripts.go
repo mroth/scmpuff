@@ -17,6 +17,9 @@ var scriptStatusShortcutsPwsh string
 //go:embed data/aliases.sh
 var scriptAliases string
 
+//go:embed data/aliases.ps1
+var scriptAliasesPwsh string
+
 //go:embed data/git_wrapper.sh
 var scriptGitWrapper string
 
@@ -47,7 +50,7 @@ var fishCollection = scriptCollection{
 var pwshCollection = scriptCollection{
 	statusShortcuts: scriptStatusShortcutsPwsh,
 	gitWrapper:      scriptGitWrapperPwsh,
-	aliases:         scriptAliases,
+	aliases:         scriptAliasesPwsh,
 }
 
 func (sc scriptCollection) Output(wrapGit, aliases bool) string {
