@@ -11,6 +11,9 @@ var scriptStatusShortcuts string
 //go:embed data/status_shortcuts.fish
 var scriptStatusShortcutsFish string
 
+////go:embed data/status_shortcuts.pwsh
+//var scriptStatusShortcutsPwsh string
+
 //go:embed data/aliases.sh
 var scriptAliases string
 
@@ -19,6 +22,9 @@ var scriptGitWrapper string
 
 //go:embed data/git_wrapper.fish
 var scriptGitWrapperFish string
+
+//go:embed data/git_wrapper.ps1
+var scriptGitWrapperPwsh string
 
 type scriptCollection struct {
 	statusShortcuts string
@@ -35,6 +41,12 @@ var bashCollection = scriptCollection{
 var fishCollection = scriptCollection{
 	statusShortcuts: scriptStatusShortcutsFish,
 	gitWrapper:      scriptGitWrapperFish,
+	aliases:         scriptAliases,
+}
+
+var pwshCollection = scriptCollection{
+	//statusShortcuts: scriptStatusShortcutsPwsh,
+	gitWrapper:      scriptGitWrapperPwsh,
 	aliases:         scriptAliases,
 }
 
