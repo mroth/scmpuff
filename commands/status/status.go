@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"path/filepath"
 
 	"github.com/spf13/cobra"
 )
@@ -105,8 +106,27 @@ func gitStatusOutput() []byte {
 //
 // If can't be found, the process will die fatally.
 func gitProjectRoot() string {
-	gpr, err := exec.Command("git", "rev-parse", "--show-toplevel").Output()
+	// Fixes: https://github.com/mroth/scmpuff/issues/11
+	// First, try to retrieve the working directory by reading $PWD from
+	// the environment. This then handles relative paths within a symlink'd
+	// directory correctly.
+	wd := os.Getenv("PWD")
+	if wd == "" {
+		// But still use os.Getwd() as a fallback, in case $PWD is
+		// unset.
+		var err error = nil
+		wd, err = os.Getwd()
+		if err != nil {
+			msg := "Failed to retrieve working directory"
+			fmt.Fprintf(os.Stderr, "\033[0;31m%s: %s\033[0m\n", msg, err)
+			os.Exit(128)
+		}
+	}
 
+	// `--show-cdup` prints the relative path to the git repository root,
+	// which we then can join with our (hopefully correct) current working
+	// directory.
+	cdup, err := exec.Command("git", "rev-parse", "--show-cdup").Output()
 	if err != nil {
 		// we want to capture and handle status 128 in a pretty way
 		if err.Error() == "exit status 128" {
@@ -117,5 +137,7 @@ func gitProjectRoot() string {
 		// or, some other sort of error?
 		log.Fatal(err)
 	}
-	return string(bytes.TrimSpace(gpr))
+
+	absPath := filepath.Join(wd, string(bytes.TrimSpace(cdup)))
+	return filepath.Clean(absPath)
 }
