@@ -33,7 +33,7 @@ end
 
 desc "package for distribution"
 task :package do
-  sh "goreleaser release --rm-dist --skip-publish"
+  sh "goreleaser release --clean --skip publish,homebrew"
 end
 CLOBBER.include "dist"
 
