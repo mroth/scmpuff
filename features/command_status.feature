@@ -78,7 +78,6 @@ Feature: status command
       And the output should match /untracked: *\[4\] *untracked_file/
 
 
-  @wip
   Scenario: Status properly reports all file changes w/ symlink
     Given I am in a complex working tree status matching scm_breeze tests
     When I cd to ".."
