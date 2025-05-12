@@ -53,6 +53,10 @@ There are a number of flags to customize the shell integration.
 				fmt.Println(fishCollection.Output(wrapGit, includeAliases))
 				os.Exit(0)
 
+			case "pwsh":
+				fmt.Println(pwshCollection.Output(wrapGit, includeAliases))
+				os.Exit(0)
+
 			default:
 				fmt.Fprintf(os.Stderr, "Unrecognized shell '%s'\n", shellType)
 				os.Exit(1)
@@ -88,7 +92,7 @@ There are a number of flags to customize the shell integration.
 	InitCmd.Flags().StringVarP(
 		&shellType,
 		"shell", "s", "",
-		"Output shell type: sh | bash | zsh | fish",
+		"Output shell type: sh | bash | zsh | fish | pwsh",
 	)
 	InitCmd.Flag("shell").NoOptDefVal = defaultShellType()
 
@@ -101,7 +105,7 @@ func defaultShellType() string {
 	if shellenv, ok := os.LookupEnv("SHELL"); ok {
 		base := filepath.Base(shellenv)
 		switch base {
-		case "sh", "bash", "zsh", "fish":
+		case "sh", "bash", "zsh", "fish", "pwsh":
 			return base
 		}
 	}
