@@ -61,11 +61,10 @@ func nulSplitFunc(data []byte, atEOF bool) (advance int, token []byte, err error
 //
 // Examples of stuff we will want to parse:
 //
-// 		## Initial commit on master
-// 		## master
-// 		## master...origin/master
-// 		## master...origin/master [ahead 1]
-//
+//	## Initial commit on master
+//	## master
+//	## master...origin/master
+//	## master...origin/master [ahead 1]
 func ExtractBranch(bs []byte) (*BranchInfo, error) {
 	name, err := decodeBranchName(bs)
 	if err != nil {
@@ -218,8 +217,8 @@ You can file the bug at: https://github.com/mroth/scmpuff/issues/
 extractFile extracts the filename from a status change, and determines the
 absolute and display paths.
 
- - root: the absolute path to the git working tree
- - wd: current working directory path
+  - root: the absolute path to the git working tree
+  - wd: current working directory path
 */
 func extractFile(chunk []byte, root, wd string) (absPath, relPath string, err error) {
 	// file identifier starts at pos4 and continues to EOL
@@ -275,32 +274,32 @@ display in our status output.
 
 Below documentation from git status:
 
-   Ignored files are not listed, unless --ignored option is in effect, in
-   which case XY are !!.
+	Ignored files are not listed, unless --ignored option is in effect, in
+	which case XY are !!.
 
-   X          Y     Meaning
-   -------------------------------------------------
-             [MD]   not updated
-   M        [ MD]   updated in index
-   A        [ MD]   added to index
-   D         [ M]   deleted from index
-   R        [ MD]   renamed in index
-   C        [ MD]   copied in index
-   [MARC]           index and work tree matches
-   [ MARC]     M    work tree changed since index
-   [ MARC]     D    deleted in work tree
-   -------------------------------------------------
-   D           D    unmerged, both deleted
-   A           U    unmerged, added by us
-   U           D    unmerged, deleted by them
-   U           A    unmerged, added by them
-   D           U    unmerged, deleted by us
-   A           A    unmerged, both added
-   U           U    unmerged, both modified
-   -------------------------------------------------
-   ?           ?    untracked
-   !           !    ignored
-   -------------------------------------------------
+	X          Y     Meaning
+	-------------------------------------------------
+	          [MD]   not updated
+	M        [ MD]   updated in index
+	A        [ MD]   added to index
+	D         [ M]   deleted from index
+	R        [ MD]   renamed in index
+	C        [ MD]   copied in index
+	[MARC]           index and work tree matches
+	[ MARC]     M    work tree changed since index
+	[ MARC]     D    deleted in work tree
+	-------------------------------------------------
+	D           D    unmerged, both deleted
+	A           U    unmerged, added by us
+	U           D    unmerged, deleted by them
+	U           A    unmerged, added by them
+	D           U    unmerged, deleted by us
+	A           A    unmerged, both added
+	U           U    unmerged, both modified
+	-------------------------------------------------
+	?           ?    untracked
+	!           !    ignored
+	-------------------------------------------------
 */
 func extractChangeCodes(chunk []byte) []*change {
 	x := rune(chunk[0])

@@ -232,9 +232,8 @@ func (fg FileGroup) print(startNum int, b *bufio.Writer) {
 //
 // Colorized version of something like this:
 //
-// 		➤ Changes not staged for commit
-// 		#
-//
+//	➤ Changes not staged for commit
+//	#
 func (fg FileGroup) header() string {
 	cArrw := fmt.Sprintf("\033[1;%s", groupColorMap[fg.group])
 	cHash := fmt.Sprintf("\033[0;%s", groupColorMap[fg.group])
@@ -253,13 +252,13 @@ func (fg FileGroup) footer() string {
 //
 // Colorized version of something like this:
 //
-//		#       modified: [1] commands/status/constants.go
+//	#       modified: [1] commands/status/constants.go
 //
 // Arguments
 // ---------
 // displayNumber - the display number for the item, which should correspond to
-//   the environment variable that will get set for it later ($eN).
 //
+//	the environment variable that will get set for it later ($eN).
 func (si StatusItem) display(displayNum int) string {
 
 	// Determine padding size

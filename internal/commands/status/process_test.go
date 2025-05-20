@@ -139,7 +139,9 @@ func TestExtractFile(t *testing.T) {
 
 // $ git status --porcelain
 // A  HELLO.md
-//  M script/benchmark
+//
+//	M script/benchmark
+//
 // ?? .travis.yml
 // ?? commands/status/process_test.go
 var testCasesExtractChangeCodes = []struct {
@@ -205,10 +207,10 @@ func TestExtractChangeCodes(t *testing.T) {
 
 // Examples of stuff we will want to parse:
 //
-// 		## Initial commit on master
-// 		## master
-// 		## master...origin/master
-// 		## master...origin/master [ahead 1]
+//	## Initial commit on master
+//	## master
+//	## master...origin/master
+//	## master...origin/master [ahead 1]
 var testCasesExtractBranch = []struct {
 	chunk    []byte
 	expected *BranchInfo
