@@ -12,12 +12,9 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// NAME of the program, hardcoded for consistency
-var NAME = "scmpuff"
-
-// VERSION is the default version of the program
+// version is the default version of the program
 // ...in almost all cases this should be overriden by the buildscript.
-var VERSION = "0.0.0-development"
+var version = "0.0.0-development"
 
 var puffCmd = &cobra.Command{
 	Use:   "scmpuff",
@@ -36,7 +33,7 @@ var versionCmd = &cobra.Command{
 	Short: "Prints the version number",
 	Long:  `All software has versions. This is ours.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println(NAME, VERSION)
+		fmt.Println("scmpuff", version)
 	},
 }
 

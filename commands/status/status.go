@@ -79,14 +79,14 @@ see 'scmpuff init'.)
 //
 // Why z-mode? It lets us do machine parsing in a reliable cross-platform way.
 //
-//   There is also an alternate -z format recommended for machine parsing. In
-//   thatformat, the status field is the same, but some other things change.
-//   First, the -> is omitted from rename entries and the field order is
-//   reversed (e.g from -> to becomes to from). Second, a NUL (ASCII 0) follows
-//   each filename, replacing space as a field separator and the terminating
-//   newline (but a space still separates the status field from the first
-//   filename). Third, filenames containing special characters are not specially
-//   formatted; no quoting or backslash-escaping is performed.
+//	There is also an alternate -z format recommended for machine parsing. In
+//	thatformat, the status field is the same, but some other things change.
+//	First, the -> is omitted from rename entries and the field order is
+//	reversed (e.g from -> to becomes to from). Second, a NUL (ASCII 0) follows
+//	each filename, replacing space as a field separator and the terminating
+//	newline (but a space still separates the status field from the first
+//	filename). Third, filenames containing special characters are not specially
+//	formatted; no quoting or backslash-escaping is performed.
 //
 // Okay, it also introduces some idiocy because it wasn't well thought out, but
 // it beats dealing with shell escaping and hoping we do it right across diff.
@@ -125,7 +125,7 @@ func gitProjectRoot() string {
 		// we want to capture and handle status 128 in a pretty way
 		if err.Error() == "exit status 128" {
 			msg := "Not a git repository (or any of the parent directories)"
-			fmt.Fprintf(os.Stderr, "\033[0;31m"+msg+"\033[0m\n")
+			fmt.Fprintf(os.Stderr, "\033[0;31m%s\033[0m\n", msg)
 			os.Exit(128)
 		}
 		// or, some other sort of error?
