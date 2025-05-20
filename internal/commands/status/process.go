@@ -273,34 +273,9 @@ type change struct {
 Extracts a git status "short code" into the proper UI "change" items we will
 display in our status output.
 
-Below documentation from git status:
+See https://git-scm.com/docs/git-status#_short_format for more details.
 
-   Ignored files are not listed, unless --ignored option is in effect, in
-   which case XY are !!.
-
-   X          Y     Meaning
-   -------------------------------------------------
-             [MD]   not updated
-   M        [ MD]   updated in index
-   A        [ MD]   added to index
-   D         [ M]   deleted from index
-   R        [ MD]   renamed in index
-   C        [ MD]   copied in index
-   [MARC]           index and work tree matches
-   [ MARC]     M    work tree changed since index
-   [ MARC]     D    deleted in work tree
-   -------------------------------------------------
-   D           D    unmerged, both deleted
-   A           U    unmerged, added by us
-   U           D    unmerged, deleted by them
-   U           A    unmerged, added by them
-   D           U    unmerged, deleted by us
-   A           A    unmerged, both added
-   U           U    unmerged, both modified
-   -------------------------------------------------
-   ?           ?    untracked
-   !           !    ignored
-   -------------------------------------------------
+Code table is stored locally in `code_table.txt`.
 */
 func extractChangeCodes(chunk []byte) []*change {
 	x := rune(chunk[0])
