@@ -23,8 +23,7 @@ builds:
       - windows
       - darwin
     ldflags:
-      # NOTE: new default will now set main.version, consider using that instead
-      - -s -w -X main.VERSION={{.Version}}
+      - -s -w -X main.version={{.Version}}
 
 archives:
   - formats: ["tar.gz"]
