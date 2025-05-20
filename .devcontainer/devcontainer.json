@@ -12,7 +12,7 @@
 			"version": "3.2.8"
 		},
 		// Fish shell for integration tests (bash and zsh installed by default)
-		"ghcr.io/meaningful-ooo/devcontainer-features/fish:1": {
+		"ghcr.io/meaningful-ooo/devcontainer-features/fish:2": {
 			"fisher": false
 		}
 	},
