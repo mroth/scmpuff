@@ -1,3 +1,6 @@
+# source file: git_wrapper.sh
+# shellcheck shell=sh
+
 # Remove any existing git alias or function
 unalias git > /dev/null 2>&1
 unset -f git > /dev/null 2>&1
@@ -6,7 +9,7 @@ unset -f git > /dev/null 2>&1
 SCMPUFF_GIT_CMD=${SCMPUFF_GIT_CMD:-"$(\which git)"}
 export SCMPUFF_GIT_CMD
 
-function git() {
+git() {
   case $1 in
     commit|blame|log|rebase|merge)
       scmpuff exec -- "$SCMPUFF_GIT_CMD" "$@";;
