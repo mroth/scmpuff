@@ -41,7 +41,7 @@ func Process(gitStatusOutput []byte, root string) (*StatusList, error) {
 	}
 	// put the results in the proper group
 	for _, r := range statuses {
-		results.groups[r.group].items = append(results.groups[r.group].items, r)
+		results.Add(r)
 	}
 
 	return results, nil

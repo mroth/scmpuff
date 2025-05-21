@@ -43,7 +43,11 @@ see 'scmpuff init'.)
 			if err != nil {
 				log.Fatal(err)
 			}
-			results.printStatus(optsFilelist, optsDisplay)
+
+			results.Display(os.Stdout, optsFilelist, optsDisplay)
+			if err != nil {
+				log.Fatal(err)
+			}
 		},
 	}
 

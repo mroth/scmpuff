@@ -3,7 +3,7 @@ package status
 import (
 	"bufio"
 	"fmt"
-	"os"
+	"io"
 	"strings"
 )
 
@@ -71,6 +71,10 @@ func NewStatusList() *StatusList {
 	}
 }
 
+func (sl *StatusList) Add(item *StatusItem) {
+	sl.groups[item.group].items = append(sl.groups[item.group].items, item)
+}
+
 // Returns the groups of a StatusList in a specific order.
 //
 // Since you can't range over maps in sequential order, we hard code the order
@@ -113,12 +117,14 @@ func (sl StatusList) orderedItems() (items []*StatusItem) {
 	return
 }
 
-// Outputs the status list nicely formatted to the screen.
+// Formats the status list for display to the screen.
 //
 // if `includeParseData` is true, the first line will be a machine parseable
 // list of files to be used for environment variable expansion.
-func (sl StatusList) printStatus(includeParseData, includeStatusOutput bool) {
-	b := bufio.NewWriter(os.Stdout)
+//
+// Output is buffered and is always flushed before the function returns.
+func (sl StatusList) Display(w io.Writer, includeParseData, includeStatusOutput bool) error {
+	b := bufio.NewWriter(w)
 
 	if includeParseData {
 		fmt.Fprintln(b, sl.dataForParsing())
@@ -138,7 +144,7 @@ func (sl StatusList) printStatus(includeParseData, includeStatusOutput bool) {
 		}
 	}
 
-	b.Flush()
+	return b.Flush()
 }
 
 // Machine readable string for environment variable parsing of file list in
