@@ -17,7 +17,7 @@ func TestProcessChange(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	expectedChange := &change{
+	expectedChange := &changeType{
 		msg:   "  new file",
 		col:   neu,
 		group: Staged,
@@ -146,49 +146,49 @@ func TestExtractFile(t *testing.T) {
 // ?? commands/status/process_test.go
 var testCasesExtractChangeCodes = []struct {
 	chunk    []byte
-	expected []*change
+	expected []changeType
 }{
 	{
 		[]byte("A  HELLO.md"),
-		[]*change{
-			{msg: "  new file", col: neu, group: Staged},
+		[]changeType{
+			changeStagedNewFile,
 		},
 	},
 	{
 		[]byte(" M script/benchmark"),
-		[]*change{
-			{msg: "  modified", col: mod, group: Unstaged},
+		[]changeType{
+			changeUnstagedModified,
 		},
 	},
 	{
 		[]byte("?? .travis.yml"),
-		[]*change{
-			{msg: " untracked", col: unt, group: Untracked},
+		[]changeType{
+			changeUntracked,
 		},
 	},
 	{
 		[]byte(" D deleted_file"),
-		[]*change{
-			{msg: "   deleted", col: del, group: Unstaged},
+		[]changeType{
+			changeUnstagedDeleted,
 		},
 	},
 	{
 		[]byte("R  after\x00before"),
-		[]*change{
-			{msg: "   renamed", col: ren, group: Staged},
+		[]changeType{
+			changeStagedRenamed,
 		},
 	},
 	{
 		[]byte("C  after\x00before"),
-		[]*change{
-			{msg: "    copied", col: cpy, group: Staged},
+		[]changeType{
+			changeStagedCopied,
 		},
 	},
 	{
 		[]byte("AM added_then_modified_file"),
-		[]*change{
-			{msg: "  new file", col: neu, group: Staged},
-			{msg: "  modified", col: mod, group: Unstaged},
+		[]changeType{
+			changeStagedNewFile,
+			changeUnstagedModified,
 		},
 	},
 }

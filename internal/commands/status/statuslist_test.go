@@ -48,10 +48,9 @@ func TestStatusList_Display(t *testing.T) {
 			statusList: createTestStatusList(
 				&BranchInfo{name: "main", ahead: 0, behind: 0},
 				[]StatusItem{
-					{msg: "  new file", col: neu, group: Staged, fileAbsPath: "/path/to/new.go", fileRelPath: "new.go"},
-					{msg: "  new file", col: neu, group: Staged, fileAbsPath: "/path/to/new_b.go", fileRelPath: "new_b.go"},
-					{msg: "  modified", col: mod, group: Staged, fileAbsPath: "/path/to/changed.go", fileRelPath: "changed.go"},
-				},
+					{changeType: changeStagedNewFile, fileAbsPath: "/path/to/new.go", fileRelPath: "new.go"},
+					{changeType: changeStagedNewFile, fileAbsPath: "/path/to/new_b.go", fileRelPath: "new_b.go"},
+					{changeType: changeStagedModified, fileAbsPath: "/path/to/changed.go", fileRelPath: "changed.go"}},
 			),
 		},
 		{
@@ -59,10 +58,10 @@ func TestStatusList_Display(t *testing.T) {
 			statusList: createTestStatusList(
 				&BranchInfo{name: "feature", ahead: 2, behind: 1},
 				[]StatusItem{
-					{msg: "  new file", col: neu, group: Staged, fileAbsPath: "/path/to/new.go", fileRelPath: "new.go"},
-					{msg: "  new file", col: neu, group: Staged, fileAbsPath: "/path/to/new_b.go", fileRelPath: "new_b.go"},
-					{msg: "  modified", col: mod, group: Unstaged, fileAbsPath: "/path/to/modified.go", fileRelPath: "modified.go"},
-					{msg: " untracked", col: unt, group: Untracked, fileAbsPath: "/path/to/untracked.go", fileRelPath: "untracked.go"},
+					{changeType: changeStagedNewFile, fileAbsPath: "/path/to/new.go", fileRelPath: "new.go"},
+					{changeType: changeStagedNewFile, fileAbsPath: "/path/to/new_b.go", fileRelPath: "new_b.go"},
+					{changeType: changeUnstagedModified, fileAbsPath: "/path/to/modified.go", fileRelPath: "modified.go"},
+					{changeType: changeUntracked, fileAbsPath: "/path/to/untracked.go", fileRelPath: "untracked.go"},
 				},
 			),
 		},

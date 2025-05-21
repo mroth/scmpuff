@@ -191,9 +191,7 @@ func processChange(chunk []byte, wd, root string) ([]*StatusItem, error) {
 
 	for _, c := range extractChangeCodes(chunk) {
 		r := &StatusItem{
-			msg:         c.msg,
-			col:         c.col,
-			group:       c.group,
+			changeType:  c,
 			fileAbsPath: absolutePath,
 			fileRelPath: relativePath,
 		}
@@ -257,17 +255,6 @@ func calcPaths(rootPath []byte, root, wd string) (absPath, relPath string) {
 	return
 }
 
-// basically a StatusItem minus the file information, for now just being
-// used to get results from the change code processing...
-// This could probably be encapsulated in StatusItem itself, but wary of adding
-// more nesting...
-// TODO: should either figure out a way to get rid of this or formalize it more.
-type change struct {
-	msg   string
-	col   ColorGroup
-	group StatusGroup
-}
-
 /*
 Extracts a git status "short code" into the proper UI "change" items we will
 display in our status output.
@@ -301,79 +288,96 @@ Below documentation from git status:
 	!           !    ignored
 	-------------------------------------------------
 */
-func extractChangeCodes(chunk []byte) []*change {
+func extractChangeCodes(chunk []byte) []changeType {
 	x := rune(chunk[0])
 	y := rune(chunk[1])
 
-	var changes []*change
+	var changes []changeType
 	if p := decodePrimaryChangeCode(x, y); p != nil {
-		changes = append(changes, p)
+		changes = append(changes, *p)
 	}
 	if s := decodeSecondaryChangeCode(x, y); s != nil {
-		changes = append(changes, s)
+		changes = append(changes, *s)
 	}
 	return changes
 }
 
-func decodePrimaryChangeCode(x, y rune) *change {
+// decodePrimaryChangeCode returns the primary change code for a given status,
+// or nil if it doesn't match any known codes.
+func decodePrimaryChangeCode(x, y rune) *changeType {
 	xy := string(x) + string(y)
 
 	// unmerged cases are simple, only a single change UI is possible
-	//
-	// TODO: should we handle !! as well? need to determine if possible for user
-	// to enable it via their gitconfig where it would affect us.  we coud also
-	// allow it to be activated via CLI switch on our end too if desired.
 	switch xy {
 	case "DD":
-		return &change{"   both deleted", del, Unmerged}
+		return &changeUnmergedDeletedBoth
 	case "AU":
-		return &change{"    added by us", neu, Unmerged}
+		return &changeUmmergedAddedUs
 	case "UD":
-		return &change{"deleted by them", del, Unmerged}
+		return &changeUnmergedDeletedThem
 	case "UA":
-		return &change{"  added by them", neu, Unmerged}
+		return &changeUnmergedAddedThem
 	case "DU":
-		return &change{"  deleted by us", del, Unmerged}
+		return &changeUnmergedDeletedUs
 	case "AA":
-		return &change{"     both added", neu, Unmerged}
+		return &changeUnmergedAddedBoth
 	case "UU":
-		return &change{"  both modified", mod, Unmerged}
+		return &changeUnmergedModifiedBoth
 	case "??":
-		return &change{" untracked", unt, Untracked}
+		return &changeUntracked
 	}
 
 	// staged changes are all single X cases
-	// right now we dont need to check the Y, because we consider a modifying Y to
-	// these to be a compound case that adds a secondary change in the UI, so that
-	// is currently handled in decodeSecondaryChangeCode()
 	switch x {
 	case 'M':
-		return &change{"  modified", mod, Staged}
+		return &changeStagedModified
 	case 'A':
-		return &change{"  new file", neu, Staged}
+		return &changeStagedNewFile
 	case 'D':
-		return &change{"   deleted", del, Staged}
+		return &changeStagedDeleted
 	case 'R':
-		return &change{"   renamed", ren, Staged}
+		return &changeStagedRenamed
 	case 'C':
-		return &change{"    copied", cpy, Staged}
+		return &changeStagedCopied
 	case 'T':
-		return &change{"typechange", typ, Staged}
+		return &changeStagedType
 	}
 
 	return nil
 }
 
-func decodeSecondaryChangeCode(x, y rune) *change {
+// decodeSecondaryChangeCode returns the secondary change code for a given status,
+// or nil if it doesn't match any known codes.
+func decodeSecondaryChangeCode(x, y rune) *changeType {
 	switch {
 	case y == 'M': //.M
-		return &change{"  modified", mod, Unstaged}
+		return &changeUnstagedModified
 	// Don't show deleted 'y' during a merge conflict.
 	case y == 'D' && x != 'D' && x != 'U': //[!D!U]D
-		return &change{"   deleted", del, Unstaged}
+		return &changeUnstagedDeleted
 	case y == 'T': //.T
-		return &change{"typechange", typ, Unstaged}
+		return &changeUnstagedType
 	}
 
 	return nil
 }
+
+var (
+	changeUnmergedDeletedBoth  = changeType{"   both deleted", del, Unmerged}
+	changeUmmergedAddedUs      = changeType{"    added by us", neu, Unmerged}
+	changeUnmergedDeletedThem  = changeType{"deleted by them", del, Unmerged}
+	changeUnmergedAddedThem    = changeType{"  added by them", neu, Unmerged}
+	changeUnmergedDeletedUs    = changeType{"  deleted by us", del, Unmerged}
+	changeUnmergedAddedBoth    = changeType{"     both added", neu, Unmerged}
+	changeUnmergedModifiedBoth = changeType{"  both modified", mod, Unmerged}
+	changeUntracked            = changeType{" untracked", unt, Untracked}
+	changeStagedModified       = changeType{"  modified", mod, Staged}
+	changeStagedNewFile        = changeType{"  new file", neu, Staged}
+	changeStagedDeleted        = changeType{"   deleted", del, Staged}
+	changeStagedRenamed        = changeType{"   renamed", ren, Staged}
+	changeStagedCopied         = changeType{"    copied", cpy, Staged}
+	changeStagedType           = changeType{"typechange", typ, Staged}
+	changeUnstagedModified     = changeType{"  modified", mod, Unstaged}
+	changeUnstagedDeleted      = changeType{"   deleted", del, Unstaged}
+	changeUnstagedType         = changeType{"typechange", typ, Unstaged}
+)
