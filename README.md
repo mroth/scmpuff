@@ -3,7 +3,7 @@
 > Makes working with git from the command line quicker by substituting numeric
 shortcuts for files.
 
-<img width=568 src="http://f.cl.ly/items/2726271z170L2y0K3d0b/scmpuff_screenshot.png">
+<img width="600" src="./docs/demo/demo.gif">
 
 **scmpuff** is a minimalistic reinterpretation of the core functionality of
 [SCM Breeze][scmbreeze].
