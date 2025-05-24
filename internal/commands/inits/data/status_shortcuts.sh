@@ -37,6 +37,36 @@ scmpuff_status() {
 }
 
 
+# List git branches with numbered shortcuts
+scmpuff_branch() {
+  local scmpuff_env_char="e"
+
+  if [ -n "$ZSH_VERSION" ]; then setopt shwordsplit; fi;
+
+  local cmd_output
+  cmd_output="$(/usr/bin/env scmpuff branch --filelist "$@")"
+
+  local es=$?
+  if [ $es -ne 0 ]; then
+    return $es
+  fi
+
+  files="$(echo "$cmd_output" | head -n 1)"
+  scmpuff_clear_vars
+  IFS=$'\t'
+  local e=1
+  for file in $files; do
+    export $scmpuff_env_char$e="$file"
+    let e++
+  done
+  IFS=$' \t\n'
+
+  echo "$cmd_output" | tail -n +2
+
+  if [ -n "$ZSH_VERSION" ]; then unsetopt shwordsplit; fi;
+}
+
+
 # Clear numbered env variables
 scmpuff_clear_vars() {
   local scmpuff_env_char="e"
