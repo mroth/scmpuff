@@ -13,7 +13,7 @@ import (
 )
 
 const (
-	colorBranch = "\033[1m"
+	colorBranch = "\033[32m"
 	colorReset  = "\033[0m"
 )
 
@@ -47,7 +47,7 @@ func CommandBranch() *cobra.Command {
 }
 
 func gitBranchOutput() []byte {
-	out, err := exec.Command("git", "branch", "--color=always").Output()
+	out, err := exec.Command("git", "branch", "--color=never").Output()
 	if err != nil {
 		if err.Error() == "exit status 128" {
 			msg := "Not a git repository (or any of the parent directories)"
@@ -93,7 +93,7 @@ func process(out []byte) (string, []string) {
 			result = append(result, starBranch)
 			n++
 		} else {
-			b.WriteString(starLine + "\n")
+			b.WriteString(colorBranch + starLine + colorReset + "\n")
 		}
 	}
 	for _, name := range names {

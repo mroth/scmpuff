@@ -1,7 +1,7 @@
 alias gs='scmpuff_status'
+alias gb='scmpuff_branch'
 alias ga='git add'
 alias gd='git diff'
 alias gl='git log'
 alias gco='git checkout'
 alias grs='git reset'
-alias gb='scmpuff_branch'
