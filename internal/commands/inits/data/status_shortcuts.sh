@@ -25,7 +25,7 @@ scmpuff_status() {
   local e=1
   for file in $files; do
     export $scmpuff_env_char$e="$file"
-    let e++
+    (( e++ ))
   done
   IFS=$' \t\n'
 
@@ -57,7 +57,7 @@ scmpuff_branch() {
   local e=1
   for file in $files; do
     export $scmpuff_env_char$e="$file"
-    let e++
+    (( e++ ))
   done
   IFS=$' \t\n'
 
