@@ -44,7 +44,7 @@ scmpuff_branch() {
   if [ -n "$ZSH_VERSION" ]; then setopt shwordsplit; fi;
 
   local cmd_output
-  cmd_output="$(/usr/bin/env scmpuff branch --filelist "$@")"
+  cmd_output="$(/usr/bin/env scmpuff branch --branchlist "$@")"
 
   local es=$?
   if [ $es -ne 0 ]; then

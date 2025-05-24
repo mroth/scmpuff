@@ -12,11 +12,16 @@ import (
 	"github.com/spf13/cobra"
 )
 
+const (
+	colorBranch = "\033[1m"
+	colorReset  = "\033[0m"
+)
+
 // CommandBranch lists git branches with numbered shortcuts.
-// The first line of output, when --filelist is provided, will contain
+// The first line of output, when --branchlist is provided, will contain
 // a TAB separated list of branch names suitable for environment expansion.
 func CommandBranch() *cobra.Command {
-	var optsFilelist bool
+	var optsBranchlist bool
 
 	var branchCmd = &cobra.Command{
 		Use:   "branch",
@@ -25,7 +30,7 @@ func CommandBranch() *cobra.Command {
 			branches := gitBranchOutput()
 			numbered, list := process(branches)
 
-			if optsFilelist {
+			if optsBranchlist {
 				fmt.Println(strings.Join(list, "\t"))
 			}
 			fmt.Print(numbered)
@@ -33,8 +38,8 @@ func CommandBranch() *cobra.Command {
 	}
 
 	branchCmd.Flags().BoolVarP(
-		&optsFilelist,
-		"filelist", "f", false,
+		&optsBranchlist,
+		"branchlist", "f", false,
 		"include machine-parseable branch list",
 	)
 
@@ -42,7 +47,7 @@ func CommandBranch() *cobra.Command {
 }
 
 func gitBranchOutput() []byte {
-	out, err := exec.Command("git", "branch").Output()
+	out, err := exec.Command("git", "branch", "--color=always").Output()
 	if err != nil {
 		if err.Error() == "exit status 128" {
 			msg := "Not a git repository (or any of the parent directories)"
@@ -84,7 +89,7 @@ func process(out []byte) (string, []string) {
 	n := 1
 	if starLine != "" {
 		if starBranch != "" {
-			b.WriteString(fmt.Sprintf("* [%d] %s\n", n, starBranch))
+			b.WriteString(fmt.Sprintf("* [%d] %s%s%s\n", n, colorBranch, starBranch, colorReset))
 			result = append(result, starBranch)
 			n++
 		} else {

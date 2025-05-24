@@ -25,7 +25,7 @@ end
 function scmpuff_branch
     scmpuff_clear_vars
     set -lx scmpuff_env_char "e"
-    set -l cmd_output (/usr/bin/env scmpuff branch --filelist $argv)
+    set -l cmd_output (/usr/bin/env scmpuff branch --branchlist $argv)
     set -l es "$status"
 
     if test $es -ne 0
