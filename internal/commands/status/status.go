@@ -39,10 +39,18 @@ see 'scmpuff init'.)
 			root := gitProjectRoot()
 			status := gitStatusOutput()
 
-			results, err := Process(status, root)
+			info, err := Process(status, root)
 			if err != nil {
 				log.Fatal(err)
 			}
+
+			// TEMPORARY WHILE WORKING ON CLEANUP: convert statusInfo to a StatusList
+			results := NewStatusList()
+			results.branch = &info.branch
+			for _, item := range info.items {
+				results.Add(&item)
+			}
+			// END TEMPORARY
 
 			results.Display(os.Stdout, optsFilelist, optsDisplay)
 			if err != nil {

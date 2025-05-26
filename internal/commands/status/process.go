@@ -5,56 +5,69 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"regexp"
 	"strconv"
 )
 
+// temporary structure until we rationalize StatusList which is a bit of a mess...
+type statusInfo struct {
+	branch BranchInfo
+	items  []StatusItem
+}
+
 // Process takes the raw output of `git status --porcelain -b -z` and turns it
 // into a structured data type.
-func Process(gitStatusOutput []byte, root string) (*StatusList, error) {
-	// initialize a statuslist to hold the results
-	results := NewStatusList()
+//
+// In the output of `git status --porcelain -b -z` the first segment of the output
+// format is the git branch status, and the rest is the git status info.
+func Process(gitStatusOutput []byte, root string) (*statusInfo, error) {
+	// NOTE: in the future, we may wish to consume an io.Reader instead of
+	// a byte slice, such that we can read from a pipe or other source
+	// without needing to buffer the entire output in memory first.  For now,
+	// we use a byte slice for reverse compatiblity with the existing tests
+	// and architecture, so let's just wrap it in a bytes.Reader so the rest
+	// of our code is ready for this change in the future.
+	r := bytes.NewReader(gitStatusOutput)
 
-	// put output into bufferreader+scanner so we can consume it iteratively
-	scanner := bufio.NewScanner(bytes.NewReader(gitStatusOutput))
-	// the scanner needs a custom split function for splitting on NUL
-	scanner.Split(nulSplitFunc)
-
-	// branch output is first line
-	if !scanner.Scan() {
-		return nil, fmt.Errorf("Failed to read buffer when expecting branch status: %v", scanner.Err())
+	// parse the first NUL seperated section of the git status output, which contains the branch
+	branchBytes, remaining, err := cutFirstSegment(r)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read first segment of git status output: %w", err)
 	}
-	branchBytes := scanner.Bytes()
 	branch, err := ExtractBranch(branchBytes)
 	if err != nil {
 		return nil, err
 	}
-	results.branch = branch
 
-	// give ProcessChanges the scanner and let it handle the rest
-	// (it does complicated stuff so it needs the entire scanner)
-	statuses, err := ProcessChanges(scanner, root)
+	// process the remaining NUL-separated sections, which contain the status items
+	statuses, err := ProcessChanges(remaining, root)
 	if err != nil {
 		return nil, err
 	}
-	// put the results in the proper group
-	for _, r := range statuses {
-		results.Add(r)
-	}
 
-	return results, nil
+	return &statusInfo{branch: *branch, items: statuses}, nil
 }
 
-// custom split function for splitting on NUL
-func nulSplitFunc(data []byte, atEOF bool) (advance int, token []byte, err error) {
-	for i, b := range data {
-		if b == '\x00' {
-			return i + 1, data[:i], nil
-		}
+// cutFirstSegment returns the first NUL-separated segment from r, and an io.Reader with the remainder of r.
+func cutFirstSegment(r io.Reader) ([]byte, io.Reader, error) {
+	br := bufio.NewReader(r)
+
+	// read the first section (includes the NUL terminator)
+	data, err := br.ReadBytes('\x00')
+	if err != nil && !errors.Is(err, io.EOF) {
+		return nil, nil, err
 	}
-	return 0, nil, nil
+
+	// Strip trailing NUL
+	data = bytes.TrimRight(data, "\x00")
+
+	// br has already buffered some unread data, so we extract that and prepend it to the rest
+	remaining := io.MultiReader(br, r)
+
+	return data, remaining, nil
 }
 
 // ExtractBranch handles parsing the branch status from `status --porcelain -b`.
@@ -92,7 +105,7 @@ func decodeBranchName(bs []byte) (string, error) {
 		return string(headMatch[1]), nil
 	}
 
-	return "", fmt.Errorf("Failed to parse branch name for output: [%s]", bs)
+	return "", fmt.Errorf("failed to parse branch name for output: [%s]", bs)
 }
 
 func decodeBranchPosition(bs []byte) (ahead, behind int) {
@@ -135,8 +148,7 @@ until we have consumed a full entry.
 We put up with this because it means no shell escaping, which should mean better
 cross-platform support. Better hope some Windows people end up using it someday!
 */
-func ProcessChanges(s *bufio.Scanner, root string) ([]*StatusItem, error) {
-
+func ProcessChanges(r io.Reader, root string) ([]StatusItem, error) {
 	// Before we process any changes, get the Current Working Directory.
 	// We're going to need use to calculate absolute and relative filepaths for
 	// every change, so we get it once now and pass it along.
@@ -146,7 +158,10 @@ func ProcessChanges(s *bufio.Scanner, root string) ([]*StatusItem, error) {
 		wd = root
 	}
 
-	var results []*StatusItem
+	s := bufio.NewScanner(r)
+	s.Split(nulSplitFunc) // custom split function for splitting on NUL
+
+	var results []StatusItem
 	for s.Scan() {
 		chunk := s.Bytes()
 		// ...if chunk represents a rename or copy op, need to append another chunk
@@ -173,6 +188,16 @@ func ProcessChanges(s *bufio.Scanner, root string) ([]*StatusItem, error) {
 	return results, nil
 }
 
+// custom split function for splitting on NUL
+func nulSplitFunc(data []byte, atEOF bool) (advance int, token []byte, err error) {
+	for i, b := range data {
+		if b == '\x00' {
+			return i + 1, data[:i], nil
+		}
+	}
+	return 0, nil, nil
+}
+
 // process change for a single item from a `git status -z`.
 //
 // Takes raw bytes representing status change from `git status --porcelain -z`,
@@ -182,15 +207,15 @@ func ProcessChanges(s *bufio.Scanner, root string) ([]*StatusItem, error) {
 // See ProcessChanges (plural) for more details on that process.
 //
 // Note some change items can have multiple statuses, so this returns a slice.
-func processChange(chunk []byte, wd, root string) ([]*StatusItem, error) {
-	var results []*StatusItem
+func processChange(chunk []byte, wd, root string) ([]StatusItem, error) {
+	var results []StatusItem
 	absolutePath, relativePath, err := extractFile(chunk, root, wd)
 	if err != nil {
 		return nil, err
 	}
 
 	for _, c := range extractChangeCodes(chunk) {
-		r := &StatusItem{
+		r := StatusItem{
 			changeType:  c,
 			fileAbsPath: absolutePath,
 			fileRelPath: relativePath,
