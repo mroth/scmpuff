@@ -4,12 +4,13 @@ import (
 	"fmt"
 	"path/filepath"
 	"reflect"
+	"slices"
 	"testing"
 )
 
 // single test to make sure everything gets stiched together properly, test
 // actual cases in more specific methods
-func TestProcessChange(t *testing.T) {
+func Test_processChange(t *testing.T) {
 	chunk := []byte("A  HELLO.md")
 	res, err := processChange(chunk, "/tmp", "/tmp")
 	actual := res[0]
@@ -44,79 +45,79 @@ func TestProcessChange(t *testing.T) {
 	})
 }
 
-var testCasesExtractFile = []struct {
-	root        string
-	wd          string
-	chunk       []byte
-	expectedAbs string
-	expectedRel string
-}{
-	{
-		root:        "/",
-		wd:          "/",
-		chunk:       []byte(" M script/benchmark"),
-		expectedAbs: filepath.FromSlash("/script/benchmark"),
-		expectedRel: filepath.FromSlash("script/benchmark"),
-	},
-	{
-		root:        "/tmp",
-		wd:          "/tmp",
-		chunk:       []byte(" M script/benchmark"),
-		expectedAbs: filepath.FromSlash("/tmp/script/benchmark"),
-		expectedRel: filepath.FromSlash("script/benchmark"),
-	},
-	{
-		root:        "/tmp/foo/bar//",
-		wd:          "/tmp/foo/bar/unicorn",
-		chunk:       []byte("?? unicorn/magic/xxx"),
-		expectedAbs: filepath.FromSlash("/tmp/foo/bar/unicorn/magic/xxx"),
-		expectedRel: filepath.FromSlash("magic/xxx"),
-	},
-	{
-		root:        "/tmp/foo/bar//",
-		wd:          "/tmp/foo/bar/unicorn/magic",
-		chunk:       []byte("?? narwhal/disco/yyy"),
-		expectedAbs: filepath.FromSlash("/tmp/foo/bar/narwhal/disco/yyy"),
-		expectedRel: filepath.FromSlash("../../narwhal/disco/yyy"),
-	},
-	{
-		root:        "/tmp/foo",
-		wd:          "/tmp/foo",
-		chunk:       []byte("R  bar.txt\x00foo.txt"),
-		expectedAbs: filepath.FromSlash("/tmp/foo/bar.txt"),
-		expectedRel: filepath.FromSlash("foo.txt -> bar.txt"),
-	},
-	// following examples are ones where scm_breeze strips the escaping that
-	// git status --porcelain does in certain cases.  Now that we are using -z
-	// we dont have escaped characters in our output (or our tests), so this is
-	// fairly redundant as a unit test...
-	// (historical note of why we did this: scm_breeze uses the escaped versions
-	//  of output and can fail on complex cases of parsing it!)
-	{
-		root:        "/tmp/foo",
-		wd:          "/tmp/foo",
-		chunk:       []byte(`A  hi there mom.txt`),
-		expectedAbs: filepath.FromSlash("/tmp/foo/hi there mom.txt"),
-		expectedRel: filepath.FromSlash("hi there mom.txt"),
-	},
-	{
-		root:        "/tmp/foo",
-		wd:          "/tmp/foo/bar",
-		chunk:       []byte(`?? "x.txt`),
-		expectedAbs: filepath.FromSlash(`/tmp/foo/"x.txt`),
-		expectedRel: filepath.FromSlash(`../"x.txt`),
-	},
-	{
-		root:        "/tmp/foo",
-		wd:          "/tmp/foo",
-		chunk:       []byte(`?? hi m"o"m.txt`),
-		expectedAbs: filepath.FromSlash(`/tmp/foo/hi m"o"m.txt`), //scmbreeze fails these with `hi m"o\`
-		expectedRel: filepath.FromSlash(`hi m"o"m.txt`),
-	},
-}
+func Test_extractFile(t *testing.T) {
+	var testCases = []struct {
+		root        string
+		wd          string
+		chunk       []byte
+		expectedAbs string
+		expectedRel string
+	}{
+		{
+			root:        "/",
+			wd:          "/",
+			chunk:       []byte(" M script/benchmark"),
+			expectedAbs: filepath.FromSlash("/script/benchmark"),
+			expectedRel: filepath.FromSlash("script/benchmark"),
+		},
+		{
+			root:        "/tmp",
+			wd:          "/tmp",
+			chunk:       []byte(" M script/benchmark"),
+			expectedAbs: filepath.FromSlash("/tmp/script/benchmark"),
+			expectedRel: filepath.FromSlash("script/benchmark"),
+		},
+		{
+			root:        "/tmp/foo/bar//",
+			wd:          "/tmp/foo/bar/unicorn",
+			chunk:       []byte("?? unicorn/magic/xxx"),
+			expectedAbs: filepath.FromSlash("/tmp/foo/bar/unicorn/magic/xxx"),
+			expectedRel: filepath.FromSlash("magic/xxx"),
+		},
+		{
+			root:        "/tmp/foo/bar//",
+			wd:          "/tmp/foo/bar/unicorn/magic",
+			chunk:       []byte("?? narwhal/disco/yyy"),
+			expectedAbs: filepath.FromSlash("/tmp/foo/bar/narwhal/disco/yyy"),
+			expectedRel: filepath.FromSlash("../../narwhal/disco/yyy"),
+		},
+		{
+			root:        "/tmp/foo",
+			wd:          "/tmp/foo",
+			chunk:       []byte("R  bar.txt\x00foo.txt"),
+			expectedAbs: filepath.FromSlash("/tmp/foo/bar.txt"),
+			expectedRel: filepath.FromSlash("foo.txt -> bar.txt"),
+		},
+		// following examples are ones where scm_breeze strips the escaping that
+		// git status --porcelain does in certain cases.  Now that we are using -z
+		// we dont have escaped characters in our output (or our tests), so this is
+		// fairly redundant as a unit test...
+		// (historical note of why we did this: scm_breeze uses the escaped versions
+		//  of output and can fail on complex cases of parsing it!)
+		{
+			root:        "/tmp/foo",
+			wd:          "/tmp/foo",
+			chunk:       []byte(`A  hi there mom.txt`),
+			expectedAbs: filepath.FromSlash("/tmp/foo/hi there mom.txt"),
+			expectedRel: filepath.FromSlash("hi there mom.txt"),
+		},
+		{
+			root:        "/tmp/foo",
+			wd:          "/tmp/foo/bar",
+			chunk:       []byte(`?? "x.txt`),
+			expectedAbs: filepath.FromSlash(`/tmp/foo/"x.txt`),
+			expectedRel: filepath.FromSlash(`../"x.txt`),
+		},
+		{
+			root:        "/tmp/foo",
+			wd:          "/tmp/foo",
+			chunk:       []byte(`?? hi m"o"m.txt`),
+			expectedAbs: filepath.FromSlash(`/tmp/foo/hi m"o"m.txt`), //scmbreeze fails these with `hi m"o\`
+			expectedRel: filepath.FromSlash(`hi m"o"m.txt`),
+		},
+	}
 
-func TestExtractFile(t *testing.T) {
-	for _, tc := range testCasesExtractFile {
+	for _, tc := range testCases {
 		t.Run(fmt.Sprintf("[root:%s],[wd:%s]", tc.root, tc.wd), func(t *testing.T) {
 			actualAbs, actualRel, err := extractFile(tc.chunk, tc.root, tc.wd)
 			if err != nil {
@@ -137,67 +138,67 @@ func TestExtractFile(t *testing.T) {
 	}
 }
 
-// $ git status --porcelain
-// A  HELLO.md
-//
-//	M script/benchmark
-//
-// ?? .travis.yml
-// ?? commands/status/process_test.go
-var testCasesExtractChangeCodes = []struct {
-	chunk    []byte
-	expected []changeType
-}{
-	{
-		[]byte("A  HELLO.md"),
-		[]changeType{
-			changeStagedNewFile,
+func Test_extractChangeCodes(t *testing.T) {
+	// $ git status --porcelain
+	// A  HELLO.md
+	//
+	//	M script/benchmark
+	//
+	// ?? .travis.yml
+	// ?? commands/status/process_test.go
+	var testCases = []struct {
+		chunk    []byte
+		expected []changeType
+	}{
+		{
+			[]byte("A  HELLO.md"),
+			[]changeType{
+				changeStagedNewFile,
+			},
 		},
-	},
-	{
-		[]byte(" M script/benchmark"),
-		[]changeType{
-			changeUnstagedModified,
+		{
+			[]byte(" M script/benchmark"),
+			[]changeType{
+				changeUnstagedModified,
+			},
 		},
-	},
-	{
-		[]byte("?? .travis.yml"),
-		[]changeType{
-			changeUntracked,
+		{
+			[]byte("?? .travis.yml"),
+			[]changeType{
+				changeUntracked,
+			},
 		},
-	},
-	{
-		[]byte(" D deleted_file"),
-		[]changeType{
-			changeUnstagedDeleted,
+		{
+			[]byte(" D deleted_file"),
+			[]changeType{
+				changeUnstagedDeleted,
+			},
 		},
-	},
-	{
-		[]byte("R  after\x00before"),
-		[]changeType{
-			changeStagedRenamed,
+		{
+			[]byte("R  after\x00before"),
+			[]changeType{
+				changeStagedRenamed,
+			},
 		},
-	},
-	{
-		[]byte("C  after\x00before"),
-		[]changeType{
-			changeStagedCopied,
+		{
+			[]byte("C  after\x00before"),
+			[]changeType{
+				changeStagedCopied,
+			},
 		},
-	},
-	{
-		[]byte("AM added_then_modified_file"),
-		[]changeType{
-			changeStagedNewFile,
-			changeUnstagedModified,
+		{
+			[]byte("AM added_then_modified_file"),
+			[]changeType{
+				changeStagedNewFile,
+				changeUnstagedModified,
+			},
 		},
-	},
-}
+	}
 
-func TestExtractChangeCodes(t *testing.T) {
-	for _, tc := range testCasesExtractChangeCodes {
+	for _, tc := range testCases {
 		t.Run(string(tc.chunk[:]), func(t *testing.T) {
 			actual := extractChangeCodes(tc.chunk)
-			if !reflect.DeepEqual(actual, tc.expected) {
+			if !slices.Equal(actual, tc.expected) {
 				t.Fatalf("processChange('%s'): expected %+v, actual %+v",
 					tc.chunk, tc.expected, actual)
 			}
@@ -205,68 +206,68 @@ func TestExtractChangeCodes(t *testing.T) {
 	}
 }
 
-// Examples of stuff we will want to parse:
-//
-//	## Initial commit on master
-//	## master
-//	## master...origin/master
-//	## master...origin/master [ahead 1]
-var testCasesExtractBranch = []struct {
-	chunk    []byte
-	expected *BranchInfo
-}{
-	{
-		[]byte("## master"),
-		&BranchInfo{name: "master", ahead: 0, behind: 0},
-	},
-	{
-		[]byte("## GetUpGetDown09-11JokeInYoTown"),
-		&BranchInfo{name: "GetUpGetDown09-11JokeInYoTown", ahead: 0, behind: 0},
-	},
-	{
-		[]byte("## master...origin/master"),
-		&BranchInfo{name: "master", ahead: 0, behind: 0},
-	},
-	{
-		[]byte("## upstream...upstream/master"),
-		&BranchInfo{name: "upstream", ahead: 0, behind: 0},
-	},
-	{
-		[]byte("## master...origin/master [ahead 1]"),
-		&BranchInfo{name: "master", ahead: 1, behind: 0},
-	},
-	{
-		[]byte("## upstream...upstream/master [behind 3]"),
-		&BranchInfo{name: "upstream", ahead: 0, behind: 3},
-	},
-	{
-		[]byte("## upstream...upstream/master [ahead 5, behind 3]"),
-		&BranchInfo{name: "upstream", ahead: 5, behind: 3},
-	},
-	{
-		[]byte("## Initial commit on master"),
-		&BranchInfo{name: "master", ahead: 0, behind: 0},
-	},
-	{
-		[]byte("## No commits yet on master"),
-		&BranchInfo{name: "master", ahead: 0, behind: 0},
-	},
-	{
-		[]byte("## 3.0...origin/3.0 [ahead 1]"),
-		&BranchInfo{name: "3.0", ahead: 1, behind: 0},
-	},
-	{
-		[]byte("## HEAD (no branch)"),
-		&BranchInfo{name: "HEAD (no branch)", ahead: 0, behind: 0},
-	},
-	{
-		[]byte("## HEAD (no branch)UU both_modified.txt"),
-		&BranchInfo{name: "HEAD (no branch)", ahead: 0, behind: 0},
-	},
-}
-
 func TestExtractBranch(t *testing.T) {
-	for _, tc := range testCasesExtractBranch {
+	// Examples of stuff we will want to parse:
+	//
+	//	## Initial commit on master
+	//	## master
+	//	## master...origin/master
+	//	## master...origin/master [ahead 1]
+	var testCases = []struct {
+		chunk    []byte
+		expected *BranchInfo
+	}{
+		{
+			[]byte("## master"),
+			&BranchInfo{name: "master", ahead: 0, behind: 0},
+		},
+		{
+			[]byte("## GetUpGetDown09-11JokeInYoTown"),
+			&BranchInfo{name: "GetUpGetDown09-11JokeInYoTown", ahead: 0, behind: 0},
+		},
+		{
+			[]byte("## master...origin/master"),
+			&BranchInfo{name: "master", ahead: 0, behind: 0},
+		},
+		{
+			[]byte("## upstream...upstream/master"),
+			&BranchInfo{name: "upstream", ahead: 0, behind: 0},
+		},
+		{
+			[]byte("## master...origin/master [ahead 1]"),
+			&BranchInfo{name: "master", ahead: 1, behind: 0},
+		},
+		{
+			[]byte("## upstream...upstream/master [behind 3]"),
+			&BranchInfo{name: "upstream", ahead: 0, behind: 3},
+		},
+		{
+			[]byte("## upstream...upstream/master [ahead 5, behind 3]"),
+			&BranchInfo{name: "upstream", ahead: 5, behind: 3},
+		},
+		{
+			[]byte("## Initial commit on master"),
+			&BranchInfo{name: "master", ahead: 0, behind: 0},
+		},
+		{
+			[]byte("## No commits yet on master"),
+			&BranchInfo{name: "master", ahead: 0, behind: 0},
+		},
+		{
+			[]byte("## 3.0...origin/3.0 [ahead 1]"),
+			&BranchInfo{name: "3.0", ahead: 1, behind: 0},
+		},
+		{
+			[]byte("## HEAD (no branch)"),
+			&BranchInfo{name: "HEAD (no branch)", ahead: 0, behind: 0},
+		},
+		{
+			[]byte("## HEAD (no branch)UU both_modified.txt"),
+			&BranchInfo{name: "HEAD (no branch)", ahead: 0, behind: 0},
+		},
+	}
+
+	for _, tc := range testCases {
 		t.Run(string(tc.chunk[:]), func(t *testing.T) {
 			actual, err := ExtractBranch(tc.chunk)
 			if err != nil {
