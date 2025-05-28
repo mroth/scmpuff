@@ -325,8 +325,8 @@ func Test_calcPaths(t *testing.T) {
 				root:     "/tmp/foo",
 				wd:       "/tmp/foo",
 			},
-			wantAbsPath: "/tmp/foo/a.txt",
-			wantRelPath: "a.txt",
+			wantAbsPath: filepath.FromSlash("/tmp/foo/a.txt"),
+			wantRelPath: filepath.FromSlash("a.txt"),
 		},
 		{
 			name: "change in subdir",
@@ -335,8 +335,8 @@ func Test_calcPaths(t *testing.T) {
 				root:     "/tmp/foo",
 				wd:       "/tmp/foo",
 			},
-			wantAbsPath: "/tmp/foo/bar/c.txt",
-			wantRelPath: "bar/c.txt",
+			wantAbsPath: filepath.FromSlash("/tmp/foo/bar/c.txt"),
+			wantRelPath: filepath.FromSlash("bar/c.txt"),
 		},
 		{
 			name: "change in parent to wd",
@@ -345,8 +345,8 @@ func Test_calcPaths(t *testing.T) {
 				root:     "/tmp/foo",
 				wd:       "/tmp/foo/bar",
 			},
-			wantAbsPath: "/tmp/foo/a.txt",
-			wantRelPath: "../a.txt",
+			wantAbsPath: filepath.FromSlash("/tmp/foo/a.txt"),
+			wantRelPath: filepath.FromSlash("../a.txt"),
 		},
 		{
 			name: "handle trailing slashes",
@@ -355,8 +355,8 @@ func Test_calcPaths(t *testing.T) {
 				root:     "/tmp/foo/",
 				wd:       "/tmp/foo/bar/",
 			},
-			wantAbsPath: "/tmp/foo/a.txt",
-			wantRelPath: "../a.txt",
+			wantAbsPath: filepath.FromSlash("/tmp/foo/a.txt"),
+			wantRelPath: filepath.FromSlash("../a.txt"),
 		},
 	}
 	for _, tt := range tests {
