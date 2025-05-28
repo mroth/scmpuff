@@ -236,45 +236,51 @@ You can file the bug at: https://github.com/mroth/scmpuff/issues/
 	return results, nil
 }
 
-/*
-extractFile extracts the filename from a status change, and determines the
-absolute and display paths.
-
-  - root: the absolute path to the git working tree
-  - wd: current working directory path
-*/
+// extractFile extracts the filename from a status change, and determines the
+// absolute and display paths.
+//
+// Inputs:
+//   - root: the absolute path of the git working tree
+//   - wd: current working directory path
 func extractFile(chunk []byte, root, wd string) (absPath, relPath string, err error) {
-	// file identifier starts at pos4 and continues to EOL
-	filePortion := chunk[3:]
-	files := bytes.SplitN(filePortion, []byte{'\x00'}, 2)
+	filePortion := chunk[3:]                              // file identifier starts at pos4 and continues to EOL
+	files := bytes.SplitN(filePortion, []byte{'\x00'}, 2) // files split on NUL (-z option), 2 max
 
-	n := len(files)
-	switch {
-	case n < 1:
-		err = errors.New("tried to process a change chunk with no file")
-	case n > 1:
-		toFile, fromFile := files[0], files[1]
-		var toRelPath, fromRelPath string
+	numFiles := len(files)
+	switch numFiles {
+	case 1:
+		// display path for a single file operation is just the relative path
+		absPath, relPath = calcPaths(string(files[0]), root, wd)
+		return
+	case 2:
+		// display path for rename/copy operations is a human readable display combination of the from->to relPaths
+		toFile, fromFile := string(files[0]), string(files[1])
+		toAbsPath, toRelPath := calcPaths(toFile, root, wd)
+		_, fromRelPath := calcPaths(fromFile, root, wd)
 
-		absPath, toRelPath = calcPaths(toFile, root, wd)
-		_, fromRelPath = calcPaths(fromFile, root, wd)
-
+		absPath = toAbsPath
 		relPath = fmt.Sprintf("%s -> %s", fromRelPath, toRelPath)
+		return
 	default:
-		absPath, relPath = calcPaths(files[0], root, wd)
+		return "", "", fmt.Errorf("extractFile: failed processing chunk, unexpected number of file fields: %d", numFiles)
 	}
-
-	return
 }
 
-// given path of a file relative to git root, git root, and working directory,
-// calculate the absolute path of the file on the system, and attempt to figure
-// out its relative path to $CWD (if can't, fallback to absolute for both).
-func calcPaths(rootPath []byte, root, wd string) (absPath, relPath string) {
+// calcPaths calculates the absolute and relative paths for a file.
+//
+// Inputs:
+//   - rootPath: path of file relative to git root (what git porcelain returns)
+//   - root: absolute path of the git working tree
+//   - wd: current working directory path
+//
+// TODO: The callsite for this should be moved up the stack, to seperate this functionality
+// from the git status parsing logic.
+func calcPaths(rootPath, root, wd string) (absPath, relPath string) {
 	file := rootPath
 	absPath = filepath.Join(root, string(file))
 	relPath, err := filepath.Rel(wd, absPath)
 	if err != nil {
+		// if we can't calculate relative path, fallback to absolute path
 		relPath = absPath
 	}
 	return
