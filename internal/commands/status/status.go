@@ -91,26 +91,36 @@ see 'scmpuff init'.)
 	return statusCmd
 }
 
-// Runs `git status -z -b` and returns the results.
+// Runs `git status --porcelain=v1 -b -z` and returns the results.
+// If an error is encountered, the process will die fatally.
 //
-// Why z-mode? It lets us do machine parsing in a reliable cross-platform way.
+// Why z-mode? It lets us do machine parsing in a reliable cross-platform way,
+// as per this quote from the git status documentation:
 //
-//	There is also an alternate -z format recommended for machine parsing. In
-//	thatformat, the status field is the same, but some other things change.
+//	"There is also an alternate -z format recommended for machine parsing. In
+//	that format, the status field is the same, but some other things change.
 //	First, the -> is omitted from rename entries and the field order is
 //	reversed (e.g from -> to becomes to from). Second, a NUL (ASCII 0) follows
 //	each filename, replacing space as a field separator and the terminating
 //	newline (but a space still separates the status field from the first
 //	filename). Third, filenames containing special characters are not specially
-//	formatted; no quoting or backslash-escaping is performed.
+//	formatted; no quoting or backslash-escaping is performed."
 //
-// Okay, it also introduces some idiocy because it wasn't well thought out, but
-// it beats dealing with shell escaping and hoping we do it right across diff.
-// platforms and shells, I think...  see process.go for all the parsing we do
-// to make sense of it, this just grabs its output.
+// Okay, it also introduces some complexity because it wasn't well thought out,
+// but it beats dealing with shell escaping and hoping we do it right across
+// different platforms and shells, I hope...  see `process.go` for all the parsing
+// we do to make sense of it, this just grabs its output.
 //
-// If an error is encountered, the process will die fatally.
+// NOTE: More recent versions of git support `--porcelain=v2`, which is a more
+// reasoned structured output format addressing mistakes in git porcelain, but
+// we have not yet implemented support for that.
 func gitStatusOutput() []byte {
+	// We actually use `git status -z -b` here, which is the same as `git status
+	// --porcelain=v1 -b -z`, as the `-z` flag implies `--porcelain=v1` if not
+	// specified otherwise. That way we retain reverse compatiblity with very
+	// old versions of git that might not understand the `--porcelain=v1` flag
+	// (prior to porcelain v2 support, the flag was just `--porcelain` and was
+	// still implied by `-z`).
 	gso, err := exec.Command("git", "status", "-z", "-b").Output()
 	if err != nil {
 		log.Fatal(err)

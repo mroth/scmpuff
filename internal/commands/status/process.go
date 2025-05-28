@@ -17,11 +17,11 @@ type statusInfo struct {
 	items  []StatusItem
 }
 
-// Process takes the raw output of `git status --porcelain -b -z` and turns it
-// into a structured data type.
+// Process takes the raw output of `git status --porcelain=v1 -b -z` and
+// extracts the structured data.
 //
-// In the output of `git status --porcelain -b -z` the first segment of the output
-// format is the git branch status, and the rest is the git status info.
+// In the output the first segment of the output format is the git branch
+// status, and the rest is the git status info.
 func Process(gitStatusOutput []byte, root, wd string) (*statusInfo, error) {
 	// NOTE: in the future, we may wish to consume an io.Reader instead of
 	// a byte slice, such that we can read from a pipe or other source
@@ -125,10 +125,12 @@ func decodeBranchPosition(bs []byte) (ahead, behind int) {
 }
 
 /*
-ProcessChanges takes `git status -z` output and returns all status items.
+ProcessChanges takes `git status --porcelain=v1 -z` output and returns all
+status items.
 
-(Note: in our case, we actually use `git status -bz` and remove branch header
-when we process it earlier, but the results are binary identical.)
+(NOTE: in our case, we actually are using `git status --porcelain=v1 -z` and
+removing the branch header when we process it earlier, prior to passing to this
+function.)
 
 This is a complicated process because the format is weird. Each line is a
 variable length number of columns (2-3), but the separator for 1-2 is a space
@@ -188,15 +190,9 @@ func nulSplitFunc(data []byte, atEOF bool) (advance int, token []byte, err error
 	return 0, nil, nil
 }
 
-// process change for a single item from a `git status -z`.
+// processChange for a single item chunk from a `git status --porcelain=v1 -z`.
 //
-// Takes raw bytes representing status change from `git status --porcelain -z`,
-// assumes that it has already been properly split away from the rest of the
-// changes.
-//
-// See ProcessChanges (plural) for more details on that process.
-//
-// Note some change items can have multiple statuses, so this returns a slice.
+// Note some change items can produce multiple statuses(!), so this returns a slice.
 func processChange(chunk []byte, wd, root string) ([]StatusItem, error) {
 	var results []StatusItem
 	absolutePath, relativePath, err := extractFile(chunk, root, wd)
