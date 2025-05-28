@@ -11,6 +11,21 @@ const (
 	Untracked
 )
 
+func (sg StatusGroup) Description() string {
+	switch sg {
+	case Staged:
+		return "Changes to be committed"
+	case Unmerged:
+		return "Unmerged paths"
+	case Unstaged:
+		return "Changes not staged for commit"
+	case Untracked:
+		return "Untracked files"
+	default:
+		return "Unknown group"
+	}
+}
+
 // ColorGroup encapsulates constants for mapping color output categories
 type ColorGroup int
 

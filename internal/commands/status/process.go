@@ -48,7 +48,7 @@ func Process(gitStatusOutput []byte, root string) (*statusInfo, error) {
 		return nil, err
 	}
 
-	return &statusInfo{branch: *branch, items: statuses}, nil
+	return &statusInfo{branch: branch, items: statuses}, nil
 }
 
 // cutFirstSegment returns the first NUL-separated segment from r, and an io.Reader with the remainder of r.
@@ -78,14 +78,14 @@ func cutFirstSegment(r io.Reader) ([]byte, io.Reader, error) {
 //	## master
 //	## master...origin/master
 //	## master...origin/master [ahead 1]
-func ExtractBranch(bs []byte) (*BranchInfo, error) {
+func ExtractBranch(bs []byte) (BranchInfo, error) {
 	name, err := decodeBranchName(bs)
 	if err != nil {
-		return nil, err
+		return BranchInfo{}, err
 	}
 	a, b := decodeBranchPosition(bs)
 
-	return &BranchInfo{
+	return BranchInfo{
 		name:   name,
 		ahead:  a,
 		behind: b,

@@ -215,55 +215,55 @@ func TestExtractBranch(t *testing.T) {
 	//	## master...origin/master [ahead 1]
 	var testCases = []struct {
 		chunk    []byte
-		expected *BranchInfo
+		expected BranchInfo
 	}{
 		{
 			[]byte("## master"),
-			&BranchInfo{name: "master", ahead: 0, behind: 0},
+			BranchInfo{name: "master", ahead: 0, behind: 0},
 		},
 		{
 			[]byte("## GetUpGetDown09-11JokeInYoTown"),
-			&BranchInfo{name: "GetUpGetDown09-11JokeInYoTown", ahead: 0, behind: 0},
+			BranchInfo{name: "GetUpGetDown09-11JokeInYoTown", ahead: 0, behind: 0},
 		},
 		{
 			[]byte("## master...origin/master"),
-			&BranchInfo{name: "master", ahead: 0, behind: 0},
+			BranchInfo{name: "master", ahead: 0, behind: 0},
 		},
 		{
 			[]byte("## upstream...upstream/master"),
-			&BranchInfo{name: "upstream", ahead: 0, behind: 0},
+			BranchInfo{name: "upstream", ahead: 0, behind: 0},
 		},
 		{
 			[]byte("## master...origin/master [ahead 1]"),
-			&BranchInfo{name: "master", ahead: 1, behind: 0},
+			BranchInfo{name: "master", ahead: 1, behind: 0},
 		},
 		{
 			[]byte("## upstream...upstream/master [behind 3]"),
-			&BranchInfo{name: "upstream", ahead: 0, behind: 3},
+			BranchInfo{name: "upstream", ahead: 0, behind: 3},
 		},
 		{
 			[]byte("## upstream...upstream/master [ahead 5, behind 3]"),
-			&BranchInfo{name: "upstream", ahead: 5, behind: 3},
+			BranchInfo{name: "upstream", ahead: 5, behind: 3},
 		},
 		{
 			[]byte("## Initial commit on master"),
-			&BranchInfo{name: "master", ahead: 0, behind: 0},
+			BranchInfo{name: "master", ahead: 0, behind: 0},
 		},
 		{
 			[]byte("## No commits yet on master"),
-			&BranchInfo{name: "master", ahead: 0, behind: 0},
+			BranchInfo{name: "master", ahead: 0, behind: 0},
 		},
 		{
 			[]byte("## 3.0...origin/3.0 [ahead 1]"),
-			&BranchInfo{name: "3.0", ahead: 1, behind: 0},
+			BranchInfo{name: "3.0", ahead: 1, behind: 0},
 		},
 		{
 			[]byte("## HEAD (no branch)"),
-			&BranchInfo{name: "HEAD (no branch)", ahead: 0, behind: 0},
+			BranchInfo{name: "HEAD (no branch)", ahead: 0, behind: 0},
 		},
 		{
 			[]byte("## HEAD (no branch)UU both_modified.txt"),
-			&BranchInfo{name: "HEAD (no branch)", ahead: 0, behind: 0},
+			BranchInfo{name: "HEAD (no branch)", ahead: 0, behind: 0},
 		},
 	}
 

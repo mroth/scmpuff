@@ -46,9 +46,9 @@ see 'scmpuff init'.)
 
 			// TEMPORARY WHILE WORKING ON CLEANUP: convert statusInfo to a StatusList
 			results := NewStatusList()
-			results.branch = &info.branch
+			results.branch = info.branch
 			for _, item := range info.items {
-				results.Add(&item)
+				results.Add(item)
 			}
 			// END TEMPORARY
 

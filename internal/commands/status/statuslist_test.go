@@ -32,21 +32,21 @@ func TestStatusList_Display(t *testing.T) {
 		{
 			name: "empty",
 			statusList: createTestStatusList(
-				&BranchInfo{name: "main", ahead: 0, behind: 0},
+				BranchInfo{name: "main", ahead: 0, behind: 0},
 				nil,
 			),
 		},
 		{
 			name: "with_branch_ahead",
 			statusList: createTestStatusList(
-				&BranchInfo{name: "feature", ahead: 3, behind: 0},
+				BranchInfo{name: "feature", ahead: 3, behind: 0},
 				nil,
 			),
 		},
 		{
 			name: "with_staged_files",
 			statusList: createTestStatusList(
-				&BranchInfo{name: "main", ahead: 0, behind: 0},
+				BranchInfo{name: "main", ahead: 0, behind: 0},
 				[]StatusItem{
 					{changeType: changeStagedNewFile, fileAbsPath: "/path/to/new.go", fileRelPath: "new.go"},
 					{changeType: changeStagedNewFile, fileAbsPath: "/path/to/new_b.go", fileRelPath: "new_b.go"},
@@ -56,7 +56,7 @@ func TestStatusList_Display(t *testing.T) {
 		{
 			name: "complex_mix",
 			statusList: createTestStatusList(
-				&BranchInfo{name: "feature", ahead: 2, behind: 1},
+				BranchInfo{name: "feature", ahead: 2, behind: 1},
 				[]StatusItem{
 					{changeType: changeStagedNewFile, fileAbsPath: "/path/to/new.go", fileRelPath: "new.go"},
 					{changeType: changeStagedNewFile, fileAbsPath: "/path/to/new_b.go", fileRelPath: "new_b.go"},
@@ -95,12 +95,12 @@ func TestStatusList_Display(t *testing.T) {
 }
 
 // Helper function to create a test StatusList
-func createTestStatusList(branch *BranchInfo, items []StatusItem) *StatusList {
+func createTestStatusList(branch BranchInfo, items []StatusItem) *StatusList {
 	sl := NewStatusList()
 	sl.branch = branch
 
 	for _, si := range items {
-		sl.Add(&si)
+		sl.Add(si)
 	}
 
 	return sl
