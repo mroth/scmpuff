@@ -305,3 +305,69 @@ func TestBrokenProcessChanges(t *testing.T) {
 	}
 }
 */
+
+func Test_calcPaths(t *testing.T) {
+	type args struct {
+		rootPath string
+		root     string
+		wd       string
+	}
+	tests := []struct {
+		name        string
+		args        args
+		wantAbsPath string
+		wantRelPath string
+	}{
+		{
+			name: "everything in root",
+			args: args{
+				rootPath: "a.txt",
+				root:     "/tmp/foo",
+				wd:       "/tmp/foo",
+			},
+			wantAbsPath: "/tmp/foo/a.txt",
+			wantRelPath: "a.txt",
+		},
+		{
+			name: "change in subdir",
+			args: args{
+				rootPath: "bar/c.txt",
+				root:     "/tmp/foo",
+				wd:       "/tmp/foo",
+			},
+			wantAbsPath: "/tmp/foo/bar/c.txt",
+			wantRelPath: "bar/c.txt",
+		},
+		{
+			name: "change in parent to wd",
+			args: args{
+				rootPath: "a.txt",
+				root:     "/tmp/foo",
+				wd:       "/tmp/foo/bar",
+			},
+			wantAbsPath: "/tmp/foo/a.txt",
+			wantRelPath: "../a.txt",
+		},
+		{
+			name: "handle trailing slashes",
+			args: args{
+				rootPath: "a.txt",
+				root:     "/tmp/foo/",
+				wd:       "/tmp/foo/bar/",
+			},
+			wantAbsPath: "/tmp/foo/a.txt",
+			wantRelPath: "../a.txt",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			gotAbsPath, gotRelPath := calcPaths(tt.args.rootPath, tt.args.root, tt.args.wd)
+			if gotAbsPath != tt.wantAbsPath {
+				t.Errorf("calcPaths() gotAbsPath = %v, want %v", gotAbsPath, tt.wantAbsPath)
+			}
+			if gotRelPath != tt.wantRelPath {
+				t.Errorf("calcPaths() gotRelPath = %v, want %v", gotRelPath, tt.wantRelPath)
+			}
+		})
+	}
+}
