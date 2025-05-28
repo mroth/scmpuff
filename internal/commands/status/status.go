@@ -36,10 +36,14 @@ sets the environment variables for your shell. (For more information on this,
 see 'scmpuff init'.)
     `,
 		Run: func(cmd *cobra.Command, args []string) {
+			wd, err := os.Getwd()
+			if err != nil {
+				log.Fatal("fatal: failed to retrieve current working directory:", err)
+			}
 			root := gitProjectRoot()
 			status := gitStatusOutput()
 
-			info, err := Process(status, root)
+			info, err := Process(status, root, wd)
 			if err != nil {
 				log.Fatal(err)
 			}

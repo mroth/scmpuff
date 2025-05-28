@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"os"
 	"path/filepath"
 	"regexp"
 	"strconv"
@@ -23,7 +22,7 @@ type statusInfo struct {
 //
 // In the output of `git status --porcelain -b -z` the first segment of the output
 // format is the git branch status, and the rest is the git status info.
-func Process(gitStatusOutput []byte, root string) (*statusInfo, error) {
+func Process(gitStatusOutput []byte, root, wd string) (*statusInfo, error) {
 	// NOTE: in the future, we may wish to consume an io.Reader instead of
 	// a byte slice, such that we can read from a pipe or other source
 	// without needing to buffer the entire output in memory first.  For now,
@@ -43,7 +42,7 @@ func Process(gitStatusOutput []byte, root string) (*statusInfo, error) {
 	}
 
 	// process the remaining NUL-separated sections, which contain the status items
-	statuses, err := ProcessChanges(remaining, root)
+	statuses, err := ProcessChanges(remaining, root, wd)
 	if err != nil {
 		return nil, err
 	}
@@ -148,16 +147,7 @@ until we have consumed a full entry.
 We put up with this because it means no shell escaping, which should mean better
 cross-platform support. Better hope some Windows people end up using it someday!
 */
-func ProcessChanges(r io.Reader, root string) ([]StatusItem, error) {
-	// Before we process any changes, get the Current Working Directory.
-	// We're going to need use to calculate absolute and relative filepaths for
-	// every change, so we get it once now and pass it along.
-	// If for some reason this fails (?), fallback to the git worktree root.
-	wd, err := os.Getwd()
-	if err != nil {
-		wd = root
-	}
-
+func ProcessChanges(r io.Reader, root, wd string) ([]StatusItem, error) {
 	s := bufio.NewScanner(r)
 	s.Split(nulSplitFunc) // custom split function for splitting on NUL
 
