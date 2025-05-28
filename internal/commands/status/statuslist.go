@@ -42,6 +42,7 @@ func NewStatusList() *StatusList {
 	}
 }
 
+// Add appends a StatusItem to the StatusList, organizing it by its StatusGroup.
 func (sl *StatusList) Add(item StatusItem) {
 	group := item.group
 	sl.groupedItems[group] = append(sl.groupedItems[group], item)
@@ -55,19 +56,11 @@ var groupOrdering = []StatusGroup{
 	Untracked,
 }
 
-// Count of StatusItems across all StatusGroups in the StatusList.
-func (sl StatusList) numItems() (count int) {
-	for _, g := range sl.groupedItems {
-		count += len(g)
-	}
-	return
-}
-
 // orderedItems will return a slice of all StatusItems for the list regardless of what
 // StatusGroup they belong to.
 //
 // However, we need to be careful to return them in the same order always.
-func (sl StatusList) orderedItems() (items []StatusItem) {
+func (sl *StatusList) orderedItems() (items []StatusItem) {
 	for _, g := range groupOrdering {
 		if groupItems, ok := sl.groupedItems[g]; ok {
 			items = append(items, groupItems...)
@@ -77,39 +70,67 @@ func (sl StatusList) orderedItems() (items []StatusItem) {
 	return
 }
 
-// Formats the status list for display to the screen.
+// numItems returns the count of StatusItems across all groups.
+func (sl *StatusList) numItems() int {
+	var count int
+	for _, g := range sl.groupedItems {
+		count += len(g)
+	}
+	return count
+}
+
+// Displays the formatted status list designed for screen output to w.
 //
 // if `includeParseData` is true, the first line will be a machine parseable
 // list of files to be used for environment variable expansion.
-//
-// Output is buffered and is always flushed before the function returns.
-func (sl StatusList) Display(w io.Writer, includeParseData, includeStatusOutput bool) error {
-	b := bufio.NewWriter(w)
-
+func (sl *StatusList) Display(w io.Writer, includeParseData, includeStatusOutput bool) error {
 	if includeParseData {
-		fmt.Fprintln(b, sl.dataForParsing())
-	}
-
-	if includeStatusOutput {
-		// print the banner
-		fmt.Fprintln(b, sl.banner())
-
-		itemNumber := 1
-		for _, group := range groupOrdering {
-			items := sl.groupedItems[group]
-			if len(items) > 0 {
-				b.WriteString(formatHeaderForGroup(group))
-
-				for _, item := range items {
-					b.WriteString(formatStatusItemDisplay(item, itemNumber))
-					itemNumber++
-				}
-
-				b.WriteString(formatFooterForGroup(group))
-			}
+		if _, err := fmt.Fprintln(w, sl.formatParseData()); err != nil {
+			return fmt.Errorf("failed to write parse data: %w", err)
 		}
 	}
 
+	if includeStatusOutput {
+		if err := writeDisplayOutput(w, sl); err != nil {
+			return fmt.Errorf("failed to write display output: %w", err)
+		}
+	}
+
+	return nil
+}
+
+func writeDisplayOutput(w io.Writer, sl *StatusList) error {
+	// buffer writer due to many small writes
+	b := bufio.NewWriter(w)
+
+	// print the banner
+	fmt.Fprintln(b, sl.formatBranchBanner())
+
+	// iterate through each group in the hardcoded order, for each group print
+	// the header, then each item in that group, and finally the footer. For
+	// each item, the display number is incremental across the entire list
+	// (independent of group), so that the items can be referenced by number in
+	// the shell script, with the first item being [1], second being [2], etc.
+	itemNumber := 1
+	for _, group := range groupOrdering {
+		items := sl.groupedItems[group]
+
+		if len(items) > 0 {
+			b.WriteString(formatHeaderForGroup(group))
+
+			for _, item := range items {
+				b.WriteString(formatStatusItemDisplay(item, itemNumber))
+				itemNumber++
+			}
+
+			b.WriteString(formatFooterForGroup(group))
+		}
+	}
+
+	// NOTE: Flush uses the errWriter pattern[1] and will return the first error
+	// that was encountered while writing to the buffer, if any.
+	//
+	// [1]: https://go.dev/blog/errors-are-values
 	return b.Flush()
 }
 
@@ -118,7 +139,7 @@ func (sl StatusList) Display(w io.Writer, includeParseData, includeStatusOutput 
 //
 // Needs to be returned in same order that file lists are outputted to screen,
 // otherwise env vars won't match UI.
-func (sl StatusList) dataForParsing() string {
+func (sl *StatusList) formatParseData() string {
 	items := make([]string, sl.numItems())
 	for i, si := range sl.orderedItems() {
 		items[i] = si.fileAbsPath
@@ -126,44 +147,48 @@ func (sl StatusList) dataForParsing() string {
 	return strings.Join(items, "\t")
 }
 
-// Returns the banner string to be used for printing.
+// Formats the branch banner string to be used for printing.
 //
 // Banner string contains the branch information, as well as information about
 // the branch status relative to upstream.
-func (sl StatusList) banner() string {
+func (sl StatusList) formatBranchBanner() string {
 	if sl.numItems() == 0 {
-		return bannerBranch(sl.branch) + bannerNoChanges()
+		return formatBranchBannerPrelude(sl.branch) + bannerNoChanges()
 	}
-	return bannerBranch(sl.branch) + bannerChangeHeader()
+	return formatBranchBannerPrelude(sl.branch) + bannerChangeHeader()
 }
 
 // Make string for first half of the status banner.
-func bannerBranch(b BranchInfo) string {
+func formatBranchBannerPrelude(b BranchInfo) string {
+	diffStr := formatUpstreamDiffIndicator(b)
+	var diffFormatted string
+	if diffStr != "" {
+		diffFormatted = fmt.Sprintf(
+			"  %s|  %s%s%s",
+			colorMap[dark], colorMap[neu], diffStr, colorMap[rst],
+		)
+	}
+
 	return fmt.Sprintf(
 		"%s#%s On branch: %s%s%s  %s|  ",
 		colorMap[dark], colorMap[rst], colorMap[branch],
-		b.name, bannerBranchDiff(b),
+		b.name, diffFormatted,
 		colorMap[dark],
 	)
 }
 
-// formats the +1/-2 diff status for string if branch has a diff
-func bannerBranchDiff(b BranchInfo) string {
-	if b.ahead+b.behind == 0 {
+// formats the +1/-2 ahead/behind diff indicator for a branch relative to upstream
+func formatUpstreamDiffIndicator(b BranchInfo) string {
+	switch {
+	case b.ahead > 0 && b.behind > 0:
+		return fmt.Sprintf("+%d/-%d", b.ahead, b.behind)
+	case b.ahead > 0:
+		return fmt.Sprintf("+%d", b.ahead)
+	case b.behind > 0:
+		return fmt.Sprintf("-%d", b.behind)
+	default:
 		return ""
 	}
-	var diff string
-	if b.ahead > 0 && b.behind > 0 {
-		diff = fmt.Sprintf("+%d/-%d", b.ahead, b.behind)
-	} else if b.ahead > 0 {
-		diff = fmt.Sprintf("+%d", b.ahead)
-	} else if b.behind > 0 {
-		diff = fmt.Sprintf("-%d", b.behind)
-	}
-	return fmt.Sprintf(
-		"  %s|  %s%s%s",
-		colorMap[dark], colorMap[neu], diff, colorMap[rst],
-	)
 }
 
 func bannerChangeHeader() string {
@@ -173,7 +198,7 @@ func bannerChangeHeader() string {
 	)
 }
 
-// If no changes, just display green no changes message (TODO: ?? and exit here)
+// If no changes, just display green no changes message
 func bannerNoChanges() string {
 	return fmt.Sprintf(
 		"\033[0;32mNo changes (working directory clean)%s",
