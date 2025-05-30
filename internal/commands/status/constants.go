@@ -1,31 +1,5 @@
 package status
 
-// StatusGroup encapsulates constants for mapping group status
-type StatusGroup int
-
-// constants representing an enum of all possible StatusGroups
-const (
-	Staged StatusGroup = iota
-	Unmerged
-	Unstaged
-	Untracked
-)
-
-func (sg StatusGroup) Description() string {
-	switch sg {
-	case Staged:
-		return "Changes to be committed"
-	case Unmerged:
-		return "Unmerged paths"
-	case Unstaged:
-		return "Changes not staged for commit"
-	case Untracked:
-		return "Untracked files"
-	default:
-		return "Unknown group"
-	}
-}
-
 // ColorGroup encapsulates constants for mapping color output categories
 type ColorGroup int
 
@@ -55,6 +29,28 @@ var colorMap = map[ColorGroup]string{
 	dark:   "\033[2;37m",
 	branch: "\033[1m",
 	header: "\033[0m",
+}
+
+func (item StatusItem) Color() string {
+	// TODO: exhaustiveness check in linter
+	switch item.state() {
+	case NewState:
+		return colorMap[neu]
+	case ModifiedState:
+		return colorMap[mod]
+	case DeletedState:
+		return colorMap[del]
+	case UntrackedState:
+		return colorMap[unt]
+	case RenamedState:
+		return colorMap[ren]
+	case CopiedState:
+		return colorMap[cpy]
+	case TypeChangedState:
+		return colorMap[typ]
+	default:
+		return colorMap[rst]
+	}
 }
 
 // TODO: Why does scm_breeze define these without the leading escape codes?

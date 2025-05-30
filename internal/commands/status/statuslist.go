@@ -22,19 +22,6 @@ type BranchInfo struct {
 	behind int    // commit position relative to upstream, e.g. -3
 }
 
-// StatusItem represents a single processed item of change from a 'git status'
-type StatusItem struct {
-	changeType
-	fileAbsPath string // absolute filepath for the item
-	fileRelPath string // display "path" for item relative to UX (may be multi-item!)
-}
-
-type changeType struct {
-	msg   string      // msg to display representing the item status
-	col   ColorGroup  // which ColorGroup to use when printing item
-	group StatusGroup // which StatusGroup item belongs to (Staged, etc...)
-}
-
 // NewStatusList initializes a new empty StatusList.
 func NewStatusList() *StatusList {
 	return &StatusList{
@@ -44,7 +31,7 @@ func NewStatusList() *StatusList {
 
 // Add appends a StatusItem to the StatusList, organizing it by its StatusGroup.
 func (sl *StatusList) Add(item StatusItem) {
-	group := item.group
+	group := item.StatusGroup()
 	sl.groupedItems[group] = append(sl.groupedItems[group], item)
 }
 
@@ -256,10 +243,10 @@ func formatStatusItemDisplay(item StatusItem, displayNum int) string {
 	// note to future self: format would add a final " %s" to output printf to
 	// accommodate.
 
-	groupCol := "\033[0;" + groupColorMap[item.group]
+	groupCol := "\033[0;" + groupColorMap[item.StatusGroup()]
 	return fmt.Sprintf(
 		"%s#%s     %s%s:%s%s [%s%d%s] %s%s%s\n",
-		groupCol, colorMap[rst], colorMap[item.col], item.msg, padding, colorMap[dark],
+		groupCol, colorMap[rst], item.Color(), item.Message(), padding, colorMap[dark],
 		colorMap[rst], displayNum, colorMap[dark], groupCol, relFile, colorMap[rst],
 	)
 }

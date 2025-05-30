@@ -310,91 +310,69 @@ func extractChangeCodes(chunk []byte) []changeType {
 	y := rune(chunk[1])
 
 	var changes []changeType
-	if p := decodePrimaryChangeCode(x, y); p != nil {
-		changes = append(changes, *p)
+	if p, found := decodePrimaryChangeCode(x, y); found {
+		changes = append(changes, p)
 	}
-	if s := decodeSecondaryChangeCode(x, y); s != nil {
-		changes = append(changes, *s)
+	if s, found := decodeSecondaryChangeCode(x, y); found {
+		changes = append(changes, s)
 	}
 	return changes
 }
 
 // decodePrimaryChangeCode returns the primary change code for a given status,
-// or nil if it doesn't match any known codes.
-func decodePrimaryChangeCode(x, y rune) *changeType {
-	xy := string(x) + string(y)
-
+// or -1, false if it doesn't match any known codes.
+func decodePrimaryChangeCode(x, y rune) (changeType, bool) {
 	// unmerged cases are simple, only a single change UI is possible
-	switch xy {
-	case "DD":
-		return &changeUnmergedDeletedBoth
-	case "AU":
-		return &changeUmmergedAddedUs
-	case "UD":
-		return &changeUnmergedDeletedThem
-	case "UA":
-		return &changeUnmergedAddedThem
-	case "DU":
-		return &changeUnmergedDeletedUs
-	case "AA":
-		return &changeUnmergedAddedBoth
-	case "UU":
-		return &changeUnmergedModifiedBoth
-	case "??":
-		return &changeUntracked
+	switch {
+	case x == 'D' && y == 'D':
+		return ChangeUnmergedDeletedBoth, true
+	case x == 'A' && y == 'U':
+		return ChangeUnmergedAddedUs, true
+	case x == 'U' && y == 'D':
+		return ChangeUnmergedDeletedThem, true
+	case x == 'U' && y == 'A':
+		return ChangeUnmergedAddedThem, true
+	case x == 'D' && y == 'U':
+		return ChangeUnmergedDeletedUs, true
+	case x == 'A' && y == 'A':
+		return ChangeUnmergedAddedBoth, true
+	case x == 'U' && y == 'U':
+		return ChangeUnmergedModifiedBoth, true
+	case x == '?' && y == '?':
+		return ChangeUntracked, true
 	}
 
 	// staged changes are all single X cases
 	switch x {
 	case 'M':
-		return &changeStagedModified
+		return ChangeStagedModified, true
 	case 'A':
-		return &changeStagedNewFile
+		return ChangeStagedNewFile, true
 	case 'D':
-		return &changeStagedDeleted
+		return ChangeStagedDeleted, true
 	case 'R':
-		return &changeStagedRenamed
+		return ChangeStagedRenamed, true
 	case 'C':
-		return &changeStagedCopied
+		return ChangeStagedCopied, true
 	case 'T':
-		return &changeStagedType
+		return ChangeStagedType, true
 	}
 
-	return nil
+	return -1, false
 }
 
 // decodeSecondaryChangeCode returns the secondary change code for a given status,
-// or nil if it doesn't match any known codes.
-func decodeSecondaryChangeCode(x, y rune) *changeType {
+// or -1, false if it doesn't match any known codes.
+func decodeSecondaryChangeCode(x, y rune) (changeType, bool) {
 	switch {
 	case y == 'M': //.M
-		return &changeUnstagedModified
+		return ChangeUnstagedModified, true
 	// Don't show deleted 'y' during a merge conflict.
 	case y == 'D' && x != 'D' && x != 'U': //[!D!U]D
-		return &changeUnstagedDeleted
+		return ChangeUnstagedDeleted, true
 	case y == 'T': //.T
-		return &changeUnstagedType
+		return ChangeUnstagedType, true
 	}
 
-	return nil
+	return -1, false
 }
-
-var (
-	changeUnmergedDeletedBoth  = changeType{"   both deleted", del, Unmerged}
-	changeUmmergedAddedUs      = changeType{"    added by us", neu, Unmerged}
-	changeUnmergedDeletedThem  = changeType{"deleted by them", del, Unmerged}
-	changeUnmergedAddedThem    = changeType{"  added by them", neu, Unmerged}
-	changeUnmergedDeletedUs    = changeType{"  deleted by us", del, Unmerged}
-	changeUnmergedAddedBoth    = changeType{"     both added", neu, Unmerged}
-	changeUnmergedModifiedBoth = changeType{"  both modified", mod, Unmerged}
-	changeUntracked            = changeType{" untracked", unt, Untracked}
-	changeStagedModified       = changeType{"  modified", mod, Staged}
-	changeStagedNewFile        = changeType{"  new file", neu, Staged}
-	changeStagedDeleted        = changeType{"   deleted", del, Staged}
-	changeStagedRenamed        = changeType{"   renamed", ren, Staged}
-	changeStagedCopied         = changeType{"    copied", cpy, Staged}
-	changeStagedType           = changeType{"typechange", typ, Staged}
-	changeUnstagedModified     = changeType{"  modified", mod, Unstaged}
-	changeUnstagedDeleted      = changeType{"   deleted", del, Unstaged}
-	changeUnstagedType         = changeType{"typechange", typ, Unstaged}
-)
