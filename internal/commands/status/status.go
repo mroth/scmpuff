@@ -14,9 +14,6 @@ import (
 // CommandStatus processes 'git status --porcelain', and exports numbered
 // env variables that contain the path of each affected file.
 // Output is also more concise than standard 'git status'.
-//
-// TODO: Call with optional <group> parameter to filter by modification state:
-// 1 || Staged,  2 || Unmerged,  3 || Unstaged,  4 || Untracked
 func CommandStatus() *cobra.Command {
 	var optsFilelist bool
 	var optsDisplay bool
@@ -40,25 +37,28 @@ see 'scmpuff init'.)
 			if err != nil {
 				log.Fatal("fatal: failed to retrieve current working directory:", err)
 			}
+
 			root := gitProjectRoot()
-			status := gitStatusOutput()
+			// TODO: move error handling out of gitProjectRoot
+
+			status, err := gitStatusOutput()
+			if err != nil {
+				log.Fatal("fatal: error running git status command:", err)
+			}
 
 			info, err := Process(status, root, wd)
 			if err != nil {
-				log.Fatal(err)
+				log.Fatal("fatal: failed to process git status output:", err)
 			}
 
-			// TEMPORARY WHILE WORKING ON CLEANUP: convert statusInfo to a StatusList
-			results := NewStatusList()
-			results.branch = info.branch
-			for _, item := range info.items {
-				results.Add(item)
-			}
-			// END TEMPORARY
-
-			results.Display(os.Stdout, optsFilelist, optsDisplay)
+			renderer, err := NewRenderer(info)
 			if err != nil {
-				log.Fatal(err)
+				log.Fatal("fatal: failed to create status renderer:", err)
+			}
+
+			renderer.Display(os.Stdout, optsFilelist, optsDisplay)
+			if err != nil {
+				log.Fatal("fatal: failed to render status:", err)
 			}
 		},
 	}
@@ -92,7 +92,6 @@ see 'scmpuff init'.)
 }
 
 // Runs `git status --porcelain=v1 -b -z` and returns the results.
-// If an error is encountered, the process will die fatally.
 //
 // Why z-mode? It lets us do machine parsing in a reliable cross-platform way,
 // as per this quote from the git status documentation:
@@ -114,18 +113,14 @@ see 'scmpuff init'.)
 // NOTE: More recent versions of git support `--porcelain=v2`, which is a more
 // reasoned structured output format addressing mistakes in git porcelain, but
 // we have not yet implemented support for that.
-func gitStatusOutput() []byte {
+func gitStatusOutput() ([]byte, error) {
 	// We actually use `git status -z -b` here, which is the same as `git status
 	// --porcelain=v1 -b -z`, as the `-z` flag implies `--porcelain=v1` if not
 	// specified otherwise. That way we retain reverse compatiblity with very
 	// old versions of git that might not understand the `--porcelain=v1` flag
 	// (prior to porcelain v2 support, the flag was just `--porcelain` and was
 	// still implied by `-z`).
-	gso, err := exec.Command("git", "status", "-z", "-b").Output()
-	if err != nil {
-		log.Fatal(err)
-	}
-	return gso
+	return exec.Command("git", "status", "-z", "-b").Output()
 }
 
 // Returns the root for the git project.

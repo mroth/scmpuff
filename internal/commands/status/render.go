@@ -7,30 +7,47 @@ import (
 	"strings"
 )
 
-// StatusList gives us a data structure to store all items of a git status
-// organized by what group they fall under.
-type StatusList struct {
-	branch       BranchInfo
-	groupedItems map[StatusGroup][]StatusItem
+// StatusInfo contains the information about git working tree status that is
+// necessary to display the status in a user-friendly way (e.g. git status)
+// It includes the branch information and a list of status items.
+type StatusInfo struct {
+	Branch BranchInfo
+	Items  []StatusItem
 }
 
 // BranchInfo contains all information needed about the active git branch, as
 // well as its status relative to upstream commits.
 type BranchInfo struct {
-	name   string // name of the active branch
-	ahead  int    // commit position relative to upstream, e.g. +1
-	behind int    // commit position relative to upstream, e.g. -3
+	Name          string // name of the active branch
+	CommitsAhead  int    // commit position relative to upstream, e.g. +1
+	CommitsBehind int    // commit position relative to upstream, e.g. -3
 }
 
-// NewStatusList initializes a new empty StatusList.
-func NewStatusList() *StatusList {
-	return &StatusList{
-		groupedItems: make(map[StatusGroup][]StatusItem),
+// A Renderer formats git status information for display to the screen.
+type Renderer struct {
+	branch       BranchInfo
+	groupedItems map[StatusGroup][]StatusItem // re-organize items by their StatusGroup
+}
+
+func NewRenderer(info *StatusInfo) (*Renderer, error) {
+	if info == nil {
+		return nil, fmt.Errorf("status info cannot be nil")
 	}
+
+	groupedItems := make(map[StatusGroup][]StatusItem)
+	for _, item := range info.Items {
+		group := item.StatusGroup()
+		groupedItems[group] = append(groupedItems[group], item)
+	}
+
+	return &Renderer{
+		branch:       info.Branch,
+		groupedItems: groupedItems,
+	}, nil
 }
 
-// Add appends a StatusItem to the StatusList, organizing it by its StatusGroup.
-func (sl *StatusList) Add(item StatusItem) {
+// Add appends a StatusItem to the Renderer, organizing it by its StatusGroup.
+func (sl *Renderer) Add(item StatusItem) {
 	group := item.StatusGroup()
 	sl.groupedItems[group] = append(sl.groupedItems[group], item)
 }
@@ -47,7 +64,7 @@ var groupOrdering = []StatusGroup{
 // StatusGroup they belong to.
 //
 // However, we need to be careful to return them in the same order always.
-func (sl *StatusList) orderedItems() (items []StatusItem) {
+func (sl *Renderer) orderedItems() (items []StatusItem) {
 	for _, g := range groupOrdering {
 		if groupItems, ok := sl.groupedItems[g]; ok {
 			items = append(items, groupItems...)
@@ -58,7 +75,7 @@ func (sl *StatusList) orderedItems() (items []StatusItem) {
 }
 
 // numItems returns the count of StatusItems across all groups.
-func (sl *StatusList) numItems() int {
+func (sl *Renderer) numItems() int {
 	var count int
 	for _, g := range sl.groupedItems {
 		count += len(g)
@@ -70,7 +87,7 @@ func (sl *StatusList) numItems() int {
 //
 // if `includeParseData` is true, the first line will be a machine parseable
 // list of files to be used for environment variable expansion.
-func (sl *StatusList) Display(w io.Writer, includeParseData, includeStatusOutput bool) error {
+func (sl *Renderer) Display(w io.Writer, includeParseData, includeStatusOutput bool) error {
 	if includeParseData {
 		if _, err := fmt.Fprintln(w, sl.formatParseData()); err != nil {
 			return fmt.Errorf("failed to write parse data: %w", err)
@@ -86,7 +103,7 @@ func (sl *StatusList) Display(w io.Writer, includeParseData, includeStatusOutput
 	return nil
 }
 
-func writeDisplayOutput(w io.Writer, sl *StatusList) error {
+func writeDisplayOutput(w io.Writer, sl *Renderer) error {
 	// buffer writer due to many small writes
 	b := bufio.NewWriter(w)
 
@@ -126,7 +143,7 @@ func writeDisplayOutput(w io.Writer, sl *StatusList) error {
 //
 // Needs to be returned in same order that file lists are outputted to screen,
 // otherwise env vars won't match UI.
-func (sl *StatusList) formatParseData() string {
+func (sl *Renderer) formatParseData() string {
 	items := make([]string, sl.numItems())
 	for i, si := range sl.orderedItems() {
 		items[i] = si.fileAbsPath
@@ -138,7 +155,7 @@ func (sl *StatusList) formatParseData() string {
 //
 // Banner string contains the branch information, as well as information about
 // the branch status relative to upstream.
-func (sl StatusList) formatBranchBanner() string {
+func (sl Renderer) formatBranchBanner() string {
 	if sl.numItems() == 0 {
 		return formatBranchBannerPrelude(sl.branch) + bannerNoChanges()
 	}
@@ -159,7 +176,7 @@ func formatBranchBannerPrelude(b BranchInfo) string {
 	return fmt.Sprintf(
 		"%s#%s On branch: %s%s%s  %s|  ",
 		colorMap[dark], colorMap[rst], colorMap[branch],
-		b.name, diffFormatted,
+		b.Name, diffFormatted,
 		colorMap[dark],
 	)
 }
@@ -167,12 +184,12 @@ func formatBranchBannerPrelude(b BranchInfo) string {
 // formats the +1/-2 ahead/behind diff indicator for a branch relative to upstream
 func formatUpstreamDiffIndicator(b BranchInfo) string {
 	switch {
-	case b.ahead > 0 && b.behind > 0:
-		return fmt.Sprintf("+%d/-%d", b.ahead, b.behind)
-	case b.ahead > 0:
-		return fmt.Sprintf("+%d", b.ahead)
-	case b.behind > 0:
-		return fmt.Sprintf("-%d", b.behind)
+	case b.CommitsAhead > 0 && b.CommitsBehind > 0:
+		return fmt.Sprintf("+%d/-%d", b.CommitsAhead, b.CommitsBehind)
+	case b.CommitsAhead > 0:
+		return fmt.Sprintf("+%d", b.CommitsAhead)
+	case b.CommitsBehind > 0:
+		return fmt.Sprintf("-%d", b.CommitsBehind)
 	default:
 		return ""
 	}

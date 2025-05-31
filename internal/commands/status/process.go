@@ -11,18 +11,12 @@ import (
 	"strconv"
 )
 
-// temporary structure until we rationalize StatusList which is a bit of a mess...
-type statusInfo struct {
-	branch BranchInfo
-	items  []StatusItem
-}
-
 // Process takes the raw output of `git status --porcelain=v1 -b -z` and
 // extracts the structured data.
 //
 // In the output the first segment of the output format is the git branch
 // status, and the rest is the git status info.
-func Process(gitStatusOutput []byte, root, wd string) (*statusInfo, error) {
+func Process(gitStatusOutput []byte, root, wd string) (*StatusInfo, error) {
 	// NOTE: in the future, we may wish to consume an io.Reader instead of
 	// a byte slice, such that we can read from a pipe or other source
 	// without needing to buffer the entire output in memory first.  For now,
@@ -47,7 +41,7 @@ func Process(gitStatusOutput []byte, root, wd string) (*statusInfo, error) {
 		return nil, err
 	}
 
-	return &statusInfo{branch: branch, items: statuses}, nil
+	return &StatusInfo{Branch: branch, Items: statuses}, nil
 }
 
 // cutFirstSegment returns the first NUL-separated segment from r, and an io.Reader with the remainder of r.
@@ -85,9 +79,9 @@ func ExtractBranch(bs []byte) (BranchInfo, error) {
 	a, b := decodeBranchPosition(bs)
 
 	return BranchInfo{
-		name:   name,
-		ahead:  a,
-		behind: b,
+		Name:          name,
+		CommitsAhead:  a,
+		CommitsBehind: b,
 	}, nil
 }
 

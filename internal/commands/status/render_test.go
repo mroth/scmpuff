@@ -24,46 +24,46 @@ func TestMain(m *testing.M) {
 	os.Exit(m.Run())
 }
 
-func TestStatusList_Display(t *testing.T) {
+func TestRenderer_Display(t *testing.T) {
 	testCases := []struct {
-		name       string
-		statusList *StatusList
+		name string
+		info StatusInfo
 	}{
 		{
 			name: "empty",
-			statusList: createTestStatusList(
-				BranchInfo{name: "main", ahead: 0, behind: 0},
+			info: StatusInfo{
+				BranchInfo{Name: "main", CommitsAhead: 0, CommitsBehind: 0},
 				nil,
-			),
+			},
 		},
 		{
 			name: "with_branch_ahead",
-			statusList: createTestStatusList(
-				BranchInfo{name: "feature", ahead: 3, behind: 0},
+			info: StatusInfo{
+				BranchInfo{Name: "feature", CommitsAhead: 3, CommitsBehind: 0},
 				nil,
-			),
+			},
 		},
 		{
 			name: "with_staged_files",
-			statusList: createTestStatusList(
-				BranchInfo{name: "main", ahead: 0, behind: 0},
+			info: StatusInfo{
+				BranchInfo{Name: "main", CommitsAhead: 0, CommitsBehind: 0},
 				[]StatusItem{
 					{changeType: ChangeStagedNewFile, fileAbsPath: "/path/to/new.go", fileRelPath: "new.go"},
 					{changeType: ChangeStagedNewFile, fileAbsPath: "/path/to/new_b.go", fileRelPath: "new_b.go"},
 					{changeType: ChangeStagedModified, fileAbsPath: "/path/to/changed.go", fileRelPath: "changed.go"}},
-			),
+			},
 		},
 		{
 			name: "complex_mix",
-			statusList: createTestStatusList(
-				BranchInfo{name: "feature", ahead: 2, behind: 1},
+			info: StatusInfo{
+				BranchInfo{Name: "feature", CommitsAhead: 2, CommitsBehind: 1},
 				[]StatusItem{
 					{changeType: ChangeStagedNewFile, fileAbsPath: "/path/to/new.go", fileRelPath: "new.go"},
 					{changeType: ChangeStagedNewFile, fileAbsPath: "/path/to/new_b.go", fileRelPath: "new_b.go"},
 					{changeType: ChangeUnstagedModified, fileAbsPath: "/path/to/modified.go", fileRelPath: "modified.go"},
 					{changeType: ChangeUntracked, fileAbsPath: "/path/to/untracked.go", fileRelPath: "untracked.go"},
 				},
-			),
+			},
 		},
 	}
 
@@ -80,10 +80,15 @@ func TestStatusList_Display(t *testing.T) {
 
 			for _, oc := range optionCases {
 				t.Run(oc.name, func(t *testing.T) {
-					var buf bytes.Buffer
-					err := tc.statusList.Display(&buf, oc.includeParseData, oc.includeStatusOutput)
+					renderer, err := NewRenderer(&tc.info)
 					if err != nil {
-						t.Fatalf("error calling Display: %v", err)
+						t.Fatalf("NewRenderer() error: %v", err)
+					}
+
+					var buf bytes.Buffer
+					err = renderer.Display(&buf, oc.includeParseData, oc.includeStatusOutput)
+					if err != nil {
+						t.Fatalf("Display() error: %v", err)
 					}
 
 					goldenFile := fmt.Sprintf("statuslist-%s.%s", tc.name, oc.name)
@@ -92,18 +97,6 @@ func TestStatusList_Display(t *testing.T) {
 			}
 		})
 	}
-}
-
-// Helper function to create a test StatusList
-func createTestStatusList(branch BranchInfo, items []StatusItem) *StatusList {
-	sl := NewStatusList()
-	sl.branch = branch
-
-	for _, si := range items {
-		sl.Add(si)
-	}
-
-	return sl
 }
 
 func goldenCompareFile(t *testing.T, filename string, actual []byte, update bool) {
