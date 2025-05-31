@@ -2,6 +2,7 @@ package status
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"log"
 	"os"
@@ -38,10 +39,19 @@ see 'scmpuff init'.)
 				log.Fatal("fatal: failed to retrieve current working directory:", err)
 			}
 
-			// Get the root of the git project, which is used to determine
-			// the absolute paths of files in the git status output.
-			root := gitProjectRoot(wd)
-			// TODO: move error handling out of gitProjectRoot
+			root, err := gitProjectRoot(wd)
+			if err != nil {
+				// we want to capture and handle error status 128 in a pretty way,
+				// as its a fairly normal UX situation (running cmd not in a git repo).
+				var exitErr *exec.ExitError
+				if errors.As(err, &exitErr) && exitErr.ExitCode() == 128 {
+					msg := "Not a git repository (or any of the parent directories)"
+					fmt.Fprintf(os.Stderr, "\033[0;31m%s\033[0m\n", msg)
+					os.Exit(128)
+				}
+				// or, some sort of an actual error
+				log.Fatal("fatal: failed to determine git project root:", err)
+			}
 
 			status, err := gitStatusOutput()
 			if err != nil {
@@ -125,7 +135,7 @@ func gitStatusOutput() ([]byte, error) {
 	return exec.Command("git", "status", "-z", "-b").Output()
 }
 
-// Runs git comments  the root for the git project.
+// Runs git commands to determine the root for the git project.
 //
 // This handles relative paths within a symlink'd directory correctly,
 // which was previously broken as described in:
@@ -135,22 +145,18 @@ func gitStatusOutput() ([]byte, error) {
 //
 // See https://github.com/mroth/scmpuff/pull/94
 //
-// If can't be found, the process will die fatally.
-func gitProjectRoot(wd string) string {
+// Note that there is a common 'error' condition when running this command
+// outside of a git repository, which is an os/exec.exitError with status code
+// 128. Callers of this function should handle that error gracefully, as it is a
+// common UX situation, and not an actual error in the program.
+func gitProjectRoot(wd string) (string, error) {
 	// `--show-cdup` prints the relative path to the Git repository root,
 	// which we then join with the current working directory.
 	cdup, err := exec.Command("git", "rev-parse", "--show-cdup").Output()
 	if err != nil {
-		// we want to capture and handle status 128 in a pretty way
-		if err.Error() == "exit status 128" {
-			msg := "Not a git repository (or any of the parent directories)"
-			fmt.Fprintf(os.Stderr, "\033[0;31m%s\033[0m\n", msg)
-			os.Exit(128)
-		}
-		// or, some other sort of error?
-		log.Fatal(err)
+		return "", err
 	}
 
 	absPath := filepath.Join(wd, string(bytes.TrimSpace(cdup)))
-	return filepath.Clean(absPath)
+	return filepath.Clean(absPath), nil
 }
