@@ -38,7 +38,9 @@ see 'scmpuff init'.)
 				log.Fatal("fatal: failed to retrieve current working directory:", err)
 			}
 
-			root := gitProjectRoot()
+			// Get the root of the git project, which is used to determine
+			// the absolute paths of files in the git status output.
+			root := gitProjectRoot(wd)
 			// TODO: move error handling out of gitProjectRoot
 
 			status, err := gitStatusOutput()
@@ -123,22 +125,18 @@ func gitStatusOutput() ([]byte, error) {
 	return exec.Command("git", "status", "-z", "-b").Output()
 }
 
-// Returns the root for the git project.
+// Runs git comments  the root for the git project.
+//
+// This handles relative paths within a symlink'd directory correctly,
+// which was previously broken as described in:
+// https://github.com/mroth/scmpuff/issues/11
+//
+// Requires knowing the current working directory.
+//
+// See https://github.com/mroth/scmpuff/pull/94
 //
 // If can't be found, the process will die fatally.
-func gitProjectRoot() string {
-	// This handles relative paths within a symlink'd directory correctly,
-	// which was previously broken as described in:
-	// https://github.com/mroth/scmpuff/issues/11
-
-	// First, try to retrieve the current working directory.
-	wd, err := os.Getwd()
-	if err != nil {
-		msg := "Failed to retrieve current working directory"
-		fmt.Fprintf(os.Stderr, "\033[0;31m%s: %s\033[0m\n", msg, err)
-		os.Exit(128)
-	}
-
+func gitProjectRoot(wd string) string {
 	// `--show-cdup` prints the relative path to the Git repository root,
 	// which we then join with the current working directory.
 	cdup, err := exec.Command("git", "rev-parse", "--show-cdup").Output()
