@@ -2,16 +2,17 @@ package status
 
 // StatusItem represents a single processed item of change from a 'git status'
 type StatusItem struct {
-	changeType
-	fileAbsPath string // absolute filepath for the item
-	fileRelPath string // display "path" for item relative to UX (may be multi-item!)
+	ChangeType
+	FileAbsPath string // absolute filepath for the item
+	FileRelPath string // display "path" for item relative to UX (may be multi-item!)
 }
 
-type changeType int
+// ChangeType represents the type of change for a path in git status
+type ChangeType int
 
+// ChangeType constants represent the different types of changes that can occur in a git status
 const (
-	// Unmerged change types
-	ChangeUnmergedDeletedBoth changeType = iota
+	ChangeUnmergedDeletedBoth ChangeType = iota
 	ChangeUnmergedAddedUs
 	ChangeUnmergedDeletedThem
 	ChangeUnmergedAddedThem
@@ -19,10 +20,8 @@ const (
 	ChangeUnmergedAddedBoth
 	ChangeUnmergedModifiedBoth
 
-	// Untracked change types
 	ChangeUntracked
 
-	// Staged change types
 	ChangeStagedModified
 	ChangeStagedNewFile
 	ChangeStagedDeleted
@@ -30,14 +29,13 @@ const (
 	ChangeStagedCopied
 	ChangeStagedType
 
-	// Unstaged change types
 	ChangeUnstagedModified
 	ChangeUnstagedDeleted
 	ChangeUnstagedType
 )
 
 // changeTypeData maps each changeType to its display information
-var changeTypeData = map[changeType]changeTypeInfo{
+var changeTypeData = map[ChangeType]changeTypeInfo{
 	ChangeUnmergedDeletedBoth:  {msg: "   both deleted", state: DeletedState, group: Unmerged},
 	ChangeUnmergedAddedUs:      {msg: "    added by us", state: NewState, group: Unmerged},
 	ChangeUnmergedDeletedThem:  {msg: "deleted by them", state: DeletedState, group: Unmerged},
@@ -103,7 +101,7 @@ func (sg StatusGroup) Description() string {
 }
 
 // Message returns the display message for the change type
-func (ct changeType) Message() string {
+func (ct ChangeType) Message() string {
 	if info, ok := changeTypeData[ct]; ok {
 		return info.msg
 	}
@@ -111,7 +109,7 @@ func (ct changeType) Message() string {
 }
 
 // State returns the change state for the change type
-func (ct changeType) state() changeState {
+func (ct ChangeType) state() changeState {
 	if info, ok := changeTypeData[ct]; ok {
 		return info.state
 	}
@@ -119,7 +117,7 @@ func (ct changeType) state() changeState {
 }
 
 // StatusGroup returns the status group for the change type
-func (ct changeType) StatusGroup() StatusGroup {
+func (ct ChangeType) StatusGroup() StatusGroup {
 	if info, ok := changeTypeData[ct]; ok {
 		return info.group
 	}

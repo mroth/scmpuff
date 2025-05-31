@@ -196,9 +196,9 @@ func processChange(chunk []byte, wd, root string) ([]StatusItem, error) {
 
 	for _, c := range extractChangeCodes(chunk) {
 		r := StatusItem{
-			changeType:  c,
-			fileAbsPath: absolutePath,
-			fileRelPath: relativePath,
+			ChangeType:  c,
+			FileAbsPath: absolutePath,
+			FileRelPath: relativePath,
 		}
 		results = append(results, r)
 	}
@@ -299,11 +299,11 @@ Below documentation from git status:
 	!           !    ignored
 	-------------------------------------------------
 */
-func extractChangeCodes(chunk []byte) []changeType {
+func extractChangeCodes(chunk []byte) []ChangeType {
 	x := rune(chunk[0])
 	y := rune(chunk[1])
 
-	var changes []changeType
+	var changes []ChangeType
 	if p, found := decodePrimaryChangeCode(x, y); found {
 		changes = append(changes, p)
 	}
@@ -315,7 +315,7 @@ func extractChangeCodes(chunk []byte) []changeType {
 
 // decodePrimaryChangeCode returns the primary change code for a given status,
 // or -1, false if it doesn't match any known codes.
-func decodePrimaryChangeCode(x, y rune) (changeType, bool) {
+func decodePrimaryChangeCode(x, y rune) (ChangeType, bool) {
 	// unmerged cases are simple, only a single change UI is possible
 	switch {
 	case x == 'D' && y == 'D':
@@ -357,7 +357,7 @@ func decodePrimaryChangeCode(x, y rune) (changeType, bool) {
 
 // decodeSecondaryChangeCode returns the secondary change code for a given status,
 // or -1, false if it doesn't match any known codes.
-func decodeSecondaryChangeCode(x, y rune) (changeType, bool) {
+func decodeSecondaryChangeCode(x, y rune) (ChangeType, bool) {
 	switch {
 	case y == 'M': //.M
 		return ChangeUnstagedModified, true

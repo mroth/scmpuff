@@ -146,7 +146,7 @@ func writeDisplayOutput(w io.Writer, sl *Renderer) error {
 func (sl *Renderer) formatParseData() string {
 	items := make([]string, sl.numItems())
 	for i, si := range sl.orderedItems() {
-		items[i] = si.fileAbsPath
+		items[i] = si.FileAbsPath
 	}
 	return strings.Join(items, "\t")
 }
@@ -251,7 +251,7 @@ func formatStatusItemDisplay(item StatusItem, displayNum int) string {
 	}
 
 	// find relative path
-	relFile := item.fileRelPath
+	relFile := item.FileRelPath
 
 	// TODO: if some submodules have changed, parse their summaries from long git
 	// status the way scm_breeze does this requires a second call to git status,

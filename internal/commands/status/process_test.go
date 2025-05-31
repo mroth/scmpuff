@@ -19,19 +19,19 @@ func Test_processChange(t *testing.T) {
 	}
 
 	t.Run("changeset", func(t *testing.T) {
-		if actual.changeType != ChangeStagedNewFile {
+		if actual.ChangeType != ChangeStagedNewFile {
 			t.Errorf("changeType did not match expected")
 		}
 	})
 
 	t.Run("abspath", func(t *testing.T) {
-		if actual.fileAbsPath != filepath.FromSlash("/tmp/HELLO.md") {
+		if actual.FileAbsPath != filepath.FromSlash("/tmp/HELLO.md") {
 			t.Errorf("absolute path did not match expected")
 		}
 	})
 
 	t.Run("relpath", func(t *testing.T) {
-		if actual.fileRelPath == "" {
+		if actual.FileRelPath == "" {
 			t.Errorf("relative path was not present")
 		}
 	})
@@ -140,47 +140,47 @@ func Test_extractChangeCodes(t *testing.T) {
 	// ?? commands/status/process_test.go
 	var testCases = []struct {
 		chunk    []byte
-		expected []changeType
+		expected []ChangeType
 	}{
 		{
 			[]byte("A  HELLO.md"),
-			[]changeType{
+			[]ChangeType{
 				ChangeStagedNewFile,
 			},
 		},
 		{
 			[]byte(" M script/benchmark"),
-			[]changeType{
+			[]ChangeType{
 				ChangeUnstagedModified,
 			},
 		},
 		{
 			[]byte("?? .travis.yml"),
-			[]changeType{
+			[]ChangeType{
 				ChangeUntracked,
 			},
 		},
 		{
 			[]byte(" D deleted_file"),
-			[]changeType{
+			[]ChangeType{
 				ChangeUnstagedDeleted,
 			},
 		},
 		{
 			[]byte("R  after\x00before"),
-			[]changeType{
+			[]ChangeType{
 				ChangeStagedRenamed,
 			},
 		},
 		{
 			[]byte("C  after\x00before"),
-			[]changeType{
+			[]ChangeType{
 				ChangeStagedCopied,
 			},
 		},
 		{
 			[]byte("AM added_then_modified_file"),
-			[]changeType{
+			[]ChangeType{
 				ChangeStagedNewFile,
 				ChangeUnstagedModified,
 			},

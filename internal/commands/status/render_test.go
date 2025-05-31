@@ -48,9 +48,9 @@ func TestRenderer_Display(t *testing.T) {
 			info: StatusInfo{
 				BranchInfo{Name: "main", CommitsAhead: 0, CommitsBehind: 0},
 				[]StatusItem{
-					{changeType: ChangeStagedNewFile, fileAbsPath: "/path/to/new.go", fileRelPath: "new.go"},
-					{changeType: ChangeStagedNewFile, fileAbsPath: "/path/to/new_b.go", fileRelPath: "new_b.go"},
-					{changeType: ChangeStagedModified, fileAbsPath: "/path/to/changed.go", fileRelPath: "changed.go"}},
+					{ChangeType: ChangeStagedNewFile, FileAbsPath: "/path/to/new.go", FileRelPath: "new.go"},
+					{ChangeType: ChangeStagedNewFile, FileAbsPath: "/path/to/new_b.go", FileRelPath: "new_b.go"},
+					{ChangeType: ChangeStagedModified, FileAbsPath: "/path/to/changed.go", FileRelPath: "changed.go"}},
 			},
 		},
 		{
@@ -58,10 +58,10 @@ func TestRenderer_Display(t *testing.T) {
 			info: StatusInfo{
 				BranchInfo{Name: "feature", CommitsAhead: 2, CommitsBehind: 1},
 				[]StatusItem{
-					{changeType: ChangeStagedNewFile, fileAbsPath: "/path/to/new.go", fileRelPath: "new.go"},
-					{changeType: ChangeStagedNewFile, fileAbsPath: "/path/to/new_b.go", fileRelPath: "new_b.go"},
-					{changeType: ChangeUnstagedModified, fileAbsPath: "/path/to/modified.go", fileRelPath: "modified.go"},
-					{changeType: ChangeUntracked, fileAbsPath: "/path/to/untracked.go", fileRelPath: "untracked.go"},
+					{ChangeType: ChangeStagedNewFile, FileAbsPath: "/path/to/new.go", FileRelPath: "new.go"},
+					{ChangeType: ChangeStagedNewFile, FileAbsPath: "/path/to/new_b.go", FileRelPath: "new_b.go"},
+					{ChangeType: ChangeUnstagedModified, FileAbsPath: "/path/to/modified.go", FileRelPath: "modified.go"},
+					{ChangeType: ChangeUntracked, FileAbsPath: "/path/to/untracked.go", FileRelPath: "untracked.go"},
 				},
 			},
 		},
