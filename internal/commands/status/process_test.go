@@ -1,84 +1,33 @@
 package status
 
 import (
-	"fmt"
-	"path/filepath"
 	"reflect"
 	"slices"
 	"testing"
 )
 
-// single test to make sure everything gets stiched together properly, test
-// actual cases in more specific methods
-func Test_processChange(t *testing.T) {
-	chunk := []byte("A  HELLO.md")
-	res, err := processChange(chunk, "/tmp", "/tmp")
-	actual := res[0]
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	t.Run("changeset", func(t *testing.T) {
-		if actual.ChangeType != ChangeStagedNewFile {
-			t.Errorf("changeType did not match expected")
-		}
-	})
-
-	t.Run("abspath", func(t *testing.T) {
-		if actual.FileAbsPath != filepath.FromSlash("/tmp/HELLO.md") {
-			t.Errorf("absolute path did not match expected")
-		}
-	})
-
-	t.Run("relpath", func(t *testing.T) {
-		if actual.FileRelPath == "" {
-			t.Errorf("relative path was not present")
-		}
-	})
-}
-
-func Test_extractFile(t *testing.T) {
+func Test_extractFilePaths(t *testing.T) {
 	var testCases = []struct {
-		root        string
-		wd          string
-		chunk       []byte
-		expectedAbs string
-		expectedRel string
+		chunk        []byte
+		wantPath     string
+		wantOrigPath string
 	}{
 		{
-			root:        "/",
-			wd:          "/",
-			chunk:       []byte(" M script/benchmark"),
-			expectedAbs: filepath.FromSlash("/script/benchmark"),
-			expectedRel: filepath.FromSlash("script/benchmark"),
+			chunk:    []byte(" M script/benchmark.sh"),
+			wantPath: "script/benchmark.sh",
 		},
 		{
-			root:        "/tmp",
-			wd:          "/tmp",
-			chunk:       []byte(" M script/benchmark"),
-			expectedAbs: filepath.FromSlash("/tmp/script/benchmark"),
-			expectedRel: filepath.FromSlash("script/benchmark"),
+			chunk:    []byte("?? unicorn/magic/xxx"),
+			wantPath: "unicorn/magic/xxx",
 		},
 		{
-			root:        "/tmp/foo/bar//",
-			wd:          "/tmp/foo/bar/unicorn",
-			chunk:       []byte("?? unicorn/magic/xxx"),
-			expectedAbs: filepath.FromSlash("/tmp/foo/bar/unicorn/magic/xxx"),
-			expectedRel: filepath.FromSlash("magic/xxx"),
+			chunk:    []byte("?? file with spaces.txt"),
+			wantPath: "file with spaces.txt",
 		},
 		{
-			root:        "/tmp/foo/bar//",
-			wd:          "/tmp/foo/bar/unicorn/magic",
-			chunk:       []byte("?? narwhal/disco/yyy"),
-			expectedAbs: filepath.FromSlash("/tmp/foo/bar/narwhal/disco/yyy"),
-			expectedRel: filepath.FromSlash("../../narwhal/disco/yyy"),
-		},
-		{
-			root:        "/tmp/foo",
-			wd:          "/tmp/foo",
-			chunk:       []byte("R  bar.txt\x00foo.txt"),
-			expectedAbs: filepath.FromSlash("/tmp/foo/bar.txt"),
-			expectedRel: filepath.FromSlash("foo.txt -> bar.txt"),
+			chunk:        []byte("R  b.txt\x00a.txt"),
+			wantPath:     "b.txt",
+			wantOrigPath: "a.txt",
 		},
 		// following examples are ones where scm_breeze strips the escaping that
 		// git status --porcelain does in certain cases.  Now that we are using -z
@@ -87,44 +36,26 @@ func Test_extractFile(t *testing.T) {
 		// (historical note of why we did this: scm_breeze uses the escaped versions
 		//  of output and can fail on complex cases of parsing it!)
 		{
-			root:        "/tmp/foo",
-			wd:          "/tmp/foo",
-			chunk:       []byte(`A  hi there mom.txt`),
-			expectedAbs: filepath.FromSlash("/tmp/foo/hi there mom.txt"),
-			expectedRel: filepath.FromSlash("hi there mom.txt"),
+			chunk:    []byte(`?? "x.txt`),
+			wantPath: `"x.txt`,
 		},
 		{
-			root:        "/tmp/foo",
-			wd:          "/tmp/foo/bar",
-			chunk:       []byte(`?? "x.txt`),
-			expectedAbs: filepath.FromSlash(`/tmp/foo/"x.txt`),
-			expectedRel: filepath.FromSlash(`../"x.txt`),
-		},
-		{
-			root:        "/tmp/foo",
-			wd:          "/tmp/foo",
-			chunk:       []byte(`?? hi m"o"m.txt`),
-			expectedAbs: filepath.FromSlash(`/tmp/foo/hi m"o"m.txt`), //scmbreeze fails these with `hi m"o\`
-			expectedRel: filepath.FromSlash(`hi m"o"m.txt`),
+			chunk:    []byte(`?? hi m"o"m.txt`),
+			wantPath: `hi m"o"m.txt`, //scmbreeze fails these with `hi m"o\`
 		},
 	}
 
 	for _, tc := range testCases {
-		t.Run(fmt.Sprintf("[root:%s],[wd:%s]", tc.root, tc.wd), func(t *testing.T) {
-			actualAbs, actualRel, err := extractFile(tc.chunk, tc.root, tc.wd)
+		t.Run(string(tc.chunk), func(t *testing.T) {
+			gotPath, gotOrigPath, err := extractFilePaths(tc.chunk)
 			if err != nil {
-				t.Fatal(err)
+				t.Fatalf("extractFilePaths(%s): unexpected error: %v", tc.chunk, err)
 			}
-
-			if actualAbs != tc.expectedAbs {
-				t.Fatalf(
-					"extractFile(%s)/absPath:\nexpect\t%v\nactual\t%v",
-					tc.chunk, tc.expectedAbs, actualAbs)
+			if gotPath != tc.wantPath {
+				t.Errorf("extractFilePaths(%s): expected path %s, got %s", tc.chunk, tc.wantPath, gotPath)
 			}
-			if actualRel != tc.expectedRel {
-				t.Fatalf(
-					"extractFile(%s)/relPath:\nexpect\t%v\nactual\t%v",
-					tc.chunk, tc.expectedRel, actualRel)
+			if gotOrigPath != tc.wantOrigPath {
+				t.Errorf("extractFilePaths(%s): expected origPath %s, got %s", tc.chunk, tc.wantOrigPath, gotOrigPath)
 			}
 		})
 	}
@@ -297,69 +228,3 @@ func TestBrokenProcessChanges(t *testing.T) {
 	}
 }
 */
-
-func Test_calcPaths(t *testing.T) {
-	type args struct {
-		rootPath string
-		root     string
-		wd       string
-	}
-	tests := []struct {
-		name        string
-		args        args
-		wantAbsPath string
-		wantRelPath string
-	}{
-		{
-			name: "everything in root",
-			args: args{
-				rootPath: "a.txt",
-				root:     "/tmp/foo",
-				wd:       "/tmp/foo",
-			},
-			wantAbsPath: filepath.FromSlash("/tmp/foo/a.txt"),
-			wantRelPath: filepath.FromSlash("a.txt"),
-		},
-		{
-			name: "change in subdir",
-			args: args{
-				rootPath: "bar/c.txt",
-				root:     "/tmp/foo",
-				wd:       "/tmp/foo",
-			},
-			wantAbsPath: filepath.FromSlash("/tmp/foo/bar/c.txt"),
-			wantRelPath: filepath.FromSlash("bar/c.txt"),
-		},
-		{
-			name: "change in parent to wd",
-			args: args{
-				rootPath: "a.txt",
-				root:     "/tmp/foo",
-				wd:       "/tmp/foo/bar",
-			},
-			wantAbsPath: filepath.FromSlash("/tmp/foo/a.txt"),
-			wantRelPath: filepath.FromSlash("../a.txt"),
-		},
-		{
-			name: "handle trailing slashes",
-			args: args{
-				rootPath: "a.txt",
-				root:     "/tmp/foo/",
-				wd:       "/tmp/foo/bar/",
-			},
-			wantAbsPath: filepath.FromSlash("/tmp/foo/a.txt"),
-			wantRelPath: filepath.FromSlash("../a.txt"),
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			gotAbsPath, gotRelPath := calcPaths(tt.args.rootPath, tt.args.root, tt.args.wd)
-			if gotAbsPath != tt.wantAbsPath {
-				t.Errorf("calcPaths() gotAbsPath = %v, want %v", gotAbsPath, tt.wantAbsPath)
-			}
-			if gotRelPath != tt.wantRelPath {
-				t.Errorf("calcPaths() gotRelPath = %v, want %v", gotRelPath, tt.wantRelPath)
-			}
-		})
-	}
-}

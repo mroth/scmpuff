@@ -58,12 +58,12 @@ see 'scmpuff init'.)
 				log.Fatal("fatal: error running git status command:", err)
 			}
 
-			info, err := Process(status, root, wd)
+			info, err := Process(status)
 			if err != nil {
 				log.Fatal("fatal: failed to process git status output:", err)
 			}
 
-			renderer, err := NewRenderer(info)
+			renderer, err := NewRenderer(info, root, wd)
 			if err != nil {
 				log.Fatal("fatal: failed to create status renderer:", err)
 			}

@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"path/filepath"
 	"regexp"
 	"strconv"
 )
@@ -16,7 +15,7 @@ import (
 //
 // In the output the first segment of the output format is the git branch
 // status, and the rest is the git status info.
-func Process(gitStatusOutput []byte, root, wd string) (*StatusInfo, error) {
+func Process(gitStatusOutput []byte) (*StatusInfo, error) {
 	// NOTE: in the future, we may wish to consume an io.Reader instead of
 	// a byte slice, such that we can read from a pipe or other source
 	// without needing to buffer the entire output in memory first.  For now,
@@ -36,7 +35,7 @@ func Process(gitStatusOutput []byte, root, wd string) (*StatusInfo, error) {
 	}
 
 	// process the remaining NUL-separated sections, which contain the status items
-	statuses, err := ProcessChanges(remaining, root, wd)
+	statuses, err := ProcessChanges(remaining)
 	if err != nil {
 		return nil, err
 	}
@@ -143,7 +142,7 @@ until we have consumed a full entry.
 We put up with this because it means no shell escaping, which should mean better
 cross-platform support. Better hope some Windows people end up using it someday!
 */
-func ProcessChanges(r io.Reader, root, wd string) ([]StatusItem, error) {
+func ProcessChanges(r io.Reader) ([]StatusItem, error) {
 	s := bufio.NewScanner(r)
 	s.Split(nulSplitFunc) // custom split function for splitting on NUL
 
@@ -165,7 +164,7 @@ func ProcessChanges(r io.Reader, root, wd string) ([]StatusItem, error) {
 			composite = append(composite, s.Bytes()...)
 			chunk = composite
 		}
-		statuses, err := processChange(chunk, wd, root)
+		statuses, err := processChange(chunk)
 		if err != nil {
 			return results, err
 		}
@@ -187,18 +186,18 @@ func nulSplitFunc(data []byte, atEOF bool) (advance int, token []byte, err error
 // processChange for a single item chunk from a `git status --porcelain=v1 -z`.
 //
 // Note some change items can produce multiple statuses(!), so this returns a slice.
-func processChange(chunk []byte, wd, root string) ([]StatusItem, error) {
+func processChange(chunk []byte) ([]StatusItem, error) {
 	var results []StatusItem
-	absolutePath, relativePath, err := extractFile(chunk, root, wd)
+	targetPath, origPath, err := extractFilePaths(chunk)
 	if err != nil {
 		return nil, err
 	}
 
 	for _, c := range extractChangeCodes(chunk) {
 		r := StatusItem{
-			ChangeType:  c,
-			FileAbsPath: absolutePath,
-			FileRelPath: relativePath,
+			ChangeType: c,
+			Path:       targetPath,
+			OrigPath:   origPath,
 		}
 		results = append(results, r)
 	}
@@ -216,54 +215,20 @@ You can file the bug at: https://github.com/mroth/scmpuff/issues/
 	return results, nil
 }
 
-// extractFile extracts the filename from a status change, and determines the
-// absolute and display paths.
-//
-// Inputs:
-//   - root: the absolute path of the git working tree
-//   - wd: current working directory path
-func extractFile(chunk []byte, root, wd string) (absPath, relPath string, err error) {
+// extractFile extracts the file paths from a status change chunk
+// origPath will be empty if the file was not renamed or copied.
+func extractFilePaths(chunk []byte) (targetPath, origPath string, err error) {
 	filePortion := chunk[3:]                              // file identifier starts at pos4 and continues to EOL
 	files := bytes.SplitN(filePortion, []byte{'\x00'}, 2) // files split on NUL (-z option), 2 max
 
-	numFiles := len(files)
-	switch numFiles {
+	switch len(files) {
 	case 1:
-		// display path for a single file operation is just the relative path
-		absPath, relPath = calcPaths(string(files[0]), root, wd)
-		return
+		return string(files[0]), "", nil
 	case 2:
-		// display path for rename/copy operations is a human readable display combination of the from->to relPaths
-		toFile, fromFile := string(files[0]), string(files[1])
-		toAbsPath, toRelPath := calcPaths(toFile, root, wd)
-		_, fromRelPath := calcPaths(fromFile, root, wd)
-
-		absPath = toAbsPath
-		relPath = fmt.Sprintf("%s -> %s", fromRelPath, toRelPath)
-		return
+		return string(files[0]), string(files[1]), nil
 	default:
-		return "", "", fmt.Errorf("extractFile: failed processing chunk, unexpected number of file fields: %d", numFiles)
+		return "", "", fmt.Errorf("extractFile: failed processing chunk, unexpected number of file fields: %d", len(files))
 	}
-}
-
-// calcPaths calculates the absolute and relative paths for a file.
-//
-// Inputs:
-//   - rootPath: path of file relative to git root (what git porcelain returns)
-//   - root: absolute path of the git working tree
-//   - wd: current working directory path
-//
-// TODO: The callsite for this should be moved up the stack, to seperate this functionality
-// from the git status parsing logic.
-func calcPaths(rootPath, root, wd string) (absPath, relPath string) {
-	file := rootPath
-	absPath = filepath.Join(root, string(file))
-	relPath, err := filepath.Rel(wd, absPath)
-	if err != nil {
-		// if we can't calculate relative path, fallback to absolute path
-		relPath = absPath
-	}
-	return
 }
 
 /*

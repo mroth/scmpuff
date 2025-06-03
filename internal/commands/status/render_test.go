@@ -26,8 +26,9 @@ func TestMain(m *testing.M) {
 
 func TestRenderer_Display(t *testing.T) {
 	testCases := []struct {
-		name string
-		info StatusInfo
+		name      string
+		info      StatusInfo
+		root, cwd string
 	}{
 		{
 			name: "empty",
@@ -48,22 +49,26 @@ func TestRenderer_Display(t *testing.T) {
 			info: StatusInfo{
 				BranchInfo{Name: "main", CommitsAhead: 0, CommitsBehind: 0},
 				[]StatusItem{
-					{ChangeType: ChangeStagedNewFile, FileAbsPath: "/path/to/new.go", FileRelPath: "new.go"},
-					{ChangeType: ChangeStagedNewFile, FileAbsPath: "/path/to/new_b.go", FileRelPath: "new_b.go"},
-					{ChangeType: ChangeStagedModified, FileAbsPath: "/path/to/changed.go", FileRelPath: "changed.go"}},
+					{ChangeType: ChangeStagedNewFile, Path: "new.go"},
+					{ChangeType: ChangeStagedNewFile, Path: "new_b.go"},
+					{ChangeType: ChangeStagedModified, Path: "changed.go"}},
 			},
+			root: "/path/to",
+			cwd:  "/path/to",
 		},
 		{
 			name: "complex_mix",
 			info: StatusInfo{
 				BranchInfo{Name: "feature", CommitsAhead: 2, CommitsBehind: 1},
 				[]StatusItem{
-					{ChangeType: ChangeStagedNewFile, FileAbsPath: "/path/to/new.go", FileRelPath: "new.go"},
-					{ChangeType: ChangeStagedNewFile, FileAbsPath: "/path/to/new_b.go", FileRelPath: "new_b.go"},
-					{ChangeType: ChangeUnstagedModified, FileAbsPath: "/path/to/modified.go", FileRelPath: "modified.go"},
-					{ChangeType: ChangeUntracked, FileAbsPath: "/path/to/untracked.go", FileRelPath: "untracked.go"},
+					{ChangeType: ChangeStagedNewFile, Path: "new.go"},
+					{ChangeType: ChangeStagedNewFile, Path: "new_b.go"},
+					{ChangeType: ChangeUnstagedModified, Path: "modified.go"},
+					{ChangeType: ChangeUntracked, Path: "untracked.go"},
 				},
 			},
+			root: "/path/to",
+			cwd:  "/path/to",
 		},
 	}
 
@@ -80,7 +85,7 @@ func TestRenderer_Display(t *testing.T) {
 
 			for _, oc := range optionCases {
 				t.Run(oc.name, func(t *testing.T) {
-					renderer, err := NewRenderer(&tc.info)
+					renderer, err := NewRenderer(&tc.info, tc.root, tc.cwd)
 					if err != nil {
 						t.Fatalf("NewRenderer() error: %v", err)
 					}

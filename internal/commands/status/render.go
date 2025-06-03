@@ -27,9 +27,10 @@ type BranchInfo struct {
 type Renderer struct {
 	branch       BranchInfo
 	groupedItems map[StatusGroup][]StatusItem // re-organize items by their StatusGroup
+	root, cwd    string                       // root and cwd are used to calculate paths for display
 }
 
-func NewRenderer(info *StatusInfo) (*Renderer, error) {
+func NewRenderer(info *StatusInfo, root, cwd string) (*Renderer, error) {
 	if info == nil {
 		return nil, fmt.Errorf("status info cannot be nil")
 	}
@@ -43,6 +44,8 @@ func NewRenderer(info *StatusInfo) (*Renderer, error) {
 	return &Renderer{
 		branch:       info.Branch,
 		groupedItems: groupedItems,
+		root:         root,
+		cwd:          cwd,
 	}, nil
 }
 
@@ -123,7 +126,7 @@ func writeDisplayOutput(w io.Writer, sl *Renderer) error {
 			b.WriteString(formatHeaderForGroup(group))
 
 			for _, item := range items {
-				b.WriteString(formatStatusItemDisplay(item, itemNumber))
+				b.WriteString(sl.formatStatusItemDisplay(item, itemNumber))
 				itemNumber++
 			}
 
@@ -146,7 +149,7 @@ func writeDisplayOutput(w io.Writer, sl *Renderer) error {
 func (sl *Renderer) formatParseData() string {
 	items := make([]string, sl.numItems())
 	for i, si := range sl.orderedItems() {
-		items[i] = si.FileAbsPath
+		items[i] = si.AbsPath(sl.root)
 	}
 	return strings.Join(items, "\t")
 }
@@ -235,7 +238,7 @@ func formatFooterForGroup(group StatusGroup) string {
 // Colorized version of something like this:
 //
 //	#       modified: [1] commands/status/constants.go
-func formatStatusItemDisplay(item StatusItem, displayNum int) string {
+func (sl *Renderer) formatStatusItemDisplay(item StatusItem, displayNum int) string {
 	// Determine padding size
 	// scm_breeze does the following (Ruby code):
 	//
@@ -251,7 +254,7 @@ func formatStatusItemDisplay(item StatusItem, displayNum int) string {
 	}
 
 	// find relative path
-	relFile := item.FileRelPath
+	relFile := item.DisplayPath(sl.root, sl.cwd)
 
 	// TODO: if some submodules have changed, parse their summaries from long git
 	// status the way scm_breeze does this requires a second call to git status,
