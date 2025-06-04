@@ -240,35 +240,24 @@ func formatFooterForGroup(group StatusGroup) string {
 //
 //	#       modified: [1] commands/status/constants.go
 func (sl *Renderer) formatStatusItemDisplay(item StatusItem, displayNum int) string {
-	// Determine padding size
-	// scm_breeze does the following (Ruby code):
-	//
-	// 		padding = (@e < 10 && @changes.size >= 10) ? " " : ""
-	//
-	// instead of scm_breeze method, let's just fix the width at 2, so the output
-	// is consistently spaced for e<=99, really we don't need to worry about the
-	// one lost extra space when max(e)<10, I'd rather the spacing just be the
-	// same.
+	// Get configured colors for the item display based on status group and state.
+	groupColor := string(groupColors[item.StatusGroup()])
+	stateColor := string(stateColors[item.state()])
+
+	// For reasons lost to time, I originally decided to use a fixed width of 2
+	// to pad the display number, so that entries 1-99 would align nicely.
+	// scm_breeze uses a variable width of 1 or 2 depending on the number of
+	// items in the list, but I went for consistency instead. At some point I
+	// should probably look at what the rendering looks like with N>99 items.
 	var padding string
 	if displayNum < 10 {
 		padding = " "
 	}
 
-	// find relative path
-	relFile := item.DisplayPath(sl.root, sl.cwd)
-
-	// TODO: if some submodules have changed, parse their summaries from long git
-	// status the way scm_breeze does this requires a second call to git status,
-	// which seems slow so maybe we will skip this for now?
-	//
-	// note to future self: format would add a final " %s" to output printf to
-	// accommodate.
-
-	groupColor := string(groupColors[item.StatusGroup()])
-	stateColor := string(stateColors[item.state()])
+	itemDisplayPath := item.DisplayPath(sl.root, sl.cwd)
 	return fmt.Sprintf(
 		"%s#%s     %s%s:%s%s [%s%d%s] %s%s%s\n",
 		groupColor, ResetColor, stateColor, item.Message(), padding, DimColor,
-		ResetColor, displayNum, DimColor, groupColor, relFile, ResetColor,
+		ResetColor, displayNum, DimColor, groupColor, itemDisplayPath, ResetColor,
 	)
 }
