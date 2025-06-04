@@ -4,6 +4,22 @@ import (
 	"path/filepath"
 )
 
+// StatusInfo contains the information about git working tree status that is
+// necessary to display the status in a user-friendly way (e.g. git status)
+// It includes the branch information and a list of status items.
+type StatusInfo struct {
+	Branch BranchInfo
+	Items  []StatusItem
+}
+
+// BranchInfo contains all information needed about the active git branch, as
+// well as its status relative to upstream commits.
+type BranchInfo struct {
+	Name          string // name of the active branch
+	CommitsAhead  int    // commit position relative to upstream, e.g. +1
+	CommitsBehind int    // commit position relative to upstream, e.g. -3
+}
+
 // StatusItem represents a single processed item of change from a 'git status'
 type StatusItem struct {
 	ChangeType
