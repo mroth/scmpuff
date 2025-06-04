@@ -1,4 +1,4 @@
-package status
+package porcelainv1
 
 import (
 	"bufio"
@@ -8,6 +8,8 @@ import (
 	"io"
 	"regexp"
 	"strconv"
+
+	"github.com/mroth/scmpuff/internal/commands/status/gitstatus"
 )
 
 // Process takes the raw output of `git status --porcelain=v1 -b -z` and
@@ -15,7 +17,7 @@ import (
 //
 // In the output the first segment of the output format is the git branch
 // status, and the rest is the git status info.
-func Process(gitStatusOutput []byte) (*StatusInfo, error) {
+func Process(gitStatusOutput []byte) (*gitstatus.StatusInfo, error) {
 	// NOTE: in the future, we may wish to consume an io.Reader instead of
 	// a byte slice, such that we can read from a pipe or other source
 	// without needing to buffer the entire output in memory first.  For now,
@@ -40,7 +42,7 @@ func Process(gitStatusOutput []byte) (*StatusInfo, error) {
 		return nil, err
 	}
 
-	return &StatusInfo{Branch: branch, Items: statuses}, nil
+	return &gitstatus.StatusInfo{Branch: branch, Items: statuses}, nil
 }
 
 // cutFirstSegment returns the first NUL-separated segment from r, and an io.Reader with the remainder of r.
@@ -70,14 +72,14 @@ func cutFirstSegment(r io.Reader) ([]byte, io.Reader, error) {
 //	## master
 //	## master...origin/master
 //	## master...origin/master [ahead 1]
-func ExtractBranch(bs []byte) (BranchInfo, error) {
+func ExtractBranch(bs []byte) (gitstatus.BranchInfo, error) {
 	name, err := decodeBranchName(bs)
 	if err != nil {
-		return BranchInfo{}, err
+		return gitstatus.BranchInfo{}, err
 	}
 	a, b := decodeBranchPosition(bs)
 
-	return BranchInfo{
+	return gitstatus.BranchInfo{
 		Name:          name,
 		CommitsAhead:  a,
 		CommitsBehind: b,
@@ -142,11 +144,11 @@ until we have consumed a full entry.
 We put up with this because it means no shell escaping, which should mean better
 cross-platform support. Better hope some Windows people end up using it someday!
 */
-func ProcessChanges(r io.Reader) ([]StatusItem, error) {
+func ProcessChanges(r io.Reader) ([]gitstatus.StatusItem, error) {
 	s := bufio.NewScanner(r)
 	s.Split(nulSplitFunc) // custom split function for splitting on NUL
 
-	var results []StatusItem
+	var results []gitstatus.StatusItem
 	for s.Scan() {
 		chunk := s.Bytes()
 		// ...if chunk represents a rename or copy op, need to append another chunk
@@ -186,15 +188,15 @@ func nulSplitFunc(data []byte, atEOF bool) (advance int, token []byte, err error
 // processChange for a single item chunk from a `git status --porcelain=v1 -z`.
 //
 // Note some change items can produce multiple statuses(!), so this returns a slice.
-func processChange(chunk []byte) ([]StatusItem, error) {
-	var results []StatusItem
+func processChange(chunk []byte) ([]gitstatus.StatusItem, error) {
+	var results []gitstatus.StatusItem
 	targetPath, origPath, err := extractFilePaths(chunk)
 	if err != nil {
 		return nil, err
 	}
 
 	for _, c := range extractChangeCodes(chunk) {
-		r := StatusItem{
+		r := gitstatus.StatusItem{
 			ChangeType: c,
 			Path:       targetPath,
 			OrigPath:   origPath,
@@ -264,11 +266,11 @@ Below documentation from git status:
 	!           !    ignored
 	-------------------------------------------------
 */
-func extractChangeCodes(chunk []byte) []ChangeType {
+func extractChangeCodes(chunk []byte) []gitstatus.ChangeType {
 	x := rune(chunk[0])
 	y := rune(chunk[1])
 
-	var changes []ChangeType
+	var changes []gitstatus.ChangeType
 	if p, found := decodePrimaryChangeCode(x, y); found {
 		changes = append(changes, p)
 	}
@@ -280,41 +282,41 @@ func extractChangeCodes(chunk []byte) []ChangeType {
 
 // decodePrimaryChangeCode returns the primary change code for a given status,
 // or -1, false if it doesn't match any known codes.
-func decodePrimaryChangeCode(x, y rune) (ChangeType, bool) {
+func decodePrimaryChangeCode(x, y rune) (gitstatus.ChangeType, bool) {
 	// unmerged cases are simple, only a single change UI is possible
 	switch {
 	case x == 'D' && y == 'D':
-		return ChangeUnmergedDeletedBoth, true
+		return gitstatus.ChangeUnmergedDeletedBoth, true
 	case x == 'A' && y == 'U':
-		return ChangeUnmergedAddedUs, true
+		return gitstatus.ChangeUnmergedAddedUs, true
 	case x == 'U' && y == 'D':
-		return ChangeUnmergedDeletedThem, true
+		return gitstatus.ChangeUnmergedDeletedThem, true
 	case x == 'U' && y == 'A':
-		return ChangeUnmergedAddedThem, true
+		return gitstatus.ChangeUnmergedAddedThem, true
 	case x == 'D' && y == 'U':
-		return ChangeUnmergedDeletedUs, true
+		return gitstatus.ChangeUnmergedDeletedUs, true
 	case x == 'A' && y == 'A':
-		return ChangeUnmergedAddedBoth, true
+		return gitstatus.ChangeUnmergedAddedBoth, true
 	case x == 'U' && y == 'U':
-		return ChangeUnmergedModifiedBoth, true
+		return gitstatus.ChangeUnmergedModifiedBoth, true
 	case x == '?' && y == '?':
-		return ChangeUntracked, true
+		return gitstatus.ChangeUntracked, true
 	}
 
 	// staged changes are all single X cases
 	switch x {
 	case 'M':
-		return ChangeStagedModified, true
+		return gitstatus.ChangeStagedModified, true
 	case 'A':
-		return ChangeStagedNewFile, true
+		return gitstatus.ChangeStagedNewFile, true
 	case 'D':
-		return ChangeStagedDeleted, true
+		return gitstatus.ChangeStagedDeleted, true
 	case 'R':
-		return ChangeStagedRenamed, true
+		return gitstatus.ChangeStagedRenamed, true
 	case 'C':
-		return ChangeStagedCopied, true
+		return gitstatus.ChangeStagedCopied, true
 	case 'T':
-		return ChangeStagedType, true
+		return gitstatus.ChangeStagedType, true
 	}
 
 	return -1, false
@@ -322,15 +324,15 @@ func decodePrimaryChangeCode(x, y rune) (ChangeType, bool) {
 
 // decodeSecondaryChangeCode returns the secondary change code for a given status,
 // or -1, false if it doesn't match any known codes.
-func decodeSecondaryChangeCode(x, y rune) (ChangeType, bool) {
+func decodeSecondaryChangeCode(x, y rune) (gitstatus.ChangeType, bool) {
 	switch {
 	case y == 'M': //.M
-		return ChangeUnstagedModified, true
+		return gitstatus.ChangeUnstagedModified, true
 	// Don't show deleted 'y' during a merge conflict.
 	case y == 'D' && x != 'D' && x != 'U': //[!D!U]D
-		return ChangeUnstagedDeleted, true
+		return gitstatus.ChangeUnstagedDeleted, true
 	case y == 'T': //.T
-		return ChangeUnstagedType, true
+		return gitstatus.ChangeUnstagedType, true
 	}
 
 	return -1, false

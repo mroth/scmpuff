@@ -1,5 +1,7 @@
 package status
 
+import "github.com/mroth/scmpuff/internal/commands/status/gitstatus"
+
 // Color represents an ANSI color code
 type Color string
 
@@ -18,28 +20,28 @@ const (
 )
 
 // Semantic color mappings for different change states
-var stateColors = map[changeState]Color{
-	NewState:         YellowColor,
-	ModifiedState:    GreenColor,
-	DeletedState:     RedColor,
-	UntrackedState:   CyanColor,
-	RenamedState:     BlueColor,
-	CopiedState:      YellowColor,
-	TypeChangedState: MagentaColor,
+var stateColors = map[gitstatus.ChangeState]Color{
+	gitstatus.NewState:         YellowColor,
+	gitstatus.ModifiedState:    GreenColor,
+	gitstatus.DeletedState:     RedColor,
+	gitstatus.UntrackedState:   CyanColor,
+	gitstatus.RenamedState:     BlueColor,
+	gitstatus.CopiedState:      YellowColor,
+	gitstatus.TypeChangedState: MagentaColor,
 }
 
 // Group color mappings for status groups
-var groupColors = map[StatusGroup]Color{
-	Staged:    YellowColor,
-	Unmerged:  RedColor,
-	Unstaged:  GreenColor,
-	Untracked: CyanColor,
+var groupColors = map[gitstatus.StatusGroup]Color{
+	gitstatus.Staged:    YellowColor,
+	gitstatus.Unmerged:  RedColor,
+	gitstatus.Unstaged:  GreenColor,
+	gitstatus.Untracked: CyanColor,
 }
 
 // Bold group colors for headers (arrows)
-var groupBoldColors = map[StatusGroup]Color{
-	Staged:    "\033[1;33m", // bold yellow
-	Unmerged:  "\033[1;31m", // bold red
-	Unstaged:  "\033[1;32m", // bold green
-	Untracked: "\033[1;36m", // bold cyan
+var groupBoldColors = map[gitstatus.StatusGroup]Color{
+	gitstatus.Staged:    "\033[1;33m", // bold yellow
+	gitstatus.Unmerged:  "\033[1;31m", // bold red
+	gitstatus.Unstaged:  "\033[1;32m", // bold green
+	gitstatus.Untracked: "\033[1;36m", // bold cyan
 }

@@ -9,6 +9,7 @@ import (
 	"os/exec"
 	"path/filepath"
 
+	"github.com/mroth/scmpuff/internal/commands/status/gitstatus/porcelainv1"
 	"github.com/spf13/cobra"
 )
 
@@ -58,7 +59,7 @@ see 'scmpuff init'.)
 				log.Fatal("fatal: error running git status command:", err)
 			}
 
-			info, err := Process(status)
+			info, err := porcelainv1.Process(status)
 			if err != nil {
 				log.Fatal("fatal: failed to process git status output:", err)
 			}

@@ -1,4 +1,4 @@
-package status
+package gitstatus
 
 import (
 	"runtime"

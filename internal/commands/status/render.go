@@ -5,25 +5,27 @@ import (
 	"fmt"
 	"io"
 	"strings"
+
+	"github.com/mroth/scmpuff/internal/commands/status/gitstatus"
 )
 
 // A Renderer formats git status information for display to the screen.
 type Renderer struct {
-	branch       BranchInfo
-	groupedItems map[StatusGroup][]StatusItem // re-organize items by their StatusGroup
-	root, cwd    string                       // root and cwd are used to calculate paths for display
+	branch       gitstatus.BranchInfo
+	groupedItems map[gitstatus.StatusGroup][]gitstatus.StatusItem // re-organize items by their StatusGroup
+	root, cwd    string                                           // root and cwd are used to calculate paths for display
 }
 
 // NewRenderer creates a new Renderer instance from the provided StatusInfo.
 //
 // The git repository root and current working directory (cwd) must also be provided
 // to correctly format the paths for display.
-func NewRenderer(info *StatusInfo, root, cwd string) (*Renderer, error) {
+func NewRenderer(info *gitstatus.StatusInfo, root, cwd string) (*Renderer, error) {
 	if info == nil {
 		return nil, fmt.Errorf("status info cannot be nil")
 	}
 
-	groupedItems := make(map[StatusGroup][]StatusItem)
+	groupedItems := make(map[gitstatus.StatusGroup][]gitstatus.StatusItem)
 	for _, item := range info.Items {
 		group := item.StatusGroup()
 		groupedItems[group] = append(groupedItems[group], item)
@@ -38,25 +40,25 @@ func NewRenderer(info *StatusInfo, root, cwd string) (*Renderer, error) {
 }
 
 // Add appends a StatusItem to the Renderer, organizing it by its StatusGroup.
-func (r *Renderer) Add(item StatusItem) {
+func (r *Renderer) Add(item gitstatus.StatusItem) {
 	group := item.StatusGroup()
 	r.groupedItems[group] = append(r.groupedItems[group], item)
 }
 
 // groupOrdering is the hardcoded list of the order StatusGroups should be displayed in
-var groupOrdering = []StatusGroup{
-	Staged,
-	Unmerged,
-	Unstaged,
-	Untracked,
+var groupOrdering = []gitstatus.StatusGroup{
+	gitstatus.Staged,
+	gitstatus.Unmerged,
+	gitstatus.Unstaged,
+	gitstatus.Untracked,
 }
 
 // orderedItems returns a slice of all StatusItems for the list regardless of what
 // StatusGroup they belong to.
 //
 // However, we need to be careful to return them in the same order always.
-func (r *Renderer) orderedItems() []StatusItem {
-	var items []StatusItem
+func (r *Renderer) orderedItems() []gitstatus.StatusItem {
+	var items []gitstatus.StatusItem
 	for _, g := range groupOrdering {
 		if groupItems, ok := r.groupedItems[g]; ok {
 			items = append(items, groupItems...)
@@ -156,7 +158,7 @@ func (r *Renderer) formatBranchBanner() string {
 }
 
 // formatBranchBannerPrelude makes string for first half of the status banner.
-func formatBranchBannerPrelude(b BranchInfo) string {
+func formatBranchBannerPrelude(b gitstatus.BranchInfo) string {
 	diffStr := formatUpstreamDiffIndicator(b)
 	var diffFormatted string
 	if diffStr != "" {
@@ -175,7 +177,7 @@ func formatBranchBannerPrelude(b BranchInfo) string {
 }
 
 // formatUpstreamDiffIndicator formats the +1/-2 ahead/behind diff indicator for a branch relative to upstream
-func formatUpstreamDiffIndicator(b BranchInfo) string {
+func formatUpstreamDiffIndicator(b gitstatus.BranchInfo) string {
 	switch {
 	case b.CommitsAhead > 0 && b.CommitsBehind > 0:
 		return fmt.Sprintf("+%d/-%d", b.CommitsAhead, b.CommitsBehind)
@@ -209,7 +211,7 @@ func bannerNoChanges() string {
 //
 //	➤ Changes not staged for commit
 //	#
-func formatHeaderForGroup(group StatusGroup) string {
+func formatHeaderForGroup(group gitstatus.StatusGroup) string {
 	groupColor := groupColors[group]
 	groupBoldColor := groupBoldColors[group]
 	return fmt.Sprintf(
@@ -219,7 +221,7 @@ func formatHeaderForGroup(group StatusGroup) string {
 }
 
 // formatFooterForGroup prints a final "#" for vertical padding
-func formatFooterForGroup(group StatusGroup) string {
+func formatFooterForGroup(group gitstatus.StatusGroup) string {
 	groupColor := groupColors[group]
 	return fmt.Sprintf("%s#%s\n", groupColor, ResetColor)
 }
@@ -229,10 +231,10 @@ func formatFooterForGroup(group StatusGroup) string {
 // Colorized version of something like this:
 //
 //	#       modified: [1] commands/status/constants.go
-func (r *Renderer) formatStatusItemDisplay(item StatusItem, displayNum int) string {
+func (r *Renderer) formatStatusItemDisplay(item gitstatus.StatusItem, displayNum int) string {
 	// Get configured colors for the item display based on status group and state.
 	groupColor := string(groupColors[item.StatusGroup()])
-	stateColor := string(stateColors[item.state()])
+	stateColor := string(stateColors[item.State()])
 
 	// For reasons lost to time, I originally decided to use a fixed width of 2
 	// to pad the display number, so that entries 1-99 would align nicely.

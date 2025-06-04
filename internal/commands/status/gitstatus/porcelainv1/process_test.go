@@ -1,9 +1,11 @@
-package status
+package porcelainv1
 
 import (
 	"reflect"
 	"slices"
 	"testing"
+
+	"github.com/mroth/scmpuff/internal/commands/status/gitstatus"
 )
 
 func Test_extractFilePaths(t *testing.T) {
@@ -71,49 +73,49 @@ func Test_extractChangeCodes(t *testing.T) {
 	// ?? commands/status/process_test.go
 	var testCases = []struct {
 		chunk    []byte
-		expected []ChangeType
+		expected []gitstatus.ChangeType
 	}{
 		{
 			[]byte("A  HELLO.md"),
-			[]ChangeType{
-				ChangeStagedNewFile,
+			[]gitstatus.ChangeType{
+				gitstatus.ChangeStagedNewFile,
 			},
 		},
 		{
 			[]byte(" M script/benchmark"),
-			[]ChangeType{
-				ChangeUnstagedModified,
+			[]gitstatus.ChangeType{
+				gitstatus.ChangeUnstagedModified,
 			},
 		},
 		{
 			[]byte("?? .travis.yml"),
-			[]ChangeType{
-				ChangeUntracked,
+			[]gitstatus.ChangeType{
+				gitstatus.ChangeUntracked,
 			},
 		},
 		{
 			[]byte(" D deleted_file"),
-			[]ChangeType{
-				ChangeUnstagedDeleted,
+			[]gitstatus.ChangeType{
+				gitstatus.ChangeUnstagedDeleted,
 			},
 		},
 		{
 			[]byte("R  after\x00before"),
-			[]ChangeType{
-				ChangeStagedRenamed,
+			[]gitstatus.ChangeType{
+				gitstatus.ChangeStagedRenamed,
 			},
 		},
 		{
 			[]byte("C  after\x00before"),
-			[]ChangeType{
-				ChangeStagedCopied,
+			[]gitstatus.ChangeType{
+				gitstatus.ChangeStagedCopied,
 			},
 		},
 		{
 			[]byte("AM added_then_modified_file"),
-			[]ChangeType{
-				ChangeStagedNewFile,
-				ChangeUnstagedModified,
+			[]gitstatus.ChangeType{
+				gitstatus.ChangeStagedNewFile,
+				gitstatus.ChangeUnstagedModified,
 			},
 		},
 	}
@@ -138,55 +140,55 @@ func TestExtractBranch(t *testing.T) {
 	//	## master...origin/master [ahead 1]
 	var testCases = []struct {
 		chunk    []byte
-		expected BranchInfo
+		expected gitstatus.BranchInfo
 	}{
 		{
 			[]byte("## master"),
-			BranchInfo{Name: "master", CommitsAhead: 0, CommitsBehind: 0},
+			gitstatus.BranchInfo{Name: "master", CommitsAhead: 0, CommitsBehind: 0},
 		},
 		{
 			[]byte("## GetUpGetDown09-11JokeInYoTown"),
-			BranchInfo{Name: "GetUpGetDown09-11JokeInYoTown", CommitsAhead: 0, CommitsBehind: 0},
+			gitstatus.BranchInfo{Name: "GetUpGetDown09-11JokeInYoTown", CommitsAhead: 0, CommitsBehind: 0},
 		},
 		{
 			[]byte("## master...origin/master"),
-			BranchInfo{Name: "master", CommitsAhead: 0, CommitsBehind: 0},
+			gitstatus.BranchInfo{Name: "master", CommitsAhead: 0, CommitsBehind: 0},
 		},
 		{
 			[]byte("## upstream...upstream/master"),
-			BranchInfo{Name: "upstream", CommitsAhead: 0, CommitsBehind: 0},
+			gitstatus.BranchInfo{Name: "upstream", CommitsAhead: 0, CommitsBehind: 0},
 		},
 		{
 			[]byte("## master...origin/master [ahead 1]"),
-			BranchInfo{Name: "master", CommitsAhead: 1, CommitsBehind: 0},
+			gitstatus.BranchInfo{Name: "master", CommitsAhead: 1, CommitsBehind: 0},
 		},
 		{
 			[]byte("## upstream...upstream/master [behind 3]"),
-			BranchInfo{Name: "upstream", CommitsAhead: 0, CommitsBehind: 3},
+			gitstatus.BranchInfo{Name: "upstream", CommitsAhead: 0, CommitsBehind: 3},
 		},
 		{
 			[]byte("## upstream...upstream/master [ahead 5, behind 3]"),
-			BranchInfo{Name: "upstream", CommitsAhead: 5, CommitsBehind: 3},
+			gitstatus.BranchInfo{Name: "upstream", CommitsAhead: 5, CommitsBehind: 3},
 		},
 		{
 			[]byte("## Initial commit on master"),
-			BranchInfo{Name: "master", CommitsAhead: 0, CommitsBehind: 0},
+			gitstatus.BranchInfo{Name: "master", CommitsAhead: 0, CommitsBehind: 0},
 		},
 		{
 			[]byte("## No commits yet on master"),
-			BranchInfo{Name: "master", CommitsAhead: 0, CommitsBehind: 0},
+			gitstatus.BranchInfo{Name: "master", CommitsAhead: 0, CommitsBehind: 0},
 		},
 		{
 			[]byte("## 3.0...origin/3.0 [ahead 1]"),
-			BranchInfo{Name: "3.0", CommitsAhead: 1, CommitsBehind: 0},
+			gitstatus.BranchInfo{Name: "3.0", CommitsAhead: 1, CommitsBehind: 0},
 		},
 		{
 			[]byte("## HEAD (no branch)"),
-			BranchInfo{Name: "HEAD (no branch)", CommitsAhead: 0, CommitsBehind: 0},
+			gitstatus.BranchInfo{Name: "HEAD (no branch)", CommitsAhead: 0, CommitsBehind: 0},
 		},
 		{
 			[]byte("## HEAD (no branch)UU both_modified.txt"),
-			BranchInfo{Name: "HEAD (no branch)", CommitsAhead: 0, CommitsBehind: 0},
+			gitstatus.BranchInfo{Name: "HEAD (no branch)", CommitsAhead: 0, CommitsBehind: 0},
 		},
 	}
 

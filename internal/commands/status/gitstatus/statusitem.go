@@ -1,4 +1,22 @@
-package status
+// Package gitstatus provides structures and methods to represent and manipulate
+// git status information, including branch details and file change statuses.
+//
+// Structurally, we are looking at something like this:
+//
+//	StatusInfo
+//	├── BranchInfo
+//	│   ├── Name
+//	│   ├── CommitsAhead
+//	│   └── CommitsBehind
+//	└── Items
+//	    └── StatusItem
+//	        ├── ChangeType (enum)
+//	        │     ├──> Message():     string
+//	        │     ├──> State():       ChangeState (enum)
+//	        │     └──> StatusGroup(): StatusGroup (enum)
+//	        ├── Path
+//	        └── OrigPath
+package gitstatus
 
 import (
 	"path/filepath"
@@ -20,7 +38,13 @@ type BranchInfo struct {
 	CommitsBehind int    // commit position relative to upstream, e.g. -3
 }
 
-// StatusItem represents a single processed item of change from a 'git status'
+// StatusItem represents a single item of change for a 'git status'.
+//
+// Note there is not a 1:1 mapping from StatusItem to file paths in underlying
+// git status porcelain output; for example, a single path may appear multiple
+// times in the output if it has different change types (e.g. staged vs
+// unstaged), for example a file that changes that have been staged for commit
+// but also has unstaged changes.
 type StatusItem struct {
 	ChangeType
 	Path     string // path relative to the repo root, uses slashes as path separator regardless of OS
@@ -84,23 +108,20 @@ const (
 	ChangeUnmergedDeletedUs
 	ChangeUnmergedAddedBoth
 	ChangeUnmergedModifiedBoth
-
 	ChangeUntracked
-
 	ChangeStagedModified
 	ChangeStagedNewFile
 	ChangeStagedDeleted
 	ChangeStagedRenamed
 	ChangeStagedCopied
 	ChangeStagedType
-
 	ChangeUnstagedModified
 	ChangeUnstagedDeleted
 	ChangeUnstagedType
 )
 
 // changeTypeData maps each changeType to its display information
-var changeTypeData = map[ChangeType]changeTypeInfo{
+var changeTypeData = map[ChangeType]changeTypeMetadata{
 	ChangeUnmergedDeletedBoth:  {msg: "   both deleted", state: DeletedState, group: Unmerged},
 	ChangeUnmergedAddedUs:      {msg: "    added by us", state: NewState, group: Unmerged},
 	ChangeUnmergedDeletedThem:  {msg: "deleted by them", state: DeletedState, group: Unmerged},
@@ -120,17 +141,17 @@ var changeTypeData = map[ChangeType]changeTypeInfo{
 	ChangeUnstagedType:         {msg: "typechange", state: TypeChangedState, group: Unstaged},
 }
 
-// changeTypeInfo holds the display information for each change type
-type changeTypeInfo struct {
+// changeTypeMetadata holds the display information for each change type
+type changeTypeMetadata struct {
 	msg   string
-	state changeState
+	state ChangeState
 	group StatusGroup
 }
 
-type changeState int
+type ChangeState int
 
 const (
-	NewState changeState = iota
+	NewState ChangeState = iota
 	ModifiedState
 	DeletedState
 	UntrackedState
@@ -139,15 +160,13 @@ const (
 	TypeChangedState
 )
 
-// StatusGroup encapsulates constants for mapping group status
 type StatusGroup int
 
-// constants representing an enum of all possible StatusGroups
 const (
-	Staged StatusGroup = iota
-	Unmerged
-	Unstaged
-	Untracked
+	Staged    StatusGroup = iota // Staged represents changes that are staged for commit
+	Unmerged                     // Unmerged represents changes that are in conflict and need resolution
+	Unstaged                     // Unstaged represents changes that are not staged for commit
+	Untracked                    // Untracked represents files that are not currently tracked by git
 )
 
 func (sg StatusGroup) Description() string {
@@ -161,7 +180,7 @@ func (sg StatusGroup) Description() string {
 	case Untracked:
 		return "Untracked files"
 	default:
-		return "Unknown group"
+		panic("invalid status group")
 	}
 }
 
@@ -173,8 +192,8 @@ func (ct ChangeType) Message() string {
 	panic("invalid change type")
 }
 
-// State returns the change state for the change type
-func (ct ChangeType) state() changeState {
+// State returns the change state associated with the change type
+func (ct ChangeType) State() ChangeState {
 	if info, ok := changeTypeData[ct]; ok {
 		return info.state
 	}

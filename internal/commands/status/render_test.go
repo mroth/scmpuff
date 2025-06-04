@@ -8,6 +8,8 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
+
+	"github.com/mroth/scmpuff/internal/commands/status/gitstatus"
 )
 
 var (
@@ -27,44 +29,44 @@ func TestMain(m *testing.M) {
 func TestRenderer_Display(t *testing.T) {
 	testCases := []struct {
 		name      string
-		info      StatusInfo
+		info      gitstatus.StatusInfo
 		root, cwd string
 	}{
 		{
 			name: "empty",
-			info: StatusInfo{
-				BranchInfo{Name: "main", CommitsAhead: 0, CommitsBehind: 0},
-				nil,
+			info: gitstatus.StatusInfo{
+				Branch: gitstatus.BranchInfo{Name: "main", CommitsAhead: 0, CommitsBehind: 0},
+				Items:  nil,
 			},
 		},
 		{
 			name: "with_branch_ahead",
-			info: StatusInfo{
-				BranchInfo{Name: "feature", CommitsAhead: 3, CommitsBehind: 0},
-				nil,
+			info: gitstatus.StatusInfo{
+				Branch: gitstatus.BranchInfo{Name: "feature", CommitsAhead: 3, CommitsBehind: 0},
+				Items:  nil,
 			},
 		},
 		{
 			name: "with_staged_files",
-			info: StatusInfo{
-				BranchInfo{Name: "main", CommitsAhead: 0, CommitsBehind: 0},
-				[]StatusItem{
-					{ChangeType: ChangeStagedNewFile, Path: "new.go"},
-					{ChangeType: ChangeStagedNewFile, Path: "new_b.go"},
-					{ChangeType: ChangeStagedModified, Path: "changed.go"}},
+			info: gitstatus.StatusInfo{
+				Branch: gitstatus.BranchInfo{Name: "main", CommitsAhead: 0, CommitsBehind: 0},
+				Items: []gitstatus.StatusItem{
+					{ChangeType: gitstatus.ChangeStagedNewFile, Path: "new.go"},
+					{ChangeType: gitstatus.ChangeStagedNewFile, Path: "new_b.go"},
+					{ChangeType: gitstatus.ChangeStagedModified, Path: "changed.go"}},
 			},
 			root: "/path/to",
 			cwd:  "/path/to",
 		},
 		{
 			name: "complex_mix",
-			info: StatusInfo{
-				BranchInfo{Name: "feature", CommitsAhead: 2, CommitsBehind: 1},
-				[]StatusItem{
-					{ChangeType: ChangeStagedNewFile, Path: "new.go"},
-					{ChangeType: ChangeStagedNewFile, Path: "new_b.go"},
-					{ChangeType: ChangeUnstagedModified, Path: "modified.go"},
-					{ChangeType: ChangeUntracked, Path: "untracked.go"},
+			info: gitstatus.StatusInfo{
+				Branch: gitstatus.BranchInfo{Name: "feature", CommitsAhead: 2, CommitsBehind: 1},
+				Items: []gitstatus.StatusItem{
+					{ChangeType: gitstatus.ChangeStagedNewFile, Path: "new.go"},
+					{ChangeType: gitstatus.ChangeStagedNewFile, Path: "new_b.go"},
+					{ChangeType: gitstatus.ChangeUnstagedModified, Path: "modified.go"},
+					{ChangeType: gitstatus.ChangeUntracked, Path: "untracked.go"},
 				},
 			},
 			root: "/path/to",
@@ -73,21 +75,21 @@ func TestRenderer_Display(t *testing.T) {
 		{
 			// longer list of changes (more than 10), unicode, some emoji, copy, rename, delete
 			name: "longlist",
-			info: StatusInfo{
-				BranchInfo{Name: "techdebt", CommitsAhead: 42, CommitsBehind: 1123},
-				[]StatusItem{
-					{ChangeType: ChangeStagedNewFile, Path: "new_a.php"},
-					{ChangeType: ChangeStagedNewFile, Path: "new_b.php"},
-					{ChangeType: ChangeStagedNewFile, Path: "new_c.php"},
-					{ChangeType: ChangeStagedNewFile, Path: "new_d.php"},
-					{ChangeType: ChangeUnstagedModified, Path: "modified1.php"},
-					{ChangeType: ChangeUnstagedModified, Path: "modified2.php"},
-					{ChangeType: ChangeUnstagedModified, Path: "修改后的文件.php"},
-					{ChangeType: ChangeUntracked, Path: "untracked file with spaces.txt"},
-					{ChangeType: ChangeStagedRenamed, Path: "tests/disabled", OrigPath: "tests/flakey"},
-					{ChangeType: ChangeStagedRenamed, Path: "docs/SECURITY.md", OrigPath: "SECURITY.md"},
-					{ChangeType: ChangeStagedCopied, Path: "metoo", OrigPath: "me"},
-					{ChangeType: ChangeUnstagedDeleted, Path: "👻.go"},
+			info: gitstatus.StatusInfo{
+				Branch: gitstatus.BranchInfo{Name: "techdebt", CommitsAhead: 42, CommitsBehind: 1123},
+				Items: []gitstatus.StatusItem{
+					{ChangeType: gitstatus.ChangeStagedNewFile, Path: "new_a.php"},
+					{ChangeType: gitstatus.ChangeStagedNewFile, Path: "new_b.php"},
+					{ChangeType: gitstatus.ChangeStagedNewFile, Path: "new_c.php"},
+					{ChangeType: gitstatus.ChangeStagedNewFile, Path: "new_d.php"},
+					{ChangeType: gitstatus.ChangeUnstagedModified, Path: "modified1.php"},
+					{ChangeType: gitstatus.ChangeUnstagedModified, Path: "modified2.php"},
+					{ChangeType: gitstatus.ChangeUnstagedModified, Path: "修改后的文件.php"},
+					{ChangeType: gitstatus.ChangeUntracked, Path: "untracked file with spaces.txt"},
+					{ChangeType: gitstatus.ChangeStagedRenamed, Path: "tests/disabled", OrigPath: "tests/flakey"},
+					{ChangeType: gitstatus.ChangeStagedRenamed, Path: "docs/SECURITY.md", OrigPath: "SECURITY.md"},
+					{ChangeType: gitstatus.ChangeStagedCopied, Path: "metoo", OrigPath: "me"},
+					{ChangeType: gitstatus.ChangeUnstagedDeleted, Path: "👻.go"},
 				},
 			},
 			root: "/Users/bobbytables/code",
@@ -95,12 +97,12 @@ func TestRenderer_Display(t *testing.T) {
 		},
 		{
 			name: "subdirectory",
-			info: StatusInfo{
-				BranchInfo{Name: "feature", CommitsAhead: 0, CommitsBehind: 13},
-				[]StatusItem{
-					{ChangeType: ChangeStagedRenamed, Path: "projects/snw", OrigPath: "projects/ds9"},
-					{ChangeType: ChangeStagedRenamed, Path: "projects/warpcore/CONFIDENTIAL.md", OrigPath: "projects/warpcore/SporeDriveSchematics.md"},
-					{ChangeType: ChangeStagedDeleted, Path: "docs/wolf 359 was an inside job.txt"},
+			info: gitstatus.StatusInfo{
+				Branch: gitstatus.BranchInfo{Name: "feature", CommitsAhead: 0, CommitsBehind: 13},
+				Items: []gitstatus.StatusItem{
+					{ChangeType: gitstatus.ChangeStagedRenamed, Path: "projects/snw", OrigPath: "projects/ds9"},
+					{ChangeType: gitstatus.ChangeStagedRenamed, Path: "projects/warpcore/CONFIDENTIAL.md", OrigPath: "projects/warpcore/SporeDriveSchematics.md"},
+					{ChangeType: gitstatus.ChangeStagedDeleted, Path: "docs/wolf 359 was an inside job.txt"},
 				},
 			},
 			root: "/home/starfleet/src",
