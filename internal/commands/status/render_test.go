@@ -70,6 +70,42 @@ func TestRenderer_Display(t *testing.T) {
 			root: "/path/to",
 			cwd:  "/path/to",
 		},
+		{
+			// longer list of changes (more than 10), unicode, some emoji, copy, rename, delete
+			name: "longlist",
+			info: StatusInfo{
+				BranchInfo{Name: "techdebt", CommitsAhead: 42, CommitsBehind: 1123},
+				[]StatusItem{
+					{ChangeType: ChangeStagedNewFile, Path: "new_a.php"},
+					{ChangeType: ChangeStagedNewFile, Path: "new_b.php"},
+					{ChangeType: ChangeStagedNewFile, Path: "new_c.php"},
+					{ChangeType: ChangeStagedNewFile, Path: "new_d.php"},
+					{ChangeType: ChangeUnstagedModified, Path: "modified1.php"},
+					{ChangeType: ChangeUnstagedModified, Path: "modified2.php"},
+					{ChangeType: ChangeUnstagedModified, Path: "修改后的文件.php"},
+					{ChangeType: ChangeUntracked, Path: "untracked file with spaces.txt"},
+					{ChangeType: ChangeStagedRenamed, Path: "tests/disabled", OrigPath: "tests/flakey"},
+					{ChangeType: ChangeStagedRenamed, Path: "docs/SECURITY.md", OrigPath: "SECURITY.md"},
+					{ChangeType: ChangeStagedCopied, Path: "metoo", OrigPath: "me"},
+					{ChangeType: ChangeUnstagedDeleted, Path: "👻.go"},
+				},
+			},
+			root: "/Users/bobbytables/code",
+			cwd:  "/Users/bobbytables/code",
+		},
+		{
+			name: "subdirectory",
+			info: StatusInfo{
+				BranchInfo{Name: "feature", CommitsAhead: 0, CommitsBehind: 13},
+				[]StatusItem{
+					{ChangeType: ChangeStagedRenamed, Path: "projects/snw", OrigPath: "projects/ds9"},
+					{ChangeType: ChangeStagedRenamed, Path: "projects/warpcore/CONFIDENTIAL.md", OrigPath: "projects/warpcore/SporeDriveSchematics.md"},
+					{ChangeType: ChangeStagedDeleted, Path: "docs/wolf 359 was an inside job.txt"},
+				},
+			},
+			root: "/home/starfleet/src",
+			cwd:  "/home/starfleet/src/projects/warpcore",
+		},
 	}
 
 	for _, tc := range testCases {
