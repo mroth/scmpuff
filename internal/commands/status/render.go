@@ -172,15 +172,15 @@ func formatBranchBannerPrelude(b BranchInfo) string {
 	if diffStr != "" {
 		diffFormatted = fmt.Sprintf(
 			"  %s|  %s%s%s",
-			colorMap[dark], colorMap[neu], diffStr, colorMap[rst],
+			DimColor, YellowColor, diffStr, ResetColor,
 		)
 	}
 
 	return fmt.Sprintf(
 		"%s#%s On branch: %s%s%s  %s|  ",
-		colorMap[dark], colorMap[rst], colorMap[branch],
+		DimColor, ResetColor, BoldColor,
 		b.Name, diffFormatted,
-		colorMap[dark],
+		DimColor,
 	)
 }
 
@@ -201,15 +201,15 @@ func formatUpstreamDiffIndicator(b BranchInfo) string {
 func bannerChangeHeader() string {
 	return fmt.Sprintf(
 		"[%s*%s]%s => $e*\n%s#%s",
-		colorMap[rst], colorMap[dark], colorMap[rst], colorMap[dark], colorMap[rst],
+		ResetColor, DimColor, ResetColor, DimColor, ResetColor,
 	)
 }
 
 // If no changes, just display green no changes message
 func bannerNoChanges() string {
 	return fmt.Sprintf(
-		"\033[0;32mNo changes (working directory clean)%s",
-		colorMap[rst],
+		"%sNo changes (working directory clean)%s",
+		GreenColor, ResetColor,
 	)
 }
 
@@ -220,17 +220,18 @@ func bannerNoChanges() string {
 //	➤ Changes not staged for commit
 //	#
 func formatHeaderForGroup(group StatusGroup) string {
-	cArrw := fmt.Sprintf("\033[1;%s", groupColorMap[group])
-	cHash := fmt.Sprintf("\033[0;%s", groupColorMap[group])
+	groupColor := groupColors[group]
+	groupBoldColor := groupBoldColors[group]
 	return fmt.Sprintf(
 		"%s➤%s %s\n%s#%s\n",
-		cArrw, colorMap[header], group.Description(), cHash, colorMap[rst],
+		groupBoldColor, ResetColor, group.Description(), groupColor, ResetColor,
 	)
 }
 
 // Print a final "#" for vertical padding
 func formatFooterForGroup(group StatusGroup) string {
-	return fmt.Sprintf("\033[0;%s#%s\n", groupColorMap[group], colorMap[rst])
+	groupColor := groupColors[group]
+	return fmt.Sprintf("%s#%s\n", groupColor, ResetColor)
 }
 
 // Returns print string for an individual status item for a group.
@@ -263,10 +264,11 @@ func (sl *Renderer) formatStatusItemDisplay(item StatusItem, displayNum int) str
 	// note to future self: format would add a final " %s" to output printf to
 	// accommodate.
 
-	groupCol := "\033[0;" + groupColorMap[item.StatusGroup()]
+	groupColor := string(groupColors[item.StatusGroup()])
+	stateColor := string(stateColors[item.state()])
 	return fmt.Sprintf(
 		"%s#%s     %s%s:%s%s [%s%d%s] %s%s%s\n",
-		groupCol, colorMap[rst], item.Color(), item.Message(), padding, colorMap[dark],
-		colorMap[rst], displayNum, colorMap[dark], groupCol, relFile, colorMap[rst],
+		groupColor, ResetColor, stateColor, item.Message(), padding, DimColor,
+		ResetColor, displayNum, DimColor, groupColor, relFile, ResetColor,
 	)
 }

@@ -46,7 +46,7 @@ see 'scmpuff init'.)
 				var exitErr *exec.ExitError
 				if errors.As(err, &exitErr) && exitErr.ExitCode() == 128 {
 					msg := "Not a git repository (or any of the parent directories)"
-					fmt.Fprintf(os.Stderr, "\033[0;31m%s\033[0m\n", msg)
+					fmt.Fprintf(os.Stderr, "%s%s%s\n", RedColor, msg, ResetColor)
 					os.Exit(128)
 				}
 				// or, some sort of an actual error
