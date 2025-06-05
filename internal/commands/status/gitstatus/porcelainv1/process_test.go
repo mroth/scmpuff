@@ -205,28 +205,3 @@ func TestExtractBranch(t *testing.T) {
 		})
 	}
 }
-
-/*
-// Test to verify https://github.com/mroth/scmpuff/issues/26.
-//
-// Leaving commented out since unlikely to encounter this exact issue again in
-// future, and I'm not sure about importing the user's datafile into this repo.
-//
-// If needed again, the data file is attached to the issue as `output.txt`.
-
-func TestBrokenProcessChanges(t *testing.T) {
-	dat, err := ioutil.ReadFile("testdata/cjfuller_sample.dat")
-	if err != nil {
-		t.Fatal(err)
-	}
-	s := bufio.NewScanner(bytes.NewReader(dat))
-	s.Split(nulSplitFunc)
-	actual, err := ProcessChanges(s, "")
-	if err != nil {
-		t.Fatal(err)
-	}
-	if len(actual) != 270 { // `git status -s | wc -l` in replicated repo
-		t.Errorf("expected %v changes, got %v", 270, len(actual))
-	}
-}
-*/
