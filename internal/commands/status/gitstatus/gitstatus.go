@@ -101,27 +101,40 @@ type ChangeType int
 
 // ChangeType constants represent the different types of changes that can occur in a git status
 const (
-	ChangeUnmergedDeletedBoth ChangeType = iota
+	// Staged changes
+	ChangeStagedModified ChangeType = iota
+	ChangeStagedNewFile
+	ChangeStagedDeleted
+	ChangeStagedRenamed
+	ChangeStagedCopied
+	ChangeStagedType
+
+	// Unmerged changes (conflicts)
+	ChangeUnmergedDeletedBoth
 	ChangeUnmergedAddedUs
 	ChangeUnmergedDeletedThem
 	ChangeUnmergedAddedThem
 	ChangeUnmergedDeletedUs
 	ChangeUnmergedAddedBoth
 	ChangeUnmergedModifiedBoth
-	ChangeUntracked
-	ChangeStagedModified
-	ChangeStagedNewFile
-	ChangeStagedDeleted
-	ChangeStagedRenamed
-	ChangeStagedCopied
-	ChangeStagedType
+
+	// Unstaged changes
 	ChangeUnstagedModified
 	ChangeUnstagedDeleted
 	ChangeUnstagedType
+
+	// Untracked changes
+	ChangeUntracked
 )
 
 // changeTypeData maps each changeType to its display information
 var changeTypeData = map[ChangeType]changeTypeMetadata{
+	ChangeStagedModified:       {msg: "modified", state: ModifiedState, group: Staged},
+	ChangeStagedNewFile:        {msg: "new file", state: NewState, group: Staged},
+	ChangeStagedDeleted:        {msg: "deleted", state: DeletedState, group: Staged},
+	ChangeStagedRenamed:        {msg: "renamed", state: RenamedState, group: Staged},
+	ChangeStagedCopied:         {msg: "copied", state: CopiedState, group: Staged},
+	ChangeStagedType:           {msg: "typechange", state: TypeChangedState, group: Staged},
 	ChangeUnmergedDeletedBoth:  {msg: "both deleted", state: DeletedState, group: Unmerged},
 	ChangeUnmergedAddedUs:      {msg: "added by us", state: NewState, group: Unmerged},
 	ChangeUnmergedDeletedThem:  {msg: "deleted by them", state: DeletedState, group: Unmerged},
@@ -129,16 +142,10 @@ var changeTypeData = map[ChangeType]changeTypeMetadata{
 	ChangeUnmergedDeletedUs:    {msg: "deleted by us", state: DeletedState, group: Unmerged},
 	ChangeUnmergedAddedBoth:    {msg: "both added", state: NewState, group: Unmerged},
 	ChangeUnmergedModifiedBoth: {msg: "both modified", state: ModifiedState, group: Unmerged},
-	ChangeUntracked:            {msg: "untracked", state: UntrackedState, group: Untracked},
-	ChangeStagedModified:       {msg: "modified", state: ModifiedState, group: Staged},
-	ChangeStagedNewFile:        {msg: "new file", state: NewState, group: Staged},
-	ChangeStagedDeleted:        {msg: "deleted", state: DeletedState, group: Staged},
-	ChangeStagedRenamed:        {msg: "renamed", state: RenamedState, group: Staged},
-	ChangeStagedCopied:         {msg: "copied", state: CopiedState, group: Staged},
-	ChangeStagedType:           {msg: "typechange", state: TypeChangedState, group: Staged},
 	ChangeUnstagedModified:     {msg: "modified", state: ModifiedState, group: Unstaged},
 	ChangeUnstagedDeleted:      {msg: "deleted", state: DeletedState, group: Unstaged},
 	ChangeUnstagedType:         {msg: "typechange", state: TypeChangedState, group: Unstaged},
+	ChangeUntracked:            {msg: "untracked", state: UntrackedState, group: Untracked},
 }
 
 // changeTypeMetadata holds the display information for each change type
@@ -148,18 +155,24 @@ type changeTypeMetadata struct {
 	group StatusGroup
 }
 
+// ChangeState constants represent the type of a change in a git status output.
+// These states describe the nature of the change itself, independent of staging area.
 type ChangeState int
 
 const (
-	NewState ChangeState = iota
-	ModifiedState
-	DeletedState
-	UntrackedState
-	RenamedState
-	CopiedState
-	TypeChangedState
+	NewState         ChangeState = iota // NewState represents a newly created file
+	ModifiedState                       // ModifiedState represents a file with modified content
+	DeletedState                        // DeletedState represents a deleted file
+	RenamedState                        // RenamedState represents a file that has been renamed
+	CopiedState                         // CopiedState represents a file that has been copied
+	TypeChangedState                    // TypeChangedState represents a file whose type has changed (e.g., file <-> symlink)
+	UntrackedState                      // UntrackedState represents a file not tracked by git
 )
 
+// StatusGroup is used to categorize items in git status into groups for
+// rendering purposes. Each group represents a different category of the items
+// that can appear in the git status output, such as staged, unstaged, merge
+// conflicts, and untracked files.
 type StatusGroup int
 
 const (
@@ -169,6 +182,8 @@ const (
 	Untracked                    // Untracked represents files that are not currently tracked by git
 )
 
+// Description returns a human-readable description for the StatusGroup,
+// typically used for a header or label in the output display.
 func (sg StatusGroup) Description() string {
 	switch sg {
 	case Staged:
