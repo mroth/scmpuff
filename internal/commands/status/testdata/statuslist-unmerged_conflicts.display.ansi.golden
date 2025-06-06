@@ -1,0 +1,12 @@
+[2;37m#[0m On branch: [1mmerge-conflict  [2;37m|  [[0m*[2;37m][0m => $e*
+[2;37m#[0m
+[1;31m➤[0m Unmerged paths
+[0;31m#[0m
+[0;31m#[0m     [0;31m   both deleted: [2;37m [[0m1[2;37m] [0;31mdeleted_by_both.txt[0m
+[0;31m#[0m     [0;33m    added by us: [2;37m [[0m2[2;37m] [0;31madded_by_us.txt[0m
+[0;31m#[0m     [0;31mdeleted by them: [2;37m [[0m3[2;37m] [0;31mdeleted_by_them.txt[0m
+[0;31m#[0m     [0;33m  added by them: [2;37m [[0m4[2;37m] [0;31madded_by_them.txt[0m
+[0;31m#[0m     [0;31m  deleted by us: [2;37m [[0m5[2;37m] [0;31mdeleted_by_us.txt[0m
+[0;31m#[0m     [0;33m     both added: [2;37m [[0m6[2;37m] [0;31madded_by_both.txt[0m
+[0;31m#[0m     [0;32m  both modified: [2;37m [[0m7[2;37m] [0;31mmodified_by_both.txt[0m
+[0;31m#[0m

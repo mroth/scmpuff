@@ -108,6 +108,35 @@ func TestRenderer_Display(t *testing.T) {
 			root: "/home/starfleet/src",
 			cwd:  "/home/starfleet/src/projects/warpcore",
 		},
+		{
+			name: "unmerged_conflicts",
+			info: gitstatus.StatusInfo{
+				Branch: gitstatus.BranchInfo{Name: "merge-conflict", CommitsAhead: 0, CommitsBehind: 0},
+				Items: []gitstatus.StatusItem{
+					{ChangeType: gitstatus.ChangeUnmergedDeletedBoth, Path: "deleted_by_both.txt"},
+					{ChangeType: gitstatus.ChangeUnmergedAddedUs, Path: "added_by_us.txt"},
+					{ChangeType: gitstatus.ChangeUnmergedDeletedThem, Path: "deleted_by_them.txt"},
+					{ChangeType: gitstatus.ChangeUnmergedAddedThem, Path: "added_by_them.txt"},
+					{ChangeType: gitstatus.ChangeUnmergedDeletedUs, Path: "deleted_by_us.txt"},
+					{ChangeType: gitstatus.ChangeUnmergedAddedBoth, Path: "added_by_both.txt"},
+					{ChangeType: gitstatus.ChangeUnmergedModifiedBoth, Path: "modified_by_both.txt"},
+				},
+			},
+			root: "/path/to/repo",
+			cwd:  "/path/to/repo",
+		},
+		{
+			name: "type_changes",
+			info: gitstatus.StatusInfo{
+				Branch: gitstatus.BranchInfo{Name: "type-change", CommitsAhead: 1, CommitsBehind: 0},
+				Items: []gitstatus.StatusItem{
+					{ChangeType: gitstatus.ChangeStagedType, Path: "staged_typechange.txt"},
+					{ChangeType: gitstatus.ChangeUnstagedType, Path: "unstaged_typechange.txt"},
+				},
+			},
+			root: "/path/to/repo",
+			cwd:  "/path/to/repo",
+		},
 	}
 
 	for _, tc := range testCases {

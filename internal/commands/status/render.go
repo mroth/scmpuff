@@ -248,9 +248,20 @@ func (r *Renderer) formatStatusItemDisplay(item gitstatus.StatusItem, displayNum
 
 	itemDisplayPath := item.DisplayPath(r.root, r.cwd)
 
+	// Message padding:
+	//  - Unmerged change msgs: leftpad to 15 character width
+	//  - All other change msgs: leftpad to 10 character width
+	var paddedMsg string
+	baseMsg := item.Message()
+	if item.StatusGroup() == gitstatus.Unmerged {
+		paddedMsg = fmt.Sprintf("%15s", baseMsg)
+	} else {
+		paddedMsg = fmt.Sprintf("%10s", baseMsg)
+	}
+
 	return fmt.Sprintf(
 		"%s#%s     %s%s:%s%s [%s%d%s] %s%s%s\n",
-		groupColor, ResetColor, stateColor, item.Message(), padding, DimColor,
+		groupColor, ResetColor, stateColor, paddedMsg, padding, DimColor,
 		ResetColor, displayNum, DimColor, groupColor, itemDisplayPath, ResetColor,
 	)
 }
