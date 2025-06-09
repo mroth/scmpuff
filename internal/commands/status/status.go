@@ -69,8 +69,7 @@ see 'scmpuff init'.)
 				log.Fatal("fatal: failed to create status renderer:", err)
 			}
 
-			renderer.Display(os.Stdout, optsFilelist, optsDisplay)
-			if err != nil {
+			if err := renderer.Display(os.Stdout, optsFilelist, optsDisplay); err != nil {
 				log.Fatal("fatal: failed to render status:", err)
 			}
 		},
