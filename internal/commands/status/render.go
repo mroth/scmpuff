@@ -6,7 +6,7 @@ import (
 	"io"
 	"strings"
 
-	"github.com/mroth/scmpuff/internal/commands/status/gitstatus"
+	"github.com/mroth/scmpuff/internal/gitstatus"
 )
 
 // A Renderer formats git status information for display to the screen.

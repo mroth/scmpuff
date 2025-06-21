@@ -9,7 +9,7 @@ import (
 	"os/exec"
 	"path/filepath"
 
-	"github.com/mroth/scmpuff/internal/commands/status/gitstatus/porcelainv1"
+	"github.com/mroth/scmpuff/internal/gitstatus/porcelainv1"
 	"github.com/spf13/cobra"
 )
 

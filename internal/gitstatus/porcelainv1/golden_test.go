@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
-	"github.com/mroth/scmpuff/internal/commands/status/gitstatus"
+	"github.com/mroth/scmpuff/internal/gitstatus"
 )
 
 func TestProcess(t *testing.T) {

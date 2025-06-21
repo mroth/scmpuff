@@ -1,6 +1,6 @@
 package status
 
-import "github.com/mroth/scmpuff/internal/commands/status/gitstatus"
+import "github.com/mroth/scmpuff/internal/gitstatus"
 
 // Color represents an ANSI color code
 type Color string

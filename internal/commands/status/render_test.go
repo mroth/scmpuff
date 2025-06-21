@@ -9,7 +9,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/mroth/scmpuff/internal/commands/status/gitstatus"
+	"github.com/mroth/scmpuff/internal/gitstatus"
 )
 
 var (
