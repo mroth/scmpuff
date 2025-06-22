@@ -1,0 +1,4 @@
+## main
+M  a.txt
+A  c.txt
+R  b.txt -> "file with spaces.txt"

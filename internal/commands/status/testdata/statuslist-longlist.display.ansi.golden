@@ -1,0 +1,23 @@
+[2;37m#[0m On branch: [1mtechdebt  [2;37m|  [0;33m+42/-1123[0m  [2;37m|  [[0m*[2;37m][0m => $e*
+[2;37m#[0m
+[1;33m➤[0m Changes to be committed
+[0;33m#[0m
+[0;33m#[0m     [0;33m  new file: [2;37m [[0m1[2;37m] [0;33mnew_a.php[0m
+[0;33m#[0m     [0;33m  new file: [2;37m [[0m2[2;37m] [0;33mnew_b.php[0m
+[0;33m#[0m     [0;33m  new file: [2;37m [[0m3[2;37m] [0;33mnew_c.php[0m
+[0;33m#[0m     [0;33m  new file: [2;37m [[0m4[2;37m] [0;33mnew_d.php[0m
+[0;33m#[0m     [0;34m   renamed: [2;37m [[0m5[2;37m] [0;33mtests/flakey -> tests/disabled[0m
+[0;33m#[0m     [0;34m   renamed: [2;37m [[0m6[2;37m] [0;33mSECURITY.md -> docs/SECURITY.md[0m
+[0;33m#[0m     [0;33m    copied: [2;37m [[0m7[2;37m] [0;33mme -> metoo[0m
+[0;33m#[0m
+[1;32m➤[0m Changes not staged for commit
+[0;32m#[0m
+[0;32m#[0m     [0;32m  modified: [2;37m [[0m8[2;37m] [0;32mmodified1.php[0m
+[0;32m#[0m     [0;32m  modified: [2;37m [[0m9[2;37m] [0;32mmodified2.php[0m
+[0;32m#[0m     [0;32m  modified:[2;37m [[0m10[2;37m] [0;32m修改后的文件.php[0m
+[0;32m#[0m     [0;31m   deleted:[2;37m [[0m11[2;37m] [0;32m👻.go[0m
+[0;32m#[0m
+[1;36m➤[0m Untracked files
+[0;36m#[0m
+[0;36m#[0m     [0;36m untracked:[2;37m [[0m12[2;37m] [0;36muntracked file with spaces.txt[0m
+[0;36m#[0m
