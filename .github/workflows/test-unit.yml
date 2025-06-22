@@ -11,7 +11,6 @@ jobs:
   test:
     strategy:
       matrix:
-        go-version: ["1.24"]
         platform: [ubuntu-latest, macos-latest, windows-latest]
       fail-fast: false
     runs-on: ${{ matrix.platform }}
@@ -21,6 +20,6 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v5
         with:
-          go-version: ${{ matrix.go-version }}
+          go-version-file: go.mod
       - name: Run unit tests
         run: go test ./...
