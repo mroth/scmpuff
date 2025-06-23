@@ -7,6 +7,9 @@ on:
     branches-ignore:
       - 'gh-pages'
 
+permissions:
+  contents: read
+
 jobs:
   test:
     runs-on: ${{ matrix.os }}
