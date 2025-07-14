@@ -61,7 +61,14 @@ see 'scmpuff init'.)
 
 			info, err := porcelainv1.Process(status)
 			if err != nil {
-				log.Fatal("fatal: failed to process git status output:", err)
+				log.Println("fatal: failed to process git status output:", err)
+				fmt.Fprintf(os.Stderr, `
+Please file a bug including this error message as well as the output of:
+
+git status --porcelain=v1 -b
+
+You can file the bug at: https://github.com/mroth/scmpuff/issues/`)
+				os.Exit(1)
 			}
 
 			renderer, err := NewRenderer(info, root, wd)

@@ -4,6 +4,7 @@ go 1.24
 
 require (
 	github.com/google/go-cmp v0.7.0
+	github.com/mroth/porcelain v0.1.0
 	github.com/spf13/cobra v1.9.1
 )
 
