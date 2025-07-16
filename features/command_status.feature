@@ -78,6 +78,17 @@ Feature: status command
       And the output should match /untracked: *\[4\] *untracked_file/
 
 
+  Scenario: Status properly reports all file changes w/ symlink
+    Given I am in a complex working tree status matching scm_breeze tests
+    When I cd to ".."
+      And I run `sh -c 'ln -s mygitrepo symlink && cd symlink && scmpuff status'`
+    Then the exit status should be 0
+      And the output should match / new file: *\[1\] *new_file/
+      And the output should match /  deleted: *\[2\] *deleted_file/
+      And the output should match / modified: *\[3\] *new_file/
+      And the output should match /untracked: *\[4\] *untracked_file/
+
+
   Scenario Outline: Handles file path magic properly for new & untracked files
     You would think this would be the same across file groups, but in fact the
     way `git status --porcelain` outputs these is different, so we need to test

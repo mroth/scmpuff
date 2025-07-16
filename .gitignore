@@ -1,6 +1,5 @@
 bin/
 dist/
-junk/
 tmp/
 .bundle/
 _site/

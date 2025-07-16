@@ -1,50 +1,53 @@
+# yaml-language-server: $schema=https://goreleaser.com/static/schema.json
+# vim: set ts=2 sw=2 tw=0 fo=cnqoj
+
+version: 2
+
 before:
   hooks:
     - go mod download
 
 gomod:
+  # Proxy a module from proxy.golang.org, making the builds verifiable.
+  # This will only be effective if running against a tag. Snapshots will ignore
+  # this setting.
   proxy: true
+  # Sets the `-mod` flag value.
+  mod: readonly
 
 builds:
-- env:
-    - CGO_ENABLED=0
-  goos:
-    - linux
-    - darwin
-    - windows
-  goarch:
-    - amd64
-    - arm64
-  ldflags:
-     - -s -w -X main.VERSION={{.Version}}
-
-universal_binaries:
-- replace: false
+  - env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - windows
+      - darwin
+    ldflags:
+      - -s -w -X main.version={{.Version}}
 
 archives:
-- replacements:
-    darwin: macOS
-    amd64: x64
-  format_overrides:
-  - goos: windows
-    format: zip
+  - formats: ["tar.gz"]
+    format_overrides:
+      - goos: windows
+        formats: ["zip"]
 
-checksum:
-  name_template: 'checksums.txt'
-snapshot:
-  name_template: "{{ .Tag }}-next"
+# changelog is managed via `bump` instead currently.
+changelog:
+  disable: true
+
+release:
+  # If set to auto, will mark the release as not ready for production
+  # in case there is an indicator for this in the tag e.g. v1.0.0-rc1
+  prerelease: auto
 
 brews:
   - name: scmpuff
     description: Adds numbered shortcuts for common git commands.
     homepage: https://mroth.github.io/scmpuff/
     license: MIT
-    tap:
+    repository:
       owner: mroth
       name: homebrew-tap
     test: |
       ENV["e1"] = "abc"
       assert_equal "abc", shell_output("#{bin}/scmpuff expand 1").strip
-
-changelog:
-  skip: true

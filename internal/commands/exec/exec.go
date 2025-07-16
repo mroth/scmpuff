@@ -5,7 +5,7 @@ import (
 	"os"
 	"os/exec"
 
-	"github.com/mroth/scmpuff/commands/internal/arguments"
+	"github.com/kmatt/scmpuff/internal/arguments"
 	"github.com/spf13/cobra"
 )
 
@@ -16,7 +16,7 @@ var expandRelative bool
 // Allows expansion of numbered shortcuts, ranges of shortcuts, or standard paths.
 // Numbered shortcut variables are produced by various commands, such as:
 //
-//  * scmpuff_status()  - git status implementation
+//   - scmpuff_status()  - git status implementation
 func CommandExec() *cobra.Command {
 
 	var expandCmd = &cobra.Command{

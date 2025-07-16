@@ -1,4 +1,4 @@
-# scmpuff :dash:
+# scmpuff 🔢
 
 > Makes working with git from the command line quicker by substituting numeric
 shortcuts for files.
@@ -6,15 +6,13 @@ shortcuts for files.
 <img width=568 src="http://f.cl.ly/items/2726271z170L2y0K3d0b/scmpuff_screenshot.png">
 
 **scmpuff** is a minimalistic reinterpretation of the core functionality of
-[SCM Breeze][scmbreeze], without many of the extras.
+[SCM Breeze][scmbreeze].
 
 It is focused on simplicity, speed, robustness, and cross-platform support. The
 majority of the functionality is contained within a compiled binary, and the
 shell integration is under 100 lines of shell script.
 
-**scmpuff** currently functions in `bash` and `zsh` in any *nix-like operating
-system. It's written with cross-platform support in mind, so hopefully we'll
-have it functioning on Windows soon as well.
+**scmpuff** currently has built-in support for `bash`, `zsh`, and `fish`.
 
 [scmbreeze]: https://github.com/ndbroadbent/scm_breeze
 
@@ -22,24 +20,24 @@ have it functioning on Windows soon as well.
 ## Installation
 
 [Download] the binary for your platform, and copy it to `/usr/local/bin` or
-somewhere else in your  default `$PATH`.
+somewhere else in your  default path.
 
-Alternately, if you use [homebrew], you can just: `brew install scmpuff`. :beer:
+Alternately, if you use [Homebrew], you can just: `brew install scmpuff`.
 
 [download]: https://github.com/mroth/scmpuff/releases/latest
-[homebrew]: https://brew.sh
+[Homebrew]: https://brew.sh
 
 
 ## Setup
 
-Currently scmpuff supports bash, zsh and [fish] for all functionality.
+Currently scmpuff supports bash, zsh and fish for all functionality.
 
 To initialize shell functions, add the following to your `~/.bash_profile` or
 `~/.zshrc` file:
 
     eval "$(scmpuff init -s)"
 
-or for fish, add the following to your `~/.config/fish/config.fish` file:
+For [fish] shell, add the following to your `~/.config/fish/config.fish` file:
 
     scmpuff init --shell=fish | source
 
@@ -89,10 +87,6 @@ e.g. `ga`, `gd`, `gco`.  Check your aliases to see what they are.
 
 
 ## FAQ
-
-### How do you pronounce it?
-
-:information_desk_person: I like to say "scum puff." But I'm weird.
 
 ### How does it compare with SCM Breeze?
 
