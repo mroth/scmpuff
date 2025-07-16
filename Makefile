@@ -1,10 +1,7 @@
 # build the binary
 # note starting in go1.18 vcs information will be available via go version -m
 build:
-	# $(eval VERSION := $(shell git describe --tags HEAD 2>/dev/null || echo unknown))
-
-	# Add Git commit and branch to version string
-	$(eval VERSION := $(shell V=$$(git describe --tags HEAD 2>/dev/null); B=$$(git rev-parse --abbrev-ref HEAD 2>/dev/null); echo "$$V-$$B"))
+	$(eval VERSION := $(shell git describe --tags HEAD 2>/dev/null || echo unknown))
 
 	@echo "Building as version: $(VERSION)"
 	go build -o bin/scmpuff -mod=readonly -ldflags "-X main.version=$(VERSION)"
