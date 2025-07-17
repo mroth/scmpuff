@@ -45,6 +45,10 @@ This will define the scmpuff shell functions as well as some handy shortcuts.
 
 [fish]: https://fishshell.com/
 
+For Powershell on Windows, add the following to your `$PROFILE` file:
+
+    scmpuff init --shell=pwsh | Out-String | Invoke-Expression
+
 
 ## Usage
 

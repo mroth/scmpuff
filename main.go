@@ -3,18 +3,18 @@ package main
 import (
 	"fmt"
 
-	"github.com/mroth/scmpuff/internal/commands/exec"
-	"github.com/mroth/scmpuff/internal/commands/expand"
-	"github.com/mroth/scmpuff/internal/commands/inits"
-	"github.com/mroth/scmpuff/internal/commands/intro"
-	"github.com/mroth/scmpuff/internal/commands/status"
+	"github.com/kmatt/scmpuff/internal/commands/exec"
+	"github.com/kmatt/scmpuff/internal/commands/expand"
+	"github.com/kmatt/scmpuff/internal/commands/inits"
+	"github.com/kmatt/scmpuff/internal/commands/intro"
+	"github.com/kmatt/scmpuff/internal/commands/status"
 
 	"github.com/spf13/cobra"
+
+	_ "embed"
 )
 
-// version is the default version of the program
-// ...in almost all cases this should be overriden by the buildscript.
-var version = "0.0.0-development"
+var version = "v0.5.0"
 
 var puffCmd = &cobra.Command{
 	Use:   "scmpuff",

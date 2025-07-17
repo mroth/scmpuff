@@ -5,7 +5,7 @@ import (
 	"slices"
 	"testing"
 
-	"github.com/mroth/scmpuff/internal/gitstatus"
+	"github.com/kmatt/scmpuff/internal/gitstatus"
 )
 
 func Test_extractFilePaths(t *testing.T) {

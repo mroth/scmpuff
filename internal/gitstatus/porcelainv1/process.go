@@ -9,7 +9,7 @@ import (
 	"regexp"
 	"strconv"
 
-	"github.com/mroth/scmpuff/internal/gitstatus"
+	"github.com/kmatt/scmpuff/internal/gitstatus"
 )
 
 // Process takes the raw output of `git status --porcelain=v1 -b -z` and
