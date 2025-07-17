@@ -14,9 +14,7 @@ import (
 	_ "embed"
 )
 
-// Set version from git tag
-//go:embed VERSION
-var version string
+var version = "0.0.0"
 
 var puffCmd = &cobra.Command{
 	Use:   "scmpuff",
