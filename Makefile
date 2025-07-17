@@ -9,6 +9,10 @@ build:
 test:
 	go test ./...
 
+# run lint tests
+lint:
+	golangci-lint run
+
 # run integration tests (not including work in progress features)
 features: build
 	bundle exec cucumber -s --tags='not @wip'
@@ -30,4 +34,4 @@ clobber:
 	rm -rf ./dist
 	rm -f bin/scmpuff
 
-.PHONY: build install test features features-wip package clean clobber
+.PHONY: build install test lint features features-wip package clean clobber
