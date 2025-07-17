@@ -1,9 +1,8 @@
-# build the binary
+# set version in main.go for `go install` and build binary
 build:
-	# Set version in main.go
 	$(eval VERSION := $(shell git describe --tags HEAD 2>/dev/null || echo unknown))
-	$(shell sed -i -e "s/^var version = \"0.0.0\"/var version = \"$(VERSION)\"/" main.go)
-	go build -o bin/scmpuff -mod=readonly
+	$(shell sed -E -i '' -e "s/^var version = \"[A-Za-z0-9\.-_]+\"/var version = \"$(VERSION)\"/" main.go)
+	go build -o bin/scmpuff -mod=readonly -ldflags "-X main.version=$(VERSION)"
 
 # run unit tests
 test:

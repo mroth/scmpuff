@@ -14,7 +14,7 @@ import (
 	_ "embed"
 )
 
-var version = "0.0.0"
+var version = "v0.5.0"
 
 var puffCmd = &cobra.Command{
 	Use:   "scmpuff",
