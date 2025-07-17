@@ -1,10 +1,8 @@
 # build the binary
 # note starting in go1.18 vcs information will be available via go version -m
 build:
-	$(eval VERSION := $(shell git describe --tags HEAD 2>/dev/null || echo unknown))
-
-	@echo "Building as version: $(VERSION)"
-	go build -o bin/scmpuff -mod=readonly -ldflags "-X main.version=$(VERSION)"
+	git describe --tags > VERSION
+	go build -o bin/scmpuff -mod=readonly
 
 # run unit tests
 test:

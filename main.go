@@ -10,11 +10,13 @@ import (
 	"github.com/kmatt/scmpuff/internal/commands/status"
 
 	"github.com/spf13/cobra"
+
+	_ "embed"
 )
 
-// version is the default version of the program
-// ...in almost all cases this should be overriden by the buildscript.
-var version = "0.0.0-development"
+// Set version from git tag
+//go:embed VERSION
+var version string
 
 var puffCmd = &cobra.Command{
 	Use:   "scmpuff",
