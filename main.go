@@ -3,12 +3,12 @@ package main
 import (
 	"fmt"
 
-	"github.com/mroth/scmpuff/internal/commands/debug"
-	"github.com/mroth/scmpuff/internal/commands/exec"
-	"github.com/mroth/scmpuff/internal/commands/expand"
-	"github.com/mroth/scmpuff/internal/commands/inits"
-	"github.com/mroth/scmpuff/internal/commands/intro"
-	"github.com/mroth/scmpuff/internal/commands/status"
+	"github.com/mroth/scmpuff/internal/cmd/debug"
+	"github.com/mroth/scmpuff/internal/cmd/exec"
+	"github.com/mroth/scmpuff/internal/cmd/expand"
+	"github.com/mroth/scmpuff/internal/cmd/inits"
+	"github.com/mroth/scmpuff/internal/cmd/intro"
+	"github.com/mroth/scmpuff/internal/cmd/status"
 
 	"github.com/spf13/cobra"
 )
