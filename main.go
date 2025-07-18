@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 
+	"github.com/mroth/scmpuff/internal/commands/debug"
 	"github.com/mroth/scmpuff/internal/commands/exec"
 	"github.com/mroth/scmpuff/internal/commands/expand"
 	"github.com/mroth/scmpuff/internal/commands/inits"
@@ -40,6 +41,7 @@ var versionCmd = &cobra.Command{
 func main() {
 	puffCmd.AddCommand(versionCmd)
 	puffCmd.AddCommand(intro.IntroCmd)
+	puffCmd.AddCommand(debug.DebugCmd)
 	puffCmd.AddCommand(inits.CommandInit())
 	puffCmd.AddCommand(exec.CommandExec())
 	puffCmd.AddCommand(expand.CommandExpand())

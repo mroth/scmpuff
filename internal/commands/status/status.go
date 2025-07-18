@@ -63,9 +63,9 @@ see 'scmpuff init'.)
 			if err != nil {
 				log.Println("fatal: failed to process git status output:", err)
 				fmt.Fprintf(os.Stderr, `
-Please file a bug including this error message as well as the output of:
+Please file a bug including this error message as well as the output from:
 
-git status --porcelain=v1 -b
+scmpuff debug dump --archive
 
 You can file the bug at: https://github.com/mroth/scmpuff/issues/`)
 				os.Exit(1)
