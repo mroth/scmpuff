@@ -42,10 +42,10 @@ func main() {
 	puffCmd.AddCommand(versionCmd)
 	puffCmd.AddCommand(intro.IntroCmd)
 	puffCmd.AddCommand(debug.DebugCmd)
-	puffCmd.AddCommand(inits.CommandInit())
-	puffCmd.AddCommand(exec.CommandExec())
-	puffCmd.AddCommand(expand.CommandExpand())
-	puffCmd.AddCommand(status.CommandStatus())
+	puffCmd.AddCommand(exec.ExecCmd)
+	puffCmd.AddCommand(expand.ExpandCmd)
+	puffCmd.AddCommand(inits.InitCmd)
+	puffCmd.AddCommand(status.StatusCmd)
 
 	puffCmd.Execute()
 }
