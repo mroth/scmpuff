@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -32,51 +31,69 @@ the exported shell-function 'scmpuff_status', which wraps this command and also
 sets the environment variables for your shell. (For more information on this,
 see 'scmpuff init'.)
     `,
-		Run: func(cmd *cobra.Command, args []string) {
+		RunE: func(cmd *cobra.Command, args []string) error {
+			cmd.SilenceUsage = true // silence usage-on-error after args processed
+
+			// Obtain the current working directory (needed to determine git root and relative paths)
 			wd, err := os.Getwd()
 			if err != nil {
-				log.Fatal("fatal: failed to retrieve current working directory:", err)
+				return fmt.Errorf("fatal: failed to retrieve current working directory: %w", err)
 			}
 
+			// Determine the git project root
 			root, err := gitProjectRoot(wd)
 			if err != nil {
-				// we want to capture and handle error status 128 in a pretty way,
-				// as its a fairly normal UX situation (running cmd not in a git repo).
+				// Error 128 is a common case when running outside of a git repo,
+				// and is a common UX situation rather than an actual error, so
+				// handle it directly here rather than returning to cobra.
 				var exitErr *exec.ExitError
 				if errors.As(err, &exitErr) && exitErr.ExitCode() == 128 {
 					msg := "Not a git repository (or any of the parent directories)"
 					fmt.Fprintf(os.Stderr, "%s%s%s\n", RedColor, msg, ResetColor)
 					os.Exit(128)
 				}
-				// or, some sort of an actual error
-				log.Fatal("fatal: failed to determine git project root:", err)
+
+				// or, some sort of an *actual* error
+				return fmt.Errorf("fatal: failed to determine git project root: %w", err)
 			}
 
+			// Run the git status command to get the porcelain output
 			status, err := gitStatusOutput()
 			if err != nil {
-				log.Fatal("fatal: error running git status command:", err)
+				return fmt.Errorf("fatal: error running git status command: %w", err)
 			}
 
+			// Parse and then process the git status output.
 			info, err := porcelainv1.Process(status)
 			if err != nil {
-				log.Println("fatal: failed to process git status output:", err)
-				fmt.Fprintf(os.Stderr, `
+				// Currently, this is a "special case" error condition, as it means there was a failure
+				// processing the git status output, which is somewhere we definitely want to obtain a debug
+				// dump for. We print a message to stderr and exit directly here, rather than returning an
+				// error to cobra, as we want to provide special instructions.
+				//
+				// NOTE: In the future, we might want to consider a more general "alert error" mechanism
+				// that can be returned by any process and scmpuff handles the UI.
+				fmt.Fprintf(os.Stderr, `Error: failed to process git status output: %v
+
 Please file a bug including this error message as well as the output from:
 
 scmpuff debug dump --archive
 
-You can file the bug at: https://github.com/mroth/scmpuff/issues/`)
+You can file the bug at: https://github.com/mroth/scmpuff/issues/`, err)
 				os.Exit(1)
 			}
 
+			// Render the formatted status output
 			renderer, err := NewRenderer(info, root, wd)
 			if err != nil {
-				log.Fatal("fatal: failed to create status renderer:", err)
+				return fmt.Errorf("fatal: failed to create status renderer: %w", err)
 			}
 
 			if err := renderer.Display(os.Stdout, optsFilelist, optsDisplay); err != nil {
-				log.Fatal("fatal: failed to render status:", err)
+				return fmt.Errorf("fatal: failed to render status: %w", err)
 			}
+
+			return nil
 		},
 	}
 

@@ -34,7 +34,7 @@ For fish shell, add the following to ~/.config/fish/config.fish instead:
 
 There are a number of flags to customize the shell integration.
     `,
-		Run: func(cmd *cobra.Command, args []string) {
+		RunE: func(cmd *cobra.Command, args []string) error {
 			// If someone's using the old ---show flag, opt-in to the newer --shell defaults
 			if legacyShow {
 				shellType = defaultShellType()
@@ -43,20 +43,15 @@ There are a number of flags to customize the shell integration.
 			switch strings.ToLower(shellType) {
 			case "":
 				cmd.Help()
-				os.Exit(0)
-
 			case "sh", "bash", "zsh":
 				fmt.Println(bashCollection.Output(wrapGit, includeAliases))
-				os.Exit(0)
-
 			case "fish":
 				fmt.Println(fishCollection.Output(wrapGit, includeAliases))
-				os.Exit(0)
-
 			default:
-				fmt.Fprintf(os.Stderr, "Unrecognized shell '%s'\n", shellType)
-				os.Exit(1)
+				return fmt.Errorf(`unrecognized shell "%s"`, shellType)
 			}
+
+			return nil
 		},
 		// Watch out for accidental args caused by NoOptDefVal (https://github.com/spf13/cobra/issues/866)
 		Args: cobra.NoArgs,
@@ -96,7 +91,6 @@ There are a number of flags to customize the shell integration.
 }
 
 // defaultShell returns the shellType assumed if user does not specify.
-// in the future, we may wish to customize this based on the $SHELL variable.
 func defaultShellType() string {
 	if shellenv, ok := os.LookupEnv("SHELL"); ok {
 		base := filepath.Base(shellenv)

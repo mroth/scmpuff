@@ -37,6 +37,7 @@ func NewDumpCmd() *cobra.Command {
 
 This tool captures various git status formats and metadata to help debug issues with scmpuff.`,
 		RunE: func(cmd *cobra.Command, args []string) error {
+			cmd.SilenceUsage = true // silence usage-on-error after args processed
 			return run(&opts)
 		},
 		Example: `

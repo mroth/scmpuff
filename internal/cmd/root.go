@@ -25,16 +25,13 @@ If you are just getting started, try the intro!`,
 		// disable default completions introduced in cobra v1.2.0, we will want to
 		// customize if we provide these in the future.
 		CompletionOptions: cobra.CompletionOptions{DisableDefaultCmd: true},
-
-		// don't print usage on error, just the error message
-		// many commands will print usage themselves if needed
-		SilenceUsage: true,
 	}
 
 	versionCmd := &cobra.Command{
 		Use:   "version",
 		Short: "Prints the version number",
 		Long:  `All software has versions. This is ours.`,
+		Args:  cobra.NoArgs,
 		Run: func(cmd *cobra.Command, args []string) {
 			fmt.Println("scmpuff", version)
 		},
@@ -53,8 +50,10 @@ If you are just getting started, try the intro!`,
 		Use:    "xerror",
 		Short:  "A command that always returns an error",
 		Long:   `This command is for testing error handling.`,
+		Args:   cobra.NoArgs,
 		Hidden: true, // hide from help output
 		RunE: func(cmd *cobra.Command, args []string) error {
+			cmd.SilenceUsage = true // silence usage-on-error after args processed
 			return fmt.Errorf("this is a test error")
 		},
 	}
@@ -67,8 +66,16 @@ If you are just getting started, try the intro!`,
 func Execute(version string) {
 	cmd := newRootCmd(version)
 	if err := cmd.Execute(); err != nil {
-		// not all commands will return, currently many exit directly on their own
-		// Cobra already prints the error, so we just need to exit
+		// Cobra already prints the error, so we just need to exit.
+		//
+		// Currently there are a few places we exit directly in the rather than
+		// returning control to here, typically to enforce a specific error code
+		// of UX convention.
+		//
+		// Set cmd.SilenceUsage on erroring commands to avoid printing usage if
+		// desired. Note that this can be done in the command's RunE function
+		// after args are processed, in order to print usage only on arg parsing
+		// errors.
 		os.Exit(1)
 	}
 }

@@ -20,12 +20,11 @@ func NewExpandCmd() *cobra.Command {
 
 Takes a list of digits (1 4 5) or numeric ranges (1-5) or even both.`,
 		Example: "$ scmpuff expand 1-2\n/tmp/foo.txt    /tmp/bar.txt",
-		Run: func(cmd *cobra.Command, args []string) {
-			if len(args) < 1 {
-				cmd.Usage()
-			}
-
+		Args:    cobra.MinimumNArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			cmd.SilenceUsage = true // silence usage-on-error after args processed
 			fmt.Print(Process(args))
+			return nil
 		},
 	}
 
