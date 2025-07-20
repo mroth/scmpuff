@@ -6,12 +6,14 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var IntroCmd = &cobra.Command{
-	Use:   "intro",
-	Short: "Displays an introduction to scmpuff",
-	Long:  `Displays an introduction to using scmpuff.`,
-	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println(`Hello there!
+// NewIntroCmd creates and returns the intro command
+func NewIntroCmd() *cobra.Command {
+	return &cobra.Command{
+		Use:   "intro",
+		Short: "Displays an introduction to scmpuff",
+		Long:  `Displays an introduction to using scmpuff.`,
+		Run: func(cmd *cobra.Command, args []string) {
+			fmt.Println(`Hello there!
 
 If you are just getting started, you probably want to make sure scmpuff is
 automatically loaded in your shell, in order to do so check out 'scmpuff init',
@@ -48,5 +50,6 @@ with normal numeric operands.
 
 By default, scmpuff will also define a few handy shortcuts to save your fingers,
 e.g. 'ga', 'gd', 'gco'.  Check your aliases to see what they are.`)
-	},
+		},
+	}
 }

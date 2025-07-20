@@ -13,13 +13,15 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// StatusCmd processes 'git status --porcelain', and exports numbered
-// env variables that contain the path of each affected file.
-// Output is also more concise than standard 'git status'.
-var StatusCmd = &cobra.Command{
-	Use:   "status",
-	Short: "Set and display numbered git status",
-	Long: `
+var optsFilelist bool
+var optsDisplay bool
+
+// NewStatusCmd creates and returns the status command
+func NewStatusCmd() *cobra.Command {
+	statusCmd := &cobra.Command{
+		Use:   "status",
+		Short: "Set and display numbered git status",
+		Long: `
 Processes 'git status --porcelain', and exports numbered env variables that
 contain the path of each affected file.
 
@@ -30,60 +32,56 @@ the exported shell-function 'scmpuff_status', which wraps this command and also
 sets the environment variables for your shell. (For more information on this,
 see 'scmpuff init'.)
     `,
-	Run: func(cmd *cobra.Command, args []string) {
-		wd, err := os.Getwd()
-		if err != nil {
-			log.Fatal("fatal: failed to retrieve current working directory:", err)
-		}
-
-		root, err := gitProjectRoot(wd)
-		if err != nil {
-			// we want to capture and handle error status 128 in a pretty way,
-			// as its a fairly normal UX situation (running cmd not in a git repo).
-			var exitErr *exec.ExitError
-			if errors.As(err, &exitErr) && exitErr.ExitCode() == 128 {
-				msg := "Not a git repository (or any of the parent directories)"
-				fmt.Fprintf(os.Stderr, "%s%s%s\n", RedColor, msg, ResetColor)
-				os.Exit(128)
+		Run: func(cmd *cobra.Command, args []string) {
+			wd, err := os.Getwd()
+			if err != nil {
+				log.Fatal("fatal: failed to retrieve current working directory:", err)
 			}
-			// or, some sort of an actual error
-			log.Fatal("fatal: failed to determine git project root:", err)
-		}
 
-		status, err := gitStatusOutput()
-		if err != nil {
-			log.Fatal("fatal: error running git status command:", err)
-		}
+			root, err := gitProjectRoot(wd)
+			if err != nil {
+				// we want to capture and handle error status 128 in a pretty way,
+				// as its a fairly normal UX situation (running cmd not in a git repo).
+				var exitErr *exec.ExitError
+				if errors.As(err, &exitErr) && exitErr.ExitCode() == 128 {
+					msg := "Not a git repository (or any of the parent directories)"
+					fmt.Fprintf(os.Stderr, "%s%s%s\n", RedColor, msg, ResetColor)
+					os.Exit(128)
+				}
+				// or, some sort of an actual error
+				log.Fatal("fatal: failed to determine git project root:", err)
+			}
 
-		info, err := porcelainv1.Process(status)
-		if err != nil {
-			log.Println("fatal: failed to process git status output:", err)
-			fmt.Fprintf(os.Stderr, `
+			status, err := gitStatusOutput()
+			if err != nil {
+				log.Fatal("fatal: error running git status command:", err)
+			}
+
+			info, err := porcelainv1.Process(status)
+			if err != nil {
+				log.Println("fatal: failed to process git status output:", err)
+				fmt.Fprintf(os.Stderr, `
 Please file a bug including this error message as well as the output from:
 
 scmpuff debug dump --archive
 
 You can file the bug at: https://github.com/mroth/scmpuff/issues/`)
-			os.Exit(1)
-		}
+				os.Exit(1)
+			}
 
-		renderer, err := NewRenderer(info, root, wd)
-		if err != nil {
-			log.Fatal("fatal: failed to create status renderer:", err)
-		}
+			renderer, err := NewRenderer(info, root, wd)
+			if err != nil {
+				log.Fatal("fatal: failed to create status renderer:", err)
+			}
 
-		if err := renderer.Display(os.Stdout, optsFilelist, optsDisplay); err != nil {
-			log.Fatal("fatal: failed to render status:", err)
-		}
-	},
-}
+			if err := renderer.Display(os.Stdout, optsFilelist, optsDisplay); err != nil {
+				log.Fatal("fatal: failed to render status:", err)
+			}
+		},
+	}
 
-var optsFilelist bool
-var optsDisplay bool
-
-func init() {
 	// --filelist, -f
-	StatusCmd.Flags().BoolVarP(
+	statusCmd.Flags().BoolVarP(
 		&optsFilelist,
 		"filelist", "f", false,
 		"include machine-parseable filelist",
@@ -92,20 +90,13 @@ func init() {
 	// --display
 	// allow normal display to be disabled, not really useful unless you know you
 	// JUST want the machine parseable file-list for some reason.
-	StatusCmd.Flags().BoolVarP(
+	statusCmd.Flags().BoolVarP(
 		&optsDisplay,
 		"display", "", true,
 		"displays the formatted status output",
 	)
 
-	// --relative
-	// StatusCmd.Flags().BoolVarP(
-	// 	&expandRelative,
-	// 	"relative",
-	// 	"r",
-	// 	false,
-	// 	"TODO: SHOULD THIS BE IMPLEMENTED? OR JUST KEEP ALWAYS ON...",
-	// )
+	return statusCmd
 }
 
 // Runs `git status --porcelain=v1 -b -z` and returns the results.

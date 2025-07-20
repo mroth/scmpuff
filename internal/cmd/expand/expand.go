@@ -11,30 +11,26 @@ import (
 
 var expandRelative bool
 
-// ExpandCmd expands numeric shortcuts to their full filepath.
-//
-// Allows expansion of numbered shortcuts, ranges of shortcuts, or standard paths.
-// Numbered shortcut variables are produced by various commands, such as:
-//
-//   - scmpuff_status()  - git status implementation
-var ExpandCmd = &cobra.Command{
-	Use:   "expand [flags] <shortcuts...>",
-	Short: "Expands numeric shortcuts",
-	Long: `Expands numeric shortcuts to their full filepath.
+// NewExpandCmd creates and returns the expand command
+func NewExpandCmd() *cobra.Command {
+	expandCmd := &cobra.Command{
+		Use:   "expand [flags] <shortcuts...>",
+		Short: "Expands numeric shortcuts",
+		Long: `Expands numeric shortcuts to their full filepath.
 
 Takes a list of digits (1 4 5) or numeric ranges (1-5) or even both.`,
-	Example: "$ scmpuff expand 1-2\n/tmp/foo.txt    /tmp/bar.txt",
-	Run: func(cmd *cobra.Command, args []string) {
-		if len(args) < 1 {
-			cmd.Usage()
-		}
+		Example: "$ scmpuff expand 1-2\n/tmp/foo.txt    /tmp/bar.txt",
+		Run: func(cmd *cobra.Command, args []string) {
+			if len(args) < 1 {
+				cmd.Usage()
+			}
 
-		fmt.Print(Process(args))
-	},
-}
+			fmt.Print(Process(args))
+		},
+	}
 
-func init() {
-	ExpandCmd.Flags().BoolVarP(&expandRelative, "relative", "r", false, "make path relative to current working directory")
+	expandCmd.Flags().BoolVarP(&expandRelative, "relative", "r", false, "make path relative to current working directory")
+	return expandCmd
 }
 
 var shellEscaper = regexp.MustCompile("([\\^()\\[\\]<>' \";\\|*])")

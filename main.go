@@ -7,7 +7,5 @@ import "github.com/mroth/scmpuff/internal/cmd"
 var version = "0.0.0-development"
 
 func main() {
-	// TODO: instead of passing version via main, change where we embed with build script
-	cmd.Version = version
-	cmd.Execute()
+	cmd.Execute(version)
 }
