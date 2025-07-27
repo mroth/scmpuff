@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	goversion "github.com/caarlos0/go-version"
 	"github.com/mroth/scmpuff/internal/cmd/debug"
 	"github.com/mroth/scmpuff/internal/cmd/exec"
 	"github.com/mroth/scmpuff/internal/cmd/expand"
@@ -21,11 +22,14 @@ func newRootCmd(version string) *cobra.Command {
 		Long: `scmpuff extends common git commands with numeric filename shortcuts.
 
 If you are just getting started, try the intro!`,
+		Version: version,
+		Args:    cobra.NoArgs,
 
 		// disable default completions introduced in cobra v1.2.0, we will want to
 		// customize if we provide these in the future.
 		CompletionOptions: cobra.CompletionOptions{DisableDefaultCmd: true},
 	}
+	rootCmd.SetVersionTemplate("{{.Version}}")
 
 	versionCmd := &cobra.Command{
 		Use:   "version",
@@ -33,8 +37,9 @@ If you are just getting started, try the intro!`,
 		Long:  `All software has versions. This is ours.`,
 		Args:  cobra.NoArgs,
 		Run: func(cmd *cobra.Command, args []string) {
-			fmt.Println("scmpuff", version)
+			fmt.Println(version)
 		},
+		Deprecated: "use `scmpuff --version` instead",
 	}
 	rootCmd.AddCommand(versionCmd)
 
@@ -63,8 +68,8 @@ If you are just getting started, try the intro!`,
 }
 
 // Execute executes the root command.
-func Execute(version string) {
-	cmd := newRootCmd(version)
+func Execute(version goversion.Info) {
+	cmd := newRootCmd(version.String())
 	if err := cmd.Execute(); err != nil {
 		// Cobra already prints the error, so we just need to exit.
 		//
