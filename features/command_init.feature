@@ -10,7 +10,7 @@ Feature: init command
   Scenario: init with an unrecognized shell should produce an error
     When I run `scmpuff init --shell=oil`
     Then the exit status should be 1
-    Then the output should contain "Unrecognized shell 'oil'"
+    Then the output should contain 'unrecognized shell "oil"'
 
   Scenario Outline: --aliases controls short aliases in output (default: yes)
     When I successfully run `scmpuff init <flags>`

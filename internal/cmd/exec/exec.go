@@ -1,7 +1,6 @@
 package exec
 
 import (
-	"fmt"
 	"os"
 	"os/exec"
 
@@ -11,27 +10,19 @@ import (
 
 var expandRelative bool
 
-// CommandExec expands numeric arguments then executes the command directly.
-//
-// Allows expansion of numbered shortcuts, ranges of shortcuts, or standard paths.
-// Numbered shortcut variables are produced by various commands, such as:
-//
-//  * scmpuff_status()  - git status implementation
-func CommandExec() *cobra.Command {
-
-	var expandCmd = &cobra.Command{
+// NewExecCmd creates and returns the exec command
+func NewExecCmd() *cobra.Command {
+	execCmd := &cobra.Command{
 		Use:     "exec [flags] <command> <shortcuts...>",
-		Example: "$ scmpuff exec git add 1-4",
+		Example: "$ scmpuff exec -- git add 1-4",
 		Aliases: []string{"execute"},
+		Args:    cobra.MinimumNArgs(1),
 		Short:   "Execute cmd with numeric shortcuts",
 		Long: `Expands numeric shortcuts to their full filepath and executes the command.
 
 Takes a list of digits (1 4 5) or numeric ranges (1-5) or even both.`,
-		Run: func(cmd *cobra.Command, inputArgs []string) {
-			if len(inputArgs) < 1 {
-				cmd.Usage()
-				os.Exit(1)
-			}
+		RunE: func(cmd *cobra.Command, inputArgs []string) error {
+			cmd.SilenceUsage = true // silence usage-on-error after args processed
 
 			expandedArgs := Process(inputArgs)
 			a := expandedArgs[1:]
@@ -39,29 +30,26 @@ Takes a list of digits (1 4 5) or numeric ranges (1-5) or even both.`,
 			subcmd.Stdin = os.Stdin
 			subcmd.Stdout = os.Stdout
 			subcmd.Stderr = os.Stderr
+
 			err := subcmd.Run()
-			if err == nil {
-				os.Exit(0)
+			if err != nil {
+				// process exited with a non-zero exit code, we want to just exit
+				// directly with that code rather than returning control back to cobra.
+				if exitError, ok := err.(*exec.ExitError); ok {
+					os.Exit(exitError.ExitCode())
+				}
+
+				// otherwise, we failed to start execution, return error to cobra
+				return err
 			}
-			if exitError, ok := err.(*exec.ExitError); ok {
-				os.Exit(exitError.ExitCode())
-			} else {
-				fmt.Fprintf(os.Stderr, "%v\n", err)
-				os.Exit(1)
-			}
+
+			// normal case: exec completed successfully.
+			return nil
 		},
 	}
 
-	// --relative
-	expandCmd.Flags().BoolVarP(
-		&expandRelative,
-		"relative",
-		"r",
-		false,
-		"make path relative to current working directory",
-	)
-
-	return expandCmd
+	execCmd.Flags().BoolVarP(&expandRelative, "relative", "r", false, "make path relative to current working directory")
+	return execCmd
 }
 
 // Process expands args and performs all substitution, then returns the argument array

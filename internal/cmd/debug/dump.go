@@ -28,17 +28,19 @@ type dumpOptions struct {
 
 var opts dumpOptions
 
-// DumpCmd implements a debugging tool that captures git status information
-var DumpCmd = &cobra.Command{
-	Use:   "dump",
-	Short: "Dump git status information for debugging",
-	Long: `Dump git status information and porcelain files in a machine-readable format for debugging or analysis purposes.
+// NewDumpCmd creates and returns the dump command
+func NewDumpCmd() *cobra.Command {
+	dumpCmd := &cobra.Command{
+		Use:   "dump",
+		Short: "Dump git status information for debugging",
+		Long: `Dump git status information and porcelain files in a machine-readable format for debugging or analysis purposes.
 
 This tool captures various git status formats and metadata to help debug issues with scmpuff.`,
-	RunE: func(cmd *cobra.Command, args []string) error {
-		return run(&opts)
-	},
-	Example: `
+		RunE: func(cmd *cobra.Command, args []string) error {
+			cmd.SilenceUsage = true // silence usage-on-error after args processed
+			return run(&opts)
+		},
+		Example: `
 # Basic usage (summary only)
 scmpuff debug dump
 
@@ -53,13 +55,14 @@ scmpuff debug dump --summary=false
 
 # Combined flags
 scmpuff debug dump --porcelain --summary=false -v`,
-}
+	}
 
-func init() {
-	DumpCmd.Flags().BoolVar(&opts.wantSummary, "summary", true, "summary of status for debugging")
-	DumpCmd.Flags().BoolVar(&opts.wantPorcelain, "porcelain", false, "keep porcelain files for test or debug purposes")
-	DumpCmd.Flags().BoolVar(&opts.wantArchive, "archive", false, "create compressed archive of data")
-	DumpCmd.Flags().BoolVarP(&opts.verbose, "verbose", "v", false, "enable verbose output")
+	dumpCmd.Flags().BoolVar(&opts.wantSummary, "summary", true, "summary of status for debugging")
+	dumpCmd.Flags().BoolVar(&opts.wantPorcelain, "porcelain", false, "keep porcelain files for test or debug purposes")
+	dumpCmd.Flags().BoolVar(&opts.wantArchive, "archive", false, "create compressed archive of data")
+	dumpCmd.Flags().BoolVarP(&opts.verbose, "verbose", "v", false, "enable verbose output")
+
+	return dumpCmd
 }
 
 func run(opts *dumpOptions) error {

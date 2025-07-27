@@ -1,51 +1,49 @@
 package main
 
 import (
-	"fmt"
+	_ "embed"
 
-	"github.com/mroth/scmpuff/internal/commands/debug"
-	"github.com/mroth/scmpuff/internal/commands/exec"
-	"github.com/mroth/scmpuff/internal/commands/expand"
-	"github.com/mroth/scmpuff/internal/commands/inits"
-	"github.com/mroth/scmpuff/internal/commands/intro"
-	"github.com/mroth/scmpuff/internal/commands/status"
-
-	"github.com/spf13/cobra"
+	goversion "github.com/caarlos0/go-version"
+	"github.com/mroth/scmpuff/internal/cmd"
 )
 
-// version is the default version of the program
-// ...in almost all cases this should be overriden by the buildscript.
-var version = "0.0.0-development"
-
-var puffCmd = &cobra.Command{
-	Use:   "scmpuff",
-	Short: "scmpuff extends common git commands with numeric filename shortcuts.",
-	Long: `scmpuff extends common git commands with numeric filename shortcuts.
-
-If you are just getting started, try the intro!`,
-
-	// disable default completions introduced in cobra v1.2.0, we will want to
-	// customize if we provide these in the future.
-	CompletionOptions: cobra.CompletionOptions{DisableDefaultCmd: true},
-}
-
-var versionCmd = &cobra.Command{
-	Use:   "version",
-	Short: "Prints the version number",
-	Long:  `All software has versions. This is ours.`,
-	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("scmpuff", version)
-	},
-}
+var (
+	version   = ""
+	commit    = ""
+	treeState = ""
+	date      = ""
+	builtBy   = ""
+)
 
 func main() {
-	puffCmd.AddCommand(versionCmd)
-	puffCmd.AddCommand(intro.IntroCmd)
-	puffCmd.AddCommand(debug.DebugCmd)
-	puffCmd.AddCommand(inits.CommandInit())
-	puffCmd.AddCommand(exec.CommandExec())
-	puffCmd.AddCommand(expand.CommandExpand())
-	puffCmd.AddCommand(status.CommandStatus())
+	cmd.Execute(
+		buildVersion(version, commit, date, builtBy, treeState),
+	)
+}
 
-	puffCmd.Execute()
+//go:embed docs/banner.txt
+var asciiArt string
+
+func buildVersion(version, commit, date, builtBy, treeState string) goversion.Info {
+	return goversion.GetVersionInfo(
+		goversion.WithAppDetails("scmpuff", "Git by the numbers.", "https://mroth.github.io/scmpuff/"),
+		goversion.WithASCIIName(asciiArt),
+		func(i *goversion.Info) {
+			if commit != "" {
+				i.GitCommit = commit
+			}
+			if treeState != "" {
+				i.GitTreeState = treeState
+			}
+			if date != "" {
+				i.BuildDate = date
+			}
+			if version != "" {
+				i.GitVersion = version
+			}
+			if builtBy != "" {
+				i.BuiltBy = builtBy
+			}
+		},
+	)
 }
