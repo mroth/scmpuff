@@ -70,7 +70,7 @@ There are a number of flags to customize the shell integration.
 		"show", false,
 		"Output scmpuff initialization scripts",
 	)
-	initCmd.Flags().MarkHidden("show")
+	initCmd.Flags().MarkDeprecated("show", "use --shell instead")
 
 	// --wrap
 	initCmd.Flags().BoolVarP(
