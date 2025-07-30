@@ -20,9 +20,9 @@ shell integration is under 100 lines of shell script.
 ## Installation
 
 [Download] the binary for your platform, and copy it to `/usr/local/bin` or
-somewhere else in your  default path.
+somewhere else in your default path.
 
-Alternately, if you use [Homebrew], you can just: `brew install scmpuff`.
+Alternatively, if you use [Homebrew], you can just: `brew install scmpuff`.
 
 [download]: https://github.com/mroth/scmpuff/releases/latest
 [Homebrew]: https://brew.sh
@@ -72,7 +72,7 @@ to each filename, for example:
 commands, e.g. `git add 2 3` or `git checkout 1`.**
 
 You can also use numeric ranges, e.g. `git reset 2-4`. Ranges can even be mixed
-with normal numeric operands.
+with individual numeric operands.
 
 Behind the scenes, scmpuff is assigning filenames to sequential environment
 variables, e.g. `$e1`, `$e2`, so you can refer to those with other commands too
@@ -93,8 +93,9 @@ The long, detailed version:
 https://github.com/mroth/scmpuff/wiki/scmpuff-vs-SCM-Breeze
 
 ### Can I disable or change the default git shortcut aliases?
+
 You can disable them via passing `--aliases=false` to the `scmpuff init` call
-in your shell initialization.  Then, if you wish to remap them, simple modify
+in your shell initialization.  Then, if you wish to remap them, simply modify
 your default aliases wherever you normally do, but add aliases mapped to the
 scmpuff shell functions, e.g. `alias gs='scmpuff_status'`.
 
