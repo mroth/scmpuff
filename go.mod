@@ -3,7 +3,7 @@ module github.com/mroth/scmpuff
 go 1.24
 
 require (
-	github.com/caarlos0/go-version v0.2.1
+	github.com/caarlos0/go-version v0.2.2
 	github.com/google/go-cmp v0.7.0
 	github.com/mroth/porcelain v0.1.0
 	github.com/spf13/cobra v1.9.1
