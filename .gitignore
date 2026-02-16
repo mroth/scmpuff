@@ -4,3 +4,4 @@ tmp/
 .bundle/
 _site/
 Gemfile.lock
+plans/
