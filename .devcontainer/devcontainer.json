@@ -3,14 +3,10 @@
 {
 	"name": "Go",
 	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
-	"image": "mcr.microsoft.com/devcontainers/go:1-1.24-bookworm",
+	"image": "mcr.microsoft.com/devcontainers/go:1.25-trixie",
 
 	// Features to add to the dev container. More info: https://containers.dev/features.
 	"features": {
-		// Ruby for running Aruba integration tests
-		"ghcr.io/devcontainers/features/ruby:1": {
-			"version": "3.2"
-		},
 		// Fish shell for integration tests (bash and zsh installed by default)
 		"ghcr.io/meaningful-ooo/devcontainer-features/fish:2": {
 			"fisher": false
@@ -21,14 +17,14 @@
 	// "forwardPorts": [],
 
 	// Use 'postCreateCommand' to run commands after the container is created.
-	"postCreateCommand": "bundle install",
+	"postCreateCommand": "go mod download",
 
-	// In order to avoid issues with Aruba test failures in a devcontainer
-	// related to consistency, we force Aruba's tmp directory to be tmpfs. Aruba
-	// seems to have issues if we relocate the directory, so this mount option
-	// is the best I've figured out to do for now.
-	"mounts": [
-		"target=${containerWorkspaceFolder}/tmp/aruba,type=tmpfs,tmpfs-mode=1777"
+	// Keep testscript temp artifacts on tmpfs via GOTMPDIR.
+	"containerEnv": {
+		"GOTMPDIR": "/tmp"
+	},
+	"runArgs": [
+		"--tmpfs=/tmp:exec,mode=1777"
 	],
 
 	// Configure tool-specific properties.
@@ -40,8 +36,8 @@
 				"terminal.integrated.defaultProfile.linux": "bash"
 			},
 			"extensions": [
-				"alexkrechik.cucumberautocomplete",
-				"timonwong.shellcheck"
+				"timonwong.shellcheck",
+				"brody715.txtar"
 			]
 		}
 	}

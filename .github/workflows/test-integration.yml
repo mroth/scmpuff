@@ -29,21 +29,12 @@ jobs:
         #     experimental: true
     steps:
       # current build script requires git history to create a version number
-      - name: Checkout code with full history
+      - name: Checkout code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-        with:
-          fetch-depth: 0
       - name: Setup Go
         uses: actions/setup-go@7a3fe6cf4cb3a834922a1244abfce67bcef6a0c5 # v6.2.0
         with:
           go-version-file: go.mod
-      - name: Setup Ruby
-        uses: ruby/setup-ruby@09a7688d3b55cf0e976497ff046b70949eeaccfd # v1.288.0
-        with:
-          ruby-version: '3.2'
-          bundler-cache: true
-      - name: Build binary
-        run: make build
       - name: Install shells on ubuntu
         if: matrix.os == 'ubuntu-latest'
         run: sudo apt-get -y install zsh fish
@@ -51,4 +42,4 @@ jobs:
         if: matrix.os == 'macos-latest'
         run: brew install fish
       - name: Run integration Tests
-        run: bundle exec cucumber -s --tags="not @wip" --color
+        run: go test ./internal/cmd -run TestScripts
