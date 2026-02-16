@@ -33,6 +33,7 @@ func TestRenderer_Display(t *testing.T) {
 		root, cwd string
 	}{
 		{
+			// Replaces feature test: command_status.feature / Scenario: Banner shows no changes when in an unchanged git repo
 			name: "empty",
 			info: gitstatus.StatusInfo{
 				Branch: gitstatus.BranchInfo{Name: "main", CommitsAhead: 0, CommitsBehind: 0},
@@ -40,6 +41,7 @@ func TestRenderer_Display(t *testing.T) {
 			},
 		},
 		{
+			// Replaces feature tests: command_status.feature / Scenarios: Banner shows current branch name; Banner shows position relative to remote status (ahead)
 			name: "with_branch_ahead",
 			info: gitstatus.StatusInfo{
 				Branch: gitstatus.BranchInfo{Name: "feature", CommitsAhead: 3, CommitsBehind: 0},
@@ -59,6 +61,7 @@ func TestRenderer_Display(t *testing.T) {
 			cwd:  "/path/to",
 		},
 		{
+			// Replaces feature tests: command_status.feature / Scenarios: Banner shows expansion reminder when in a changed git repo; Banner shows position relative to remote status (diverged)
 			name: "complex_mix",
 			info: gitstatus.StatusInfo{
 				Branch: gitstatus.BranchInfo{Name: "feature", CommitsAhead: 2, CommitsBehind: 1},
@@ -124,6 +127,36 @@ func TestRenderer_Display(t *testing.T) {
 			},
 			root: "/path/to/repo",
 			cwd:  "/path/to/repo",
+		},
+		{
+			// Replaces feature test: command_status.feature / Scenario: Status for a complex merge conflict
+			name: "complex_merge_conflict_intent",
+			info: gitstatus.StatusInfo{
+				Branch: gitstatus.BranchInfo{Name: "merge-conflict", CommitsAhead: 0, CommitsBehind: 0},
+				Items: []gitstatus.StatusItem{
+					{ChangeType: gitstatus.ChangeUnmergedAddedBoth, Path: "both_added"},
+					{ChangeType: gitstatus.ChangeUnmergedModifiedBoth, Path: "both_modified"},
+					{ChangeType: gitstatus.ChangeUnmergedDeletedThem, Path: "deleted_by_them"},
+					{ChangeType: gitstatus.ChangeUnmergedDeletedUs, Path: "deleted_by_us"},
+					{ChangeType: gitstatus.ChangeUnmergedDeletedBoth, Path: "renamed_file"},
+					{ChangeType: gitstatus.ChangeUnmergedAddedThem, Path: "renamed_file_on_branch"},
+					{ChangeType: gitstatus.ChangeUnmergedAddedUs, Path: "renamed_file_on_master"},
+				},
+			},
+			root: "/repo",
+			cwd:  "/repo",
+		},
+		{
+			// Replaces feature test: command_status.feature / Scenario: Status for a handling a conflict when rebasing
+			name: "rebase_conflict_head_no_branch_intent",
+			info: gitstatus.StatusInfo{
+				Branch: gitstatus.BranchInfo{Name: "HEAD (no branch)", CommitsAhead: 0, CommitsBehind: 0},
+				Items: []gitstatus.StatusItem{
+					{ChangeType: gitstatus.ChangeUnmergedModifiedBoth, Path: "file_with_conflict"},
+				},
+			},
+			root: "/repo",
+			cwd:  "/repo",
 		},
 		{
 			name: "type_changes",
