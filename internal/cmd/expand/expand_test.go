@@ -17,9 +17,9 @@ func TestProcessEmpty(t *testing.T) {
 
 func TestProcessEscaping(t *testing.T) {
 	tests := []struct {
-		name   string
-		value  string
-		want   string
+		name  string
+		value string
+		want  string
 	}{
 		{name: "spaces escaped", value: "hi mom.txt", want: "hi\\ mom.txt"},
 		{name: "glob escaped", value: "refs/wip/*", want: "refs/wip/\\*"},

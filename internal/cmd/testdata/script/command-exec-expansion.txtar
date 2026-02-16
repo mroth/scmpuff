@@ -1,0 +1,41 @@
+# Scenario: Expand single/multiple/ranged digit case via command boundary
+# Original Cucumber Source: features/command_exec.feature
+# Purpose: Preserve command-level expansion contract for scmpuff exec.
+# Verbose notes: Uses per-case repo copies to isolate git index state.
+
+exec git init repo
+cd repo
+cd ..
+
+env e1=a.txt
+env e2=b.txt
+
+# Case: single digit
+exec cp -R repo repo_single
+cd repo_single
+exec scmpuff exec -- git add 2
+exec git status -s a.txt b.txt
+stdout '^A  b.txt\n\?\? a.txt\n$'
+cd ..
+
+# Case: multiple digits
+exec cp -R repo repo_multi
+cd repo_multi
+exec scmpuff exec -- git add 1 2
+exec git status -s a.txt b.txt
+stdout '^A  a.txt\nA  b.txt\n$'
+cd ..
+
+# Case: ranged digits
+exec cp -R repo repo_range
+cd repo_range
+exec scmpuff exec -- git add 1-2
+exec git status -s a.txt b.txt
+stdout '^A  a.txt\nA  b.txt\n$'
+cd ..
+
+-- repo/a.txt --
+x
+
+-- repo/b.txt --
+y

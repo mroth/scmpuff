@@ -107,9 +107,9 @@ func TestNewInitCmd_AliasesFlagControlsOutput(t *testing.T) {
 
 func TestNewInitCmd_WrapFlagControlsOutput(t *testing.T) {
 	tests := []struct {
-		name      string
-		args      []string
-		wantWrap  bool
+		name     string
+		args     []string
+		wantWrap bool
 	}{
 		{name: "default true", args: []string{"-s"}, wantWrap: true},
 		{name: "short true", args: []string{"-ws"}, wantWrap: true},

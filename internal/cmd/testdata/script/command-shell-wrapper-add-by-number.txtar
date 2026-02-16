@@ -1,0 +1,45 @@
+# Scenario: Wrapped git add adds by number and prints refreshed status
+# Original Cucumber Source: features/shell_wrappers.feature
+# Purpose: Verify git wrapper expands numeric args and echoes updated status.
+# Verbose notes: Uses per-shell repo copies to avoid state mutation overlap.
+
+exec git init repo_base
+cd repo_base
+cd ..
+
+# Bash
+[exec:bash] exec cp -R repo_base repo_bash
+[exec:bash] cd repo_bash
+[exec:bash] exec bash -lc 'eval "$(scmpuff init -s)"; scmpuff_status >/dev/null; git add 1'
+[exec:bash] stdout 'On branch:'
+[exec:bash] exec git status --porcelain
+[exec:bash] cmp stdout ../expected-porcelain.txt
+[exec:bash] cd ..
+
+# Zsh
+[exec:zsh] exec cp -R repo_base repo_zsh
+[exec:zsh] cd repo_zsh
+[exec:zsh] exec zsh -lc 'eval "$(scmpuff init -s)"; scmpuff_status >/dev/null; git add 1'
+[exec:zsh] stdout 'On branch:'
+[exec:zsh] exec git status --porcelain
+[exec:zsh] cmp stdout ../expected-porcelain.txt
+[exec:zsh] cd ..
+
+# Fish
+[exec:fish] exec cp -R repo_base repo_fish
+[exec:fish] cd repo_fish
+[exec:fish] exec fish -c 'scmpuff init --shell=fish | source; scmpuff_status >/dev/null; git add 1'
+[exec:fish] stdout 'On branch:'
+[exec:fish] exec git status --porcelain
+[exec:fish] cmp stdout ../expected-porcelain.txt
+[exec:fish] cd ..
+
+-- repo_base/foo.bar --
+abcd
+
+-- repo_base/bar.foo --
+abcd
+
+-- expected-porcelain.txt --
+A  bar.foo
+?? foo.bar

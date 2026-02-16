@@ -1,0 +1,110 @@
+# Scenario: shell wrapper environment variable assignment and cleanup behavior
+# Original Cucumber Source: features/shell_functions.feature
+# Purpose: Verify e1..eN mappings, weird filename handling, and clearing stale vars.
+# Verbose notes: Uses dedicated per-shell repos for the mutating clear-vars case.
+
+# Complex status baseline matching scm_breeze helper shape
+exec git init repo_complex
+cd repo_complex
+exec git add deleted_file
+exec git commit -m base
+exec git add new_file
+cp ../new_file.modified new_file
+rm deleted_file
+cd ..
+
+# Case: Sets proper environment variables in shell
+cd repo_complex
+[exec:bash] exec bash -lc 'eval "$(scmpuff init -s)"; scmpuff_status >/dev/null; sh ../emit-env.sh'
+[exec:bash] cmp stdout ../expected-complex.txt
+[exec:zsh] exec zsh -lc 'eval "$(scmpuff init -s)"; scmpuff_status >/dev/null; sh ../emit-env.sh'
+[exec:zsh] cmp stdout ../expected-complex.txt
+[exec:fish] exec fish -c 'scmpuff init --shell=fish | source; scmpuff_status >/dev/null; sh ../emit-env.sh'
+[exec:fish] cmp stdout ../expected-complex.txt
+cd ..
+
+# Case: Sets proper environment variables with weird filenames
+exec git init repo_weird
+cd repo_weird
+[exec:bash] exec bash -lc 'eval "$(scmpuff init -s)"; scmpuff_status >/dev/null; sh ../emit-env.sh'
+[exec:bash] cmp stdout ../expected-weird.txt
+[exec:zsh] exec zsh -lc 'eval "$(scmpuff init -s)"; scmpuff_status >/dev/null; sh ../emit-env.sh'
+[exec:zsh] cmp stdout ../expected-weird.txt
+[exec:fish] exec fish -c 'scmpuff init --shell=fish | source; scmpuff_status >/dev/null; sh ../emit-env.sh'
+[exec:fish] cmp stdout ../expected-weird.txt
+cd ..
+
+# Case: Clears extra environment variables from before
+[exec:bash] exec cp -R repo_complex repo_complex_bash
+[exec:bash] cd repo_complex_bash
+[exec:bash] exec bash -lc 'eval "$(scmpuff init -s --wrap=false)"; scmpuff_status >/dev/null 2>/dev/null; sh ../commit-new-file.sh; scmpuff_status >/dev/null 2>/dev/null; sh ../emit-env.sh'
+[exec:bash] cmp stdout ../expected-clear.txt
+[exec:bash] cd ..
+
+[exec:zsh] exec cp -R repo_complex repo_complex_zsh
+[exec:zsh] cd repo_complex_zsh
+[exec:zsh] exec zsh -lc 'eval "$(scmpuff init -s --wrap=false)"; scmpuff_status >/dev/null 2>/dev/null; sh ../commit-new-file.sh; scmpuff_status >/dev/null 2>/dev/null; sh ../emit-env.sh'
+[exec:zsh] cmp stdout ../expected-clear.txt
+[exec:zsh] cd ..
+
+[exec:fish] exec cp -R repo_complex repo_complex_fish
+[exec:fish] cd repo_complex_fish
+[exec:fish] exec fish -c 'scmpuff init --shell=fish --wrap=false | source; scmpuff_status >/dev/null 2>/dev/null; sh ../commit-new-file.sh; scmpuff_status >/dev/null 2>/dev/null; sh ../emit-env.sh'
+[exec:fish] cmp stdout ../expected-clear.txt
+[exec:fish] cd ..
+
+-- expected-complex.txt --
+e1:new_file
+e2:deleted_file
+e3:new_file
+e4:untracked_file
+e5:
+
+-- expected-weird.txt --
+e1:aa bb
+e2:bb|cc
+e3:cc*dd
+e4:
+e5:
+
+-- expected-clear.txt --
+e1:deleted_file
+e2:untracked_file
+e3:
+e4:
+e5:
+
+-- repo_complex/deleted_file --
+deleted
+
+-- repo_complex/new_file --
+new file
+
+-- new_file.modified --
+changed contents lolol
+
+-- repo_complex/untracked_file --
+untracked
+
+-- repo_weird/aa bb --
+a
+
+-- repo_weird/bb|cc --
+b
+
+-- repo_weird/cc*dd --
+c
+
+-- emit-env.sh --
+#!/bin/sh
+for var_name in e1 e2 e3 e4 e5; do
+	eval "value=\${$var_name-}"
+	base_name=${value##*/}
+	printf '%s:%s\n' "$var_name" "$base_name"
+done
+printf '\n'
+
+-- commit-new-file.sh --
+#!/bin/sh
+git add new_file
+git commit -m "so be it" >/dev/null

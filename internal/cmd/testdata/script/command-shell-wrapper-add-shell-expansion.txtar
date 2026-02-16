@@ -1,0 +1,49 @@
+# Scenario: Wrapped git add handles shell variable expansion with numeric args
+# Original Cucumber Source: features/shell_wrappers.feature
+# Purpose: Verify wrapped add respects shell-expanded paths and numeric placeholders together.
+# Verbose notes: Uses shell-specific variable assignment syntax.
+
+exec git init repo_base
+cd repo_base
+cd ..
+
+# Bash
+[exec:bash] exec cp -R repo_base repo_bash
+[exec:bash] cd repo_bash
+[exec:bash] exec bash -lc 'eval "$(scmpuff init -s)"; scmpuff_status >/dev/null; FILE="file with spaces.txt"; git add "$FILE" 2'
+[exec:bash] stdout 'On branch:'
+[exec:bash] exec git status --porcelain
+[exec:bash] cmp stdout ../expected-porcelain.txt
+[exec:bash] cd ..
+
+# Zsh
+[exec:zsh] exec cp -R repo_base repo_zsh
+[exec:zsh] cd repo_zsh
+[exec:zsh] exec zsh -lc 'eval "$(scmpuff init -s)"; scmpuff_status >/dev/null; FILE="file with spaces.txt"; git add "$FILE" 2'
+[exec:zsh] stdout 'On branch:'
+[exec:zsh] exec git status --porcelain
+[exec:zsh] cmp stdout ../expected-porcelain.txt
+[exec:zsh] cd ..
+
+# Fish
+[exec:fish] exec cp -R repo_base repo_fish
+[exec:fish] cd repo_fish
+[exec:fish] exec fish -c 'scmpuff init --shell=fish | source; scmpuff_status >/dev/null; set FILE "file with spaces.txt"; git add "$FILE" 2'
+[exec:fish] stdout 'On branch:'
+[exec:fish] exec git status --porcelain
+[exec:fish] cmp stdout ../expected-porcelain.txt
+[exec:fish] cd ..
+
+-- repo_base/file with spaces.txt --
+x
+
+-- repo_base/file2.txt --
+y
+
+-- repo_base/untracked file.txt --
+z
+
+-- expected-porcelain.txt --
+A  "file with spaces.txt"
+A  file2.txt
+?? "untracked file.txt"
