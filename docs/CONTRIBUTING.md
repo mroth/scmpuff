@@ -116,3 +116,58 @@ When debugging script failures locally, run with `-testwork` to preserve the scr
 ```sh
 go test ./internal/cmd -run TestScripts -count=1 -testwork
 ```
+
+#### Multi-shell testing pattern
+
+Integration scripts test bash, zsh, and fish using `[exec:shell]` conditions on
+each line. This means every shell block is repeated almost verbatim — an
+unfortunate side effect of testscript being a linear DSL with no loops or
+templating. Attempts to abstract the repetition (custom commands, Go-level shell
+loops) add indirection that hurts debuggability, so given the relatively small
+amount of shell-specific testing we need to do, the duplication is an acceptable
+tradeoff. As a design goal, scmpuff behavior is shell-independent — the core
+logic lives in Go, and shell-specific code is limited to the thin init/wrapper
+layer. Keep the test blocks explicit.
+
+**Init boilerplate.** Bash and zsh use the same form:
+
+```
+[exec:bash] exec bash -c 'eval "$(scmpuff init -s)"; …'
+[exec:zsh]  exec zsh  -c 'eval "$(scmpuff init -s)"; …'
+```
+
+Fish uses pipe-to-source:
+
+```
+[exec:fish] exec fish -c 'scmpuff init --shell=fish | source; …'
+```
+
+**When shells diverge.** Fish has different syntax for exit status (`$status`
+vs `$?`), variable assignment (`set` vs `=`), and aliases. Keep these as
+explicit per-shell blocks rather than trying to unify them:
+
+```
+[exec:bash] exec bash -c '…; test $? -eq 128'
+[exec:zsh]  exec zsh  -c '…; test $? -eq 128'
+[exec:fish] exec fish -c '…; test $status -eq 128'
+```
+
+**Maintenance rule.** When updating a shell block, update all three. Bash and
+zsh are usually identical (just swap the shell name in the condition and `exec`);
+fish needs its own variant for init and any shell-specific syntax.
+
+**State isolation.** Tests that mutate repo state (add, commit, etc.) need
+per-shell copies of the repo to avoid cross-shell interference:
+
+```
+[exec:bash] exec cp -R repo_base repo_bash
+[exec:bash] cd repo_bash
+…
+[exec:zsh]  exec cp -R repo_base repo_zsh
+[exec:zsh]  cd repo_zsh
+…
+[exec:fish] exec cp -R repo_base repo_fish
+[exec:fish] cd repo_fish
+```
+
+Read-only tests that only inspect output can share a single repo.

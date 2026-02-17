@@ -15,9 +15,9 @@ cd ..
 
 # Case: Sets proper environment variables in shell
 cd repo_complex
-[exec:bash] exec bash -lc 'eval "$(scmpuff init -s)"; scmpuff_status >/dev/null; sh ../emit-env.sh'
+[exec:bash] exec bash -c 'eval "$(scmpuff init -s)"; scmpuff_status >/dev/null; sh ../emit-env.sh'
 [exec:bash] cmp stdout ../expected-complex.txt
-[exec:zsh] exec zsh -lc 'eval "$(scmpuff init -s)"; scmpuff_status >/dev/null; sh ../emit-env.sh'
+[exec:zsh] exec zsh -c 'eval "$(scmpuff init -s)"; scmpuff_status >/dev/null; sh ../emit-env.sh'
 [exec:zsh] cmp stdout ../expected-complex.txt
 [exec:fish] exec fish -c 'scmpuff init --shell=fish | source; scmpuff_status >/dev/null; sh ../emit-env.sh'
 [exec:fish] cmp stdout ../expected-complex.txt
@@ -26,9 +26,9 @@ cd ..
 # Case: Sets proper environment variables with weird filenames
 exec git init repo_weird
 cd repo_weird
-[exec:bash] exec bash -lc 'eval "$(scmpuff init -s)"; scmpuff_status >/dev/null; sh ../emit-env.sh'
+[exec:bash] exec bash -c 'eval "$(scmpuff init -s)"; scmpuff_status >/dev/null; sh ../emit-env.sh'
 [exec:bash] cmp stdout ../expected-weird.txt
-[exec:zsh] exec zsh -lc 'eval "$(scmpuff init -s)"; scmpuff_status >/dev/null; sh ../emit-env.sh'
+[exec:zsh] exec zsh -c 'eval "$(scmpuff init -s)"; scmpuff_status >/dev/null; sh ../emit-env.sh'
 [exec:zsh] cmp stdout ../expected-weird.txt
 [exec:fish] exec fish -c 'scmpuff init --shell=fish | source; scmpuff_status >/dev/null; sh ../emit-env.sh'
 [exec:fish] cmp stdout ../expected-weird.txt
@@ -37,13 +37,13 @@ cd ..
 # Case: Clears extra environment variables from before
 [exec:bash] exec cp -R repo_complex repo_complex_bash
 [exec:bash] cd repo_complex_bash
-[exec:bash] exec bash -lc 'eval "$(scmpuff init -s --wrap=false)"; scmpuff_status >/dev/null 2>/dev/null; sh ../commit-new-file.sh; scmpuff_status >/dev/null 2>/dev/null; sh ../emit-env.sh'
+[exec:bash] exec bash -c 'eval "$(scmpuff init -s --wrap=false)"; scmpuff_status >/dev/null 2>/dev/null; sh ../commit-new-file.sh; scmpuff_status >/dev/null 2>/dev/null; sh ../emit-env.sh'
 [exec:bash] cmp stdout ../expected-clear.txt
 [exec:bash] cd ..
 
 [exec:zsh] exec cp -R repo_complex repo_complex_zsh
 [exec:zsh] cd repo_complex_zsh
-[exec:zsh] exec zsh -lc 'eval "$(scmpuff init -s --wrap=false)"; scmpuff_status >/dev/null 2>/dev/null; sh ../commit-new-file.sh; scmpuff_status >/dev/null 2>/dev/null; sh ../emit-env.sh'
+[exec:zsh] exec zsh -c 'eval "$(scmpuff init -s --wrap=false)"; scmpuff_status >/dev/null 2>/dev/null; sh ../commit-new-file.sh; scmpuff_status >/dev/null 2>/dev/null; sh ../emit-env.sh'
 [exec:zsh] cmp stdout ../expected-clear.txt
 [exec:zsh] cd ..
 

@@ -1,0 +1,23 @@
+# Scenario: shell wrapper reports clean status in a repo with no changes
+# Original Cucumber Source: features/shell_functions.feature
+# Purpose: Verify scmpuff_status shows clean output in a committed repo.
+
+exec git init repo_clean
+cd repo_clean
+exec git add keep.txt
+exec git commit -m base
+
+# Bash
+[exec:bash] exec bash -c 'eval "$(scmpuff init -s)"; scmpuff_status'
+[exec:bash] stdout 'No changes \(working directory clean\)'
+
+# Zsh
+[exec:zsh] exec zsh -c 'eval "$(scmpuff init -s)"; scmpuff_status'
+[exec:zsh] stdout 'No changes \(working directory clean\)'
+
+# Fish
+[exec:fish] exec fish -c 'scmpuff init --shell=fish | source; scmpuff_status'
+[exec:fish] stdout 'No changes \(working directory clean\)'
+
+-- repo_clean/keep.txt --
+keep

@@ -4,13 +4,13 @@
 # Verbose notes: Runs shell-specific init commands and verifies both functions exist.
 
 # Bash
-[exec:bash] exec bash -lc 'eval "$(scmpuff init -s)"; type scmpuff_status; type scmpuff_clear_vars'
+[exec:bash] exec bash -c 'eval "$(scmpuff init -s)"; type scmpuff_status; type scmpuff_clear_vars'
 [exec:bash] stdout scmpuff_status
 [exec:bash] stdout scmpuff_clear_vars
 [exec:bash] ! stdout 'not found'
 
 # Zsh
-[exec:zsh] exec zsh -lc 'eval "$(scmpuff init -s)"; type scmpuff_status; type scmpuff_clear_vars'
+[exec:zsh] exec zsh -c 'eval "$(scmpuff init -s)"; type scmpuff_status; type scmpuff_clear_vars'
 [exec:zsh] stdout scmpuff_status
 [exec:zsh] stdout scmpuff_clear_vars
 [exec:zsh] ! stdout 'not found'

@@ -5,11 +5,11 @@
 
 # Case: default SCMPUFF_GIT_CMD is absolute path to git
 # Bash
-[exec:bash] exec bash -lc 'eval "$(scmpuff init -s)"; printf "%s\n" "$SCMPUFF_GIT_CMD"'
+[exec:bash] exec bash -c 'eval "$(scmpuff init -s)"; printf "%s\n" "$SCMPUFF_GIT_CMD"'
 [exec:bash] stdout '^/.+/git$'
 
 # Zsh
-[exec:zsh] exec zsh -lc 'eval "$(scmpuff init -s)"; printf "%s\n" "$SCMPUFF_GIT_CMD"'
+[exec:zsh] exec zsh -c 'eval "$(scmpuff init -s)"; printf "%s\n" "$SCMPUFF_GIT_CMD"'
 [exec:zsh] stdout '^/.+/git$'
 
 # Fish
@@ -18,11 +18,11 @@
 
 # Case: SCMPUFF_GIT_CMD is absolute path, eliminating aliases
 # Bash
-[exec:bash] exec bash -lc 'alias git=/foo/bar; eval "$(scmpuff init -s)"; printf "%s\n" "$SCMPUFF_GIT_CMD"'
+[exec:bash] exec bash -c 'alias git=/foo/bar; eval "$(scmpuff init -s)"; printf "%s\n" "$SCMPUFF_GIT_CMD"'
 [exec:bash] stdout '^/.+/git$'
 
 # Zsh
-[exec:zsh] exec zsh -lc 'alias git=/foo/bar; eval "$(scmpuff init -s)"; printf "%s\n" "$SCMPUFF_GIT_CMD"'
+[exec:zsh] exec zsh -c 'alias git=/foo/bar; eval "$(scmpuff init -s)"; printf "%s\n" "$SCMPUFF_GIT_CMD"'
 [exec:zsh] stdout '^/.+/git$'
 
 # Fish
@@ -31,11 +31,11 @@
 
 # Case: SCMPUFF_GIT_CMD respects existing environment variables
 # Bash
-[exec:bash] exec bash -lc 'export SCMPUFF_GIT_CMD=/foo/hub; eval "$(scmpuff init -s)"; printf "%s\n" "$SCMPUFF_GIT_CMD"'
+[exec:bash] exec bash -c 'export SCMPUFF_GIT_CMD=/foo/hub; eval "$(scmpuff init -s)"; printf "%s\n" "$SCMPUFF_GIT_CMD"'
 [exec:bash] stdout '^/foo/hub$'
 
 # Zsh
-[exec:zsh] exec zsh -lc 'export SCMPUFF_GIT_CMD=/foo/hub; eval "$(scmpuff init -s)"; printf "%s\n" "$SCMPUFF_GIT_CMD"'
+[exec:zsh] exec zsh -c 'export SCMPUFF_GIT_CMD=/foo/hub; eval "$(scmpuff init -s)"; printf "%s\n" "$SCMPUFF_GIT_CMD"'
 [exec:zsh] stdout '^/foo/hub$'
 
 # Fish

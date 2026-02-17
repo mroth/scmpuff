@@ -11,7 +11,7 @@ cd ..
 # Bash
 [exec:bash] exec cp -R repo_base repo_bash
 [exec:bash] cd repo_bash
-[exec:bash] exec bash -lc 'eval "$(scmpuff init -s)"; scmpuff_status >/dev/null; git reset 1'
+[exec:bash] exec bash -c 'eval "$(scmpuff init -s)"; scmpuff_status >/dev/null; git reset 1'
 [exec:bash] exec git status --porcelain
 [exec:bash] cmp stdout ../expected-porcelain.txt
 [exec:bash] cd ..
@@ -19,7 +19,7 @@ cd ..
 # Zsh
 [exec:zsh] exec cp -R repo_base repo_zsh
 [exec:zsh] cd repo_zsh
-[exec:zsh] exec zsh -lc 'eval "$(scmpuff init -s)"; scmpuff_status >/dev/null; git reset 1'
+[exec:zsh] exec zsh -c 'eval "$(scmpuff init -s)"; scmpuff_status >/dev/null; git reset 1'
 [exec:zsh] exec git status --porcelain
 [exec:zsh] cmp stdout ../expected-porcelain.txt
 [exec:zsh] cd ..

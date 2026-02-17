@@ -4,8 +4,6 @@
 # Verbose notes: Uses per-case repo copies to isolate git index state.
 
 exec git init repo
-cd repo
-cd ..
 
 env e1=a.txt
 env e2=b.txt

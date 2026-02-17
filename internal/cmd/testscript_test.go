@@ -35,6 +35,10 @@ func TestScripts(t *testing.T) {
 		RequireExplicitExec: true,
 		UpdateScripts:       *updateScripts,
 		Setup: func(e *testscript.Env) error {
+			// Isolate from host git configuration.
+			e.Setenv("GIT_CONFIG_NOSYSTEM", "1")
+			e.Setenv("GIT_TERMINAL_PROMPT", "0")
+
 			e.Setenv("GIT_AUTHOR_NAME", "SCM Puff")
 			e.Setenv("GIT_AUTHOR_EMAIL", "scmpuff@example.com")
 			e.Setenv("GIT_COMMITTER_NAME", "SCM Puff")
