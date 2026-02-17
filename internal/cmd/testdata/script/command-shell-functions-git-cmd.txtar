@@ -1,0 +1,43 @@
+# Scenario: SCMPUFF_GIT_CMD defaulting, alias immunity, and override behavior
+# Original Cucumber Source: features/shell_functions.feature
+# Purpose: Verify SCMPUFF_GIT_CMD is absolute by default, ignores aliases, and respects pre-set values.
+# Verbose notes: Uses shell-specific commands for alias/export semantics.
+
+# Case: default SCMPUFF_GIT_CMD is absolute path to git
+# Bash
+[exec:bash] exec bash -c 'eval "$(scmpuff init -s)"; printf "%s\n" "$SCMPUFF_GIT_CMD"'
+[exec:bash] stdout '^/.+/git$'
+
+# Zsh
+[exec:zsh] exec zsh -c 'eval "$(scmpuff init -s)"; printf "%s\n" "$SCMPUFF_GIT_CMD"'
+[exec:zsh] stdout '^/.+/git$'
+
+# Fish
+[exec:fish] exec fish -c 'scmpuff init --shell=fish | source; printf "%s\n" "$SCMPUFF_GIT_CMD"'
+[exec:fish] stdout '^/.+/git$'
+
+# Case: SCMPUFF_GIT_CMD is absolute path, eliminating aliases
+# Bash
+[exec:bash] exec bash -c 'alias git=/foo/bar; eval "$(scmpuff init -s)"; printf "%s\n" "$SCMPUFF_GIT_CMD"'
+[exec:bash] stdout '^/.+/git$'
+
+# Zsh
+[exec:zsh] exec zsh -c 'alias git=/foo/bar; eval "$(scmpuff init -s)"; printf "%s\n" "$SCMPUFF_GIT_CMD"'
+[exec:zsh] stdout '^/.+/git$'
+
+# Fish
+[exec:fish] exec fish -c 'alias git "/foo/bar"; scmpuff init --shell=fish | source; printf "%s\n" "$SCMPUFF_GIT_CMD"'
+[exec:fish] stdout '^/.+/git$'
+
+# Case: SCMPUFF_GIT_CMD respects existing environment variables
+# Bash
+[exec:bash] exec bash -c 'export SCMPUFF_GIT_CMD=/foo/hub; eval "$(scmpuff init -s)"; printf "%s\n" "$SCMPUFF_GIT_CMD"'
+[exec:bash] stdout '^/foo/hub$'
+
+# Zsh
+[exec:zsh] exec zsh -c 'export SCMPUFF_GIT_CMD=/foo/hub; eval "$(scmpuff init -s)"; printf "%s\n" "$SCMPUFF_GIT_CMD"'
+[exec:zsh] stdout '^/foo/hub$'
+
+# Fish
+[exec:fish] exec fish -c 'set -gx SCMPUFF_GIT_CMD /foo/hub; scmpuff init --shell=fish | source; printf "%s\n" "$SCMPUFF_GIT_CMD"'
+[exec:fish] stdout '^/foo/hub$'

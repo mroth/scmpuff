@@ -1,0 +1,45 @@
+# Scenario: Wrapped git restore --staged works with numeric arg
+# Original Cucumber Source: features/shell_wrappers.feature
+# Purpose: Verify wrapped restore unstages selected file and leaves modified working tree.
+# Verbose notes: Requires recent git versions with restore support.
+
+exec git init repo_base
+cd repo_base
+exec git add foo.bar
+exec git commit -m 'initial commit'
+cp ../foo.bar.modified foo.bar
+exec git add foo.bar
+cd ..
+
+# Bash
+[exec:bash] exec cp -R repo_base repo_bash
+[exec:bash] cd repo_bash
+[exec:bash] exec bash -c 'eval "$(scmpuff init -s)"; scmpuff_status >/dev/null; git restore --staged 1'
+[exec:bash] exec git status --porcelain
+[exec:bash] cmp stdout ../expected-porcelain.txt
+[exec:bash] cd ..
+
+# Zsh
+[exec:zsh] exec cp -R repo_base repo_zsh
+[exec:zsh] cd repo_zsh
+[exec:zsh] exec zsh -c 'eval "$(scmpuff init -s)"; scmpuff_status >/dev/null; git restore --staged 1'
+[exec:zsh] exec git status --porcelain
+[exec:zsh] cmp stdout ../expected-porcelain.txt
+[exec:zsh] cd ..
+
+# Fish
+[exec:fish] exec cp -R repo_base repo_fish
+[exec:fish] cd repo_fish
+[exec:fish] exec fish -c 'scmpuff init --shell=fish | source; scmpuff_status >/dev/null; git restore --staged 1'
+[exec:fish] exec git status --porcelain
+[exec:fish] cmp stdout ../expected-porcelain.txt
+[exec:fish] cd ..
+
+-- repo_base/foo.bar --
+ab
+
+-- foo.bar.modified --
+abcd
+
+-- expected-porcelain.txt --
+ M foo.bar

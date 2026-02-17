@@ -1,6 +1,4 @@
 bin/
 dist/
-tmp/
-.bundle/
 _site/
-Gemfile.lock
+plans/

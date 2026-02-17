@@ -1,0 +1,32 @@
+# Scenario: CLI passthrough, semicolon escaping, and numeric file/dir no-expand
+# Original Cucumber Source: features/command_expand.feature
+# Purpose: Preserve command-level expand contracts requiring integration semantics.
+# Verbose notes: Includes -- passthrough, shell-special escaping, and filesystem-presence behavior.
+
+env e1=a.txt
+env e2=b.txt
+env e3=c.txt
+
+# Case: Base simple expansion
+exec scmpuff expand 1
+stdout '^a.txt$'
+
+# Case: Dont interfere with CLI options after --
+exec scmpuff expand -- git foo -x 1
+stdout '^git\tfoo\t-x\ta.txt$'
+
+# Case: Semicolons in commit messages are escaped in output
+exec scmpuff expand -- git commit -m 'foo; bar'
+stdout '^git\tcommit\t-m\tfoo\\;\\ bar$'
+! stderr .
+
+# Case: Dont expand files or directories with numeric names
+cp fixture-one.txt 1
+mkdir 2
+exec scmpuff expand 3 2 1
+stdout c.txt
+! stdout b.txt
+! stdout a.txt
+
+-- fixture-one.txt --
+x

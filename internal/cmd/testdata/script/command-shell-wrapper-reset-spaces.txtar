@@ -1,0 +1,39 @@
+# Scenario: Wrapped git reset handles staged filenames with spaces
+# Original Cucumber Source: features/shell_wrappers.feature
+# Purpose: Verify wrapped reset unstages numeric-selected spaced filename.
+# Verbose notes: Post-condition checked via explicit scmpuff status command.
+
+exec git init repo_base
+cd repo_base
+exec git add 'file with spaces.txt'
+cd ..
+
+# Bash
+[exec:bash] exec cp -R repo_base repo_bash
+[exec:bash] cd repo_bash
+[exec:bash] exec bash -c 'eval "$(scmpuff init -s)"; scmpuff_status >/dev/null; git reset 1'
+[exec:bash] exec git status --porcelain
+[exec:bash] cmp stdout ../expected-porcelain.txt
+[exec:bash] cd ..
+
+# Zsh
+[exec:zsh] exec cp -R repo_base repo_zsh
+[exec:zsh] cd repo_zsh
+[exec:zsh] exec zsh -c 'eval "$(scmpuff init -s)"; scmpuff_status >/dev/null; git reset 1'
+[exec:zsh] exec git status --porcelain
+[exec:zsh] cmp stdout ../expected-porcelain.txt
+[exec:zsh] cd ..
+
+# Fish
+[exec:fish] exec cp -R repo_base repo_fish
+[exec:fish] cd repo_fish
+[exec:fish] exec fish -c 'scmpuff init --shell=fish | source; scmpuff_status >/dev/null; git reset 1'
+[exec:fish] exec git status --porcelain
+[exec:fish] cmp stdout ../expected-porcelain.txt
+[exec:fish] cd ..
+
+-- repo_base/file with spaces.txt --
+x
+
+-- expected-porcelain.txt --
+?? "file with spaces.txt"

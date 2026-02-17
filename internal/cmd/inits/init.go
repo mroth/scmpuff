@@ -9,15 +9,15 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var (
-	shellType      string
-	includeAliases bool
-	wrapGit        bool
-	legacyShow     bool
-)
-
 // NewInitCmd creates and returns the init command
 func NewInitCmd() *cobra.Command {
+	var (
+		shellType      string
+		includeAliases bool
+		wrapGit        bool
+		legacyShow     bool
+	)
+
 	initCmd := &cobra.Command{
 		Use:   "init",
 		Short: "Output initialization script",
@@ -44,9 +44,9 @@ There are a number of flags to customize the shell integration.
 			case "":
 				cmd.Help()
 			case "sh", "bash", "zsh":
-				fmt.Println(bashCollection.Output(wrapGit, includeAliases))
+				cmd.Println(bashCollection.Output(wrapGit, includeAliases))
 			case "fish":
-				fmt.Println(fishCollection.Output(wrapGit, includeAliases))
+				cmd.Println(fishCollection.Output(wrapGit, includeAliases))
 			default:
 				return fmt.Errorf(`unrecognized shell "%s"`, shellType)
 			}

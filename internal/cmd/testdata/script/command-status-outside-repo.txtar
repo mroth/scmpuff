@@ -1,0 +1,8 @@
+# Scenario: Appropriate error status when not in a git repo
+# Original Cucumber Source: features/command_status.feature
+# Purpose: Preserve outside-repo status error contract including exit status.
+# Verbose notes: Uses one shell wrapper to assert exact exit code (128) and testscript stderr/stdout builtins for output checks.
+
+exec sh -c 'scmpuff status; test $? -eq 128'
+stderr 'Not a git repository \(or any of the parent directories\)'
+! stdout .

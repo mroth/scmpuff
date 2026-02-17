@@ -1,0 +1,12 @@
+# Scenario: shell wrapper propagates error status outside a git repo
+# Original Cucumber Source: features/shell_functions.feature
+# Purpose: Verify scmpuff_status preserves error/exit contract when not in a repo.
+
+[exec:bash] exec bash -c 'eval "$(scmpuff init -s)"; scmpuff_status; test $? -eq 128'
+[exec:bash] stderr 'Not a git repository \(or any of the parent directories\)'
+
+[exec:zsh] exec zsh -c 'eval "$(scmpuff init -s)"; scmpuff_status; test $? -eq 128'
+[exec:zsh] stderr 'Not a git repository \(or any of the parent directories\)'
+
+[exec:fish] exec fish -c 'scmpuff init --shell=fish | source; scmpuff_status; test $status -eq 128'
+[exec:fish] stderr 'Not a git repository \(or any of the parent directories\)'

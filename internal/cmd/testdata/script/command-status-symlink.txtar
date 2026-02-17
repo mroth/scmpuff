@@ -1,0 +1,43 @@
+# Scenario: Status properly reports all file changes w/ symlink
+# Original Cucumber Source: features/command_status.feature
+# Purpose: Preserve symlink + cwd behavior for mixed status categories.
+# Verbose notes: Uses txtar footer fixtures for setup and validates symlinked repo status categories.
+
+[!symlink] skip symlink support not available on this platform
+
+exec git init mygitrepo
+cd mygitrepo
+exec git add keep.txt deleted_file
+exec git commit -m base
+
+exec git add new_file
+cp ../new_file.modified new_file
+exec git rm deleted_file
+
+cd ..
+symlink symlink -> mygitrepo
+cd symlink
+exec scmpuff status
+stdout 'new file:'
+stdout 'deleted:'
+stdout 'modified:'
+stdout 'untracked:'
+stdout 'new_file'
+stdout 'deleted_file'
+stdout 'untracked_file'
+
+-- new_file.modified --
+new
+modified
+
+-- mygitrepo/keep.txt --
+keep
+
+-- mygitrepo/deleted_file --
+delete-me
+
+-- mygitrepo/new_file --
+new
+
+-- mygitrepo/untracked_file --
+u

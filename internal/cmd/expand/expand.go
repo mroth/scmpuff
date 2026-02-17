@@ -9,10 +9,10 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var expandRelative bool
-
 // NewExpandCmd creates and returns the expand command
 func NewExpandCmd() *cobra.Command {
+	var expandRelative bool
+
 	expandCmd := &cobra.Command{
 		Use:   "expand [flags] <shortcuts...>",
 		Short: "Expands numeric shortcuts",
@@ -23,7 +23,7 @@ Takes a list of digits (1 4 5) or numeric ranges (1-5) or even both.`,
 		Args:    cobra.MinimumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cmd.SilenceUsage = true // silence usage-on-error after args processed
-			fmt.Print(Process(args))
+			fmt.Print(Process(args, expandRelative))
 			return nil
 		},
 	}
@@ -37,10 +37,10 @@ var shellEscaper = regexp.MustCompile("([\\^()\\[\\]<>' \";\\|*])")
 // Process expands args and performs all substitution, etc.
 //
 // Ends up with a final string that is TAB delineated between arguments.
-func Process(args []string) string {
+func Process(args []string, relative bool) string {
 	var processedArgs []string
 	for _, arg := range arguments.Expand(args) {
-		processed := escape(arguments.EvaluateEnvironment(arg, expandRelative))
+		processed := escape(arguments.EvaluateEnvironment(arg, relative))
 
 		// if we still ended up with a totally blank arg, escape it here.
 		// we handle this as a special case rather than in expandArg because we

@@ -1,0 +1,10 @@
+# Scenario: Output when command is run without args
+# Original Cucumber Source: features/command.feature
+# Purpose: Preserve root command usage/help contract with no arguments.
+# Verbose notes: Mirrors Cucumber no-args output assertions.
+
+exec scmpuff
+stdout 'scmpuff extends common git commands with numeric filename shortcuts.'
+stdout 'Usage:'
+stdout 'Available Commands:'
+! stderr .
