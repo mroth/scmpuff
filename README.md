@@ -19,8 +19,7 @@ shell integration is under 100 lines of shell script.
 
 ## Installation
 
-[Download] the binary for your platform, and copy it to `/usr/local/bin` or
-somewhere else in your default path.
+[Download] the binary for your platform, and copy it to somewhere in your default path.
 
 Alternatively, if you use [Homebrew], you can just: `brew install scmpuff`.
 
@@ -29,8 +28,6 @@ Alternatively, if you use [Homebrew], you can just: `brew install scmpuff`.
 
 
 ## Setup
-
-Currently scmpuff supports bash, zsh and fish for all functionality.
 
 To initialize shell functions, add the following to your `~/.bash_profile` or
 `~/.zshrc` file:
@@ -89,9 +86,6 @@ e.g. `ga`, `gd`, `gco`.  Check your aliases to see what they are.
 The short version: it does less, but is faster and should be more stable and
 reliable, especially across different platforms.
 
-The long, detailed version:
-https://github.com/mroth/scmpuff/wiki/scmpuff-vs-SCM-Breeze
-
 ### Can I disable or change the default git shortcut aliases?
 
 You can disable them via passing `--aliases=false` to the `scmpuff init` call
@@ -99,12 +93,15 @@ in your shell initialization.  Then, if you wish to remap them, simply modify
 your default aliases wherever you normally do, but add aliases mapped to the
 scmpuff shell functions, e.g. `alias gs='scmpuff_status'`.
 
-### I want to use scmpuff in conjunction with [hub][hub] or something else that I've aliased git to, how would I do so?
+### Can I use scmpuff with a custom git binary or wrapper?
 
 By default, scmpuff will attempt to utilize the absolute path of whatever `git`
 it finds in your system PATH, ignoring existing shell aliases.  If you want to
 use a different binary, set `$SCMPUFF_GIT_CMD` in your shell to the path, for
-example, `export SCMPUFF_GIT_CMD=/usr/local/bin/hub`.
+example, `export SCMPUFF_GIT_CMD=/usr/local/bin/my-git-wrapper`.
 
-[hub]: https://github.com/github/hub
 
+## Contributing
+
+Interested in contributing? See [docs/contributing.md](docs/contributing.md)
+for guidelines.

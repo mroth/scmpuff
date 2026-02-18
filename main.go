@@ -1,8 +1,6 @@
 package main
 
 import (
-	_ "embed"
-
 	goversion "github.com/caarlos0/go-version"
 	"github.com/mroth/scmpuff/internal/cmd"
 )
@@ -21,8 +19,13 @@ func main() {
 	)
 }
 
-//go:embed docs/banner.txt
-var asciiArt string
+var asciiArt = `                                    ________
+   ______________ ___  ____  __  __/ __/ __/
+  / ___/ ___/ __ ` + "`" + `__ \/ __ \/ / / / /_/ /_
+ (__  ) /__/ / / / / / /_/ / /_/ / __/ __/
+/____/\___/_/ /_/ /_/ .___/\__,_/_/ /_/
+                   /_/
+`
 
 func buildVersion(version, commit, date, builtBy, treeState string) goversion.Info {
 	return goversion.GetVersionInfo(
