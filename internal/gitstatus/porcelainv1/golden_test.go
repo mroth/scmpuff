@@ -10,12 +10,23 @@ import (
 )
 
 func TestProcess(t *testing.T) {
+	const (
+		// localTestdata contains v1-only test fixtures specific to this parser.
+		localTestdata = "testdata"
+
+		// sharedTestdata contains regression fixtures from user-submitted debug
+		// dumps, with both v1 and v2 porcelain formats for use across parsers.
+		sharedTestdata = "../testdata"
+	)
+
 	var testCases = []struct {
+		testdata   string
 		sampleFile string
 		want       *gitstatus.StatusInfo
 	}{
 		{
-			sampleFile: "process-untracked.porcelain-v1z.txt",
+			testdata:   localTestdata,
+			sampleFile: "process-untracked.porcelain-v1z.bin",
 			want: &gitstatus.StatusInfo{
 				Branch: gitstatus.BranchInfo{
 					Name:          "main",
@@ -35,7 +46,8 @@ func TestProcess(t *testing.T) {
 			},
 		},
 		{
-			sampleFile: "process-changes.porcelain-v1z.txt",
+			testdata:   localTestdata,
+			sampleFile: "process-changes.porcelain-v1z.bin",
 			want: &gitstatus.StatusInfo{
 				Branch: gitstatus.BranchInfo{
 					Name:          "main",
@@ -59,11 +71,31 @@ func TestProcess(t *testing.T) {
 				},
 			},
 		},
+		{
+			// Regression test for #86: intent-to-add files (git add -N) produce
+			// a [ A] status code that was previously unrecognized.
+			// Fixture from user-submitted debug dump (jujutsu colocated repo).
+			testdata:   sharedTestdata,
+			sampleFile: "issue86.porcelain-v1z.bin",
+			want: &gitstatus.StatusInfo{
+				Branch: gitstatus.BranchInfo{
+					Name:          "main",
+					CommitsAhead:  0,
+					CommitsBehind: 0,
+				},
+				Items: []gitstatus.StatusItem{
+					{
+						Path:       "bar",
+						ChangeType: gitstatus.ChangeUnstagedNewFile,
+					},
+				},
+			},
+		},
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.sampleFile, func(t *testing.T) {
-			data, err := os.ReadFile(filepath.Join("testdata", tc.sampleFile))
+			data, err := os.ReadFile(filepath.Join(tc.testdata, tc.sampleFile))
 			if err != nil {
 				t.Fatal(err)
 			}

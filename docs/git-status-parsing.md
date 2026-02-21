@@ -55,9 +55,9 @@ Porcelain v1 does not provide branch data in a structured format — it encodes 
 
 ## The ChangeType design
 
-`ChangeType` is the central abstraction that bridges parsing and rendering. It's a flat enum with 17 named variants that each capture a specific combination of *where* a change is (staged, unstaged, unmerged, or untracked) and *what kind* of change it is (modified, new, deleted, renamed, etc). Each variant has three derived properties — `Message()`, `State()`, and `StatusGroup()` — backed by a single metadata lookup table, so adding a new variant is a one-line map entry. The renderer uses `StatusGroup()` for section grouping and section-level colors, and `State()` for per-item label colors (so staged and unstaged "modified" share the same label color even though they appear in different sections).
+`ChangeType` is the central abstraction that bridges parsing and rendering. It's a flat enum with 18 named variants that each capture a specific combination of *where* a change is (staged, unstaged, unmerged, or untracked) and *what kind* of change it is (modified, new, deleted, renamed, etc). Each variant has three derived properties — `Message()`, `State()`, and `StatusGroup()` — backed by a single metadata lookup table, so adding a new variant is a one-line map entry. The renderer uses `StatusGroup()` for section grouping and section-level colors, and `State()` for per-item label colors (so staged and unstaged "modified" share the same label color even though they appear in different sections).
 
-This table is the canonical reference for the 17 variants currently handled. It is **known to be incomplete** — git has introduced new XY code combinations over the years that scmpuff does not yet recognize. Expanding this coverage is an ongoing area for contribution. The variant definitions, metadata, and XY decoding logic are spread across multiple source files; this table consolidates them in one place.
+This table is the canonical reference for the 18 variants currently handled. It is **known to be incomplete** — git has introduced new XY code combinations over the years that scmpuff does not yet recognize. The variant definitions, metadata, and XY decoding logic are spread across multiple source files; this table consolidates them in one place.
 
 | ChangeType                   | Message()         | State()            | StatusGroup() |
 |------------------------------|-------------------|--------------------|---------------|
@@ -77,6 +77,7 @@ This table is the canonical reference for the 17 variants currently handled. It 
 | `ChangeUnstagedModified`     | `modified`        | `ModifiedState`    | `Unstaged`    |
 | `ChangeUnstagedDeleted`      | `deleted`         | `DeletedState`     | `Unstaged`    |
 | `ChangeUnstagedType`         | `typechange`      | `TypeChangedState` | `Unstaged`    |
+| `ChangeUnstagedNewFile`      | `new file`        | `NewState`         | `Unstaged`    |
 | `ChangeUntracked`            | `untracked`       | `UntrackedState`   | `Untracked`   |
 
 ## Test data and debugging

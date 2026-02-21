@@ -122,6 +122,7 @@ const (
 	ChangeUnstagedModified
 	ChangeUnstagedDeleted
 	ChangeUnstagedType
+	ChangeUnstagedNewFile
 
 	// Untracked changes
 	ChangeUntracked
@@ -145,6 +146,7 @@ var changeTypeData = map[ChangeType]changeTypeMetadata{
 	ChangeUnstagedModified:     {msg: "modified", state: ModifiedState, group: Unstaged},
 	ChangeUnstagedDeleted:      {msg: "deleted", state: DeletedState, group: Unstaged},
 	ChangeUnstagedType:         {msg: "typechange", state: TypeChangedState, group: Unstaged},
+	ChangeUnstagedNewFile:      {msg: "new file", state: NewState, group: Unstaged},
 	ChangeUntracked:            {msg: "untracked", state: UntrackedState, group: Untracked},
 }
 

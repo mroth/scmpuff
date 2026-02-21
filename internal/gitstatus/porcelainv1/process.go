@@ -152,15 +152,19 @@ Below documentation from git status:
 
 	X          Y     Meaning
 	-------------------------------------------------
-	          [MD]   not updated
-	M        [ MD]   updated in index
-	A        [ MD]   added to index
-	D         [ M]   deleted from index
-	R        [ MD]   renamed in index
-	C        [ MD]   copied in index
-	[MARC]           index and work tree matches
-	[ MARC]     M    work tree changed since index
-	[ MARC]     D    deleted in work tree
+	          [AMD]   not updated
+	M        [ MTD]   updated in index
+	T        [ MTD]   type changed in index
+	A        [ MTD]   added to index
+	D                 deleted from index
+	R        [ MTD]   renamed in index
+	C        [ MTD]   copied in index
+	[MTARC]           index and work tree matches
+	[ MTARC]     M    work tree changed since index
+	[ MTARC]     T    type changed in work tree since index
+	[ MTARC]     D    deleted in work tree
+	             R    renamed in work tree
+	             C    copied in work tree
 	-------------------------------------------------
 	D           D    unmerged, both deleted
 	A           U    unmerged, added by us
@@ -238,6 +242,9 @@ func decodeSecondaryChangeCode(x, y byte) (gitstatus.ChangeType, bool) {
 		return gitstatus.ChangeUnstagedDeleted, true
 	case y == 'T': //.T
 		return gitstatus.ChangeUnstagedType, true
+	// Don't show added 'y' during a merge conflict.
+	case y == 'A' && x != 'A' && x != 'U': //[!A!U]A (intent-to-add, via git add -N)
+		return gitstatus.ChangeUnstagedNewFile, true
 	}
 
 	return -1, false
