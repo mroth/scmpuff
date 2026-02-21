@@ -9,6 +9,11 @@ import (
 	"github.com/mroth/scmpuff/internal/gitstatus"
 )
 
+// maxShortcutFiles is the maximum number of files that will be assigned
+// numeric shortcuts. This prevents the tab-delimited file list from exceeding
+// OS ARG_MAX limits when passed through shell functions.
+const maxShortcutFiles = 250
+
 // A Renderer formats git status information for display to the screen.
 type Renderer struct {
 	branch       gitstatus.BranchInfo
@@ -113,16 +118,24 @@ func writeDisplayOutput(w io.Writer, r *Renderer) error {
 	for _, group := range groupOrdering {
 		items := r.groupedItems[group]
 
-		if len(items) > 0 {
-			b.WriteString(formatHeaderForGroup(group))
-
-			for _, item := range items {
-				b.WriteString(r.formatStatusItemDisplay(item, itemNumber))
-				itemNumber++
-			}
-
-			b.WriteString(formatFooterForGroup(group))
+		// How many shortcut slots are left before hitting the cap?
+		remaining := maxShortcutFiles - itemNumber + 1
+		if len(items) == 0 || remaining <= 0 {
+			continue
 		}
+
+		// Render at most `remaining` items from this group.
+		b.WriteString(formatHeaderForGroup(group))
+		for i, item := range items[:min(len(items), remaining)] {
+			b.WriteString(r.formatStatusItemDisplay(item, itemNumber+i))
+		}
+		itemNumber += min(len(items), remaining)
+		b.WriteString(formatFooterForGroup(group))
+	}
+
+	if r.numItems() > maxShortcutFiles {
+		fmt.Fprintf(b, "... showing %d of %d files (use git directly for bulk operations)\n",
+			maxShortcutFiles, r.numItems())
 	}
 
 	// NOTE: Flush uses the errWriter pattern[1] and will return the first error
@@ -138,9 +151,11 @@ func writeDisplayOutput(w io.Writer, r *Renderer) error {
 // Needs to be returned in same order that file lists are outputted to screen,
 // otherwise env vars won't match UI.
 func (r *Renderer) formatParseData() string {
-	items := make([]string, r.numItems())
-	for i, si := range r.orderedItems() {
-		items[i] = si.AbsPath(r.root)
+	allItems := r.orderedItems()
+	limit := min(len(allItems), maxShortcutFiles)
+	items := make([]string, limit)
+	for i := range limit {
+		items[i] = allItems[i].AbsPath(r.root)
 	}
 	return strings.Join(items, "\t")
 }
