@@ -53,15 +53,67 @@ func convertToRelativeIfFilePath(arg string) (string, error) {
 	return relPath, nil
 }
 
+// skipExpansion reports whether args[pos] should be left unexpanded.
+//
+// Normally, Expand treats any bare integer token as a file shortcut (e.g. "1"
+// becomes "$e1"). This is wrong when the integer is actually the value of a
+// preceding flag — for example, "git log -n 1" means "show one commit", but
+// naive expansion turns it into "git log -n $e1" which resolves to a filepath.
+// Similarly, "git checkout -b 713" is a branch name, not a file shortcut.
+//
+// We fix this by maintaining an allowlist of flags (per git subcommand) whose
+// space-separated values should never be expanded. Only the subcommands routed
+// through "scmpuff exec" by the shell wrapper need coverage, and only flags
+// that accept a space-separated value that could be numeric. Flags where the
+// value must be glued (e.g. "-U3") are not a problem because the combined
+// token doesn't match the digit regex.
+//
+// gitCmd is the value of SCMPUFF_GIT_CMD; when args[0] matches it, we know
+// this is a git command routed through the shell wrapper.
+func skipExpansion(args []string, pos int, gitCmd string) bool {
+	if pos < 2 || gitCmd == "" || args[0] != gitCmd {
+		return false
+	}
+	prev := args[pos-1]
+	switch args[1] {
+	case "log":
+		switch prev {
+		case "-n", "--max-count", "--skip", "--min-parents", "--max-parents":
+			return true
+		}
+	case "checkout":
+		switch prev {
+		case "-b", "-B", "--orphan":
+			return true
+		}
+	case "blame":
+		switch prev {
+		case "-L":
+			return true
+		}
+	case "rebase":
+		switch prev {
+		case "-C":
+			return true
+		}
+	}
+	return false
+}
+
 // Expand takes the list of arguments received from the command line and expands
 // them given our special case rules.
 //
 // It handles converting numeric file placeholders and range placeholders into
 // environment variable symbolic representation,
 func Expand(args []string) []string {
+	gitCmd := os.Getenv("SCMPUFF_GIT_CMD")
 	var results []string
-	for _, arg := range args {
-		results = append(results, expandArg(arg)...)
+	for i, arg := range args {
+		if skipExpansion(args, i, gitCmd) {
+			results = append(results, arg)
+		} else {
+			results = append(results, expandArg(arg)...)
+		}
 	}
 	return results
 }

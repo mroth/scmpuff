@@ -1,0 +1,34 @@
+# Scenario: numeric flag values and branch names should not be expanded as file
+# shortcuts. We test via "scmpuff expand" which outputs the expanded args
+# tab-delimited, letting us inspect the expansion result directly without
+# needing a real git repo.
+
+env SCMPUFF_GIT_CMD=git
+env e1=foo.txt
+env e2=bar.txt
+env e3=baz.txt
+
+# git log -n: count should stay literal, subsequent file shortcut still expands
+exec scmpuff expand -- git log -n 1 2
+stdout '^git\tlog\t-n\t1\tbar\.txt$'
+
+# git log --skip: same idea with a long flag
+exec scmpuff expand -- git log --skip 1 2
+stdout '^git\tlog\t--skip\t1\tbar\.txt$'
+
+# git checkout -b: numeric branch name should stay literal
+exec scmpuff expand -- git checkout -b 713
+stdout '^git\tcheckout\t-b\t713$'
+
+# git checkout -b with a file shortcut after the branch name: branch protected,
+# shortcut still expands
+exec scmpuff expand -- git checkout -b 99 1
+stdout '^git\tcheckout\t-b\t99\tfoo\.txt$'
+
+# git blame -L: line number should stay literal, file shortcut still expands
+exec scmpuff expand -- git blame -L 1 1
+stdout '^git\tblame\t-L\t1\tfoo\.txt$'
+
+# git rm -n is --dry-run (no value), so the "1" after it is a file shortcut
+exec scmpuff expand -- git rm -n 1
+stdout '^git\trm\t-n\tfoo\.txt$'
