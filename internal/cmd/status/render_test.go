@@ -172,6 +172,20 @@ func TestRenderer_Display(t *testing.T) {
 			cwd:  "/path/to/repo",
 		},
 		{
+			name: "unstaged_rename_copy",
+			info: gitstatus.StatusInfo{
+				Branch: gitstatus.BranchInfo{Name: "main", CommitsAhead: 0, CommitsBehind: 0},
+				Items: []gitstatus.StatusItem{
+					{ChangeType: gitstatus.ChangeUnstagedRenamed, Path: "new_name.txt", OrigPath: "old_name.txt"},
+					{ChangeType: gitstatus.ChangeUnstagedCopied, Path: "copy.txt", OrigPath: "original.txt"},
+					{ChangeType: gitstatus.ChangeStagedModified, Path: "also_renamed.txt"},
+					{ChangeType: gitstatus.ChangeUnstagedRenamed, Path: "also_renamed.txt", OrigPath: "was_this.txt"},
+				},
+			},
+			root: "/path/to/repo",
+			cwd:  "/path/to/repo",
+		},
+		{
 			name: "type_changes",
 			info: gitstatus.StatusInfo{
 				Branch: gitstatus.BranchInfo{Name: "type-change", CommitsAhead: 1, CommitsBehind: 0},

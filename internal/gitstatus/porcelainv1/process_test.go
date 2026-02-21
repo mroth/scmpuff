@@ -72,10 +72,46 @@ func Test_extractChangeTypes(t *testing.T) {
 			},
 		},
 		{
+			[]byte(" R"), //[]byte(" R renamed_in_worktree"),
+			[]gitstatus.ChangeType{
+				gitstatus.ChangeUnstagedRenamed,
+			},
+		},
+		{
+			[]byte(" C"), //[]byte(" C copied_in_worktree"),
+			[]gitstatus.ChangeType{
+				gitstatus.ChangeUnstagedCopied,
+			},
+		},
+		{
 			[]byte("AM"), //[]byte("AM added_then_modified_file"),
 			[]gitstatus.ChangeType{
 				gitstatus.ChangeStagedNewFile,
 				gitstatus.ChangeUnstagedModified,
+			},
+		},
+		{
+			// Compound code: staged modified + unstaged renamed
+			[]byte("MR"),
+			[]gitstatus.ChangeType{
+				gitstatus.ChangeStagedModified,
+				gitstatus.ChangeUnstagedRenamed,
+			},
+		},
+		{
+			// Compound code: staged copied + unstaged renamed
+			[]byte("CR"),
+			[]gitstatus.ChangeType{
+				gitstatus.ChangeStagedCopied,
+				gitstatus.ChangeUnstagedRenamed,
+			},
+		},
+		{
+			// Compound code: staged modified + unstaged copied
+			[]byte("MC"),
+			[]gitstatus.ChangeType{
+				gitstatus.ChangeStagedModified,
+				gitstatus.ChangeUnstagedCopied,
 			},
 		},
 	}
