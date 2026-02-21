@@ -50,6 +50,28 @@ func Test_extractChangeTypes(t *testing.T) {
 			},
 		},
 		{
+			[]byte(" A"), //[]byte(" A intent_to_add_file"),
+			[]gitstatus.ChangeType{
+				gitstatus.ChangeUnstagedNewFile,
+			},
+		},
+		{
+			// Verify UA produces only the unmerged type, not a spurious
+			// ChangeUnstagedNewFile from the Y='A' secondary decoder.
+			[]byte("UA"), //[]byte("UA added_by_them"),
+			[]gitstatus.ChangeType{
+				gitstatus.ChangeUnmergedAddedThem,
+			},
+		},
+		{
+			// Verify AA produces only the unmerged type, not a spurious
+			// ChangeUnstagedNewFile from the Y='A' secondary decoder.
+			[]byte("AA"), //[]byte("AA both_added"),
+			[]gitstatus.ChangeType{
+				gitstatus.ChangeUnmergedAddedBoth,
+			},
+		},
+		{
 			[]byte("AM"), //[]byte("AM added_then_modified_file"),
 			[]gitstatus.ChangeType{
 				gitstatus.ChangeStagedNewFile,

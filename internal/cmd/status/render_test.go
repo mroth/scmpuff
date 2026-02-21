@@ -159,6 +159,19 @@ func TestRenderer_Display(t *testing.T) {
 			cwd:  "/repo",
 		},
 		{
+			name: "intent_to_add",
+			info: gitstatus.StatusInfo{
+				Branch: gitstatus.BranchInfo{Name: "main", CommitsAhead: 0, CommitsBehind: 0},
+				Items: []gitstatus.StatusItem{
+					{ChangeType: gitstatus.ChangeUnstagedNewFile, Path: "intent_to_add.txt"},
+					{ChangeType: gitstatus.ChangeUnstagedNewFile, Path: "another_new.txt"},
+					{ChangeType: gitstatus.ChangeUnstagedModified, Path: "modified.txt"},
+				},
+			},
+			root: "/path/to/repo",
+			cwd:  "/path/to/repo",
+		},
+		{
 			name: "type_changes",
 			info: gitstatus.StatusInfo{
 				Branch: gitstatus.BranchInfo{Name: "type-change", CommitsAhead: 1, CommitsBehind: 0},
