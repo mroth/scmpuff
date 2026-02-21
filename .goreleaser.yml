@@ -25,6 +25,11 @@ builds:
       - amd64
       - arm
       - arm64
+    goarm:
+      - "7"
+    ignore:
+      - goos: windows
+        goarch: arm
     flags:
       - -trimpath
     ldflags:
@@ -48,16 +53,3 @@ release:
   # If set to auto, will mark the release as not ready for production
   # in case there is an indicator for this in the tag e.g. v1.0.0-rc1
   prerelease: auto
-
-# TODO: This should be deprecated after next release in favor of the official homebrew formula.
-brews:
-  - name: scmpuff
-    description: Adds numbered shortcuts for common git commands.
-    homepage: https://mroth.github.io/scmpuff/
-    license: MIT
-    repository:
-      owner: mroth
-      name: homebrew-tap
-    test: |
-      ENV["e1"] = "abc"
-      assert_equal "abc", shell_output("#{bin}/scmpuff expand 1").strip
