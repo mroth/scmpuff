@@ -245,6 +245,10 @@ func decodeSecondaryChangeCode(x, y byte) (gitstatus.ChangeType, bool) {
 	// Don't show added 'y' during a merge conflict.
 	case y == 'A' && x != 'A' && x != 'U': //[!A!U]A (intent-to-add, via git add -N)
 		return gitstatus.ChangeUnstagedNewFile, true
+	case y == 'R': //.R
+		return gitstatus.ChangeUnstagedRenamed, true
+	case y == 'C': //.C
+		return gitstatus.ChangeUnstagedCopied, true
 	}
 
 	return -1, false
