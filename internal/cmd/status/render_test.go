@@ -197,6 +197,24 @@ func TestRenderer_Display(t *testing.T) {
 			root: "/path/to/repo",
 			cwd:  "/path/to/repo",
 		},
+		{
+			name: "truncated",
+			info: func() gitstatus.StatusInfo {
+				items := make([]gitstatus.StatusItem, 260)
+				for i := range items {
+					items[i] = gitstatus.StatusItem{
+						ChangeType: gitstatus.ChangeUntracked,
+						Path:       fmt.Sprintf("file_%03d.txt", i+1),
+					}
+				}
+				return gitstatus.StatusInfo{
+					Branch: gitstatus.BranchInfo{Name: "main"},
+					Items:  items,
+				}
+			}(),
+			root: "/repo",
+			cwd:  "/repo",
+		},
 	}
 
 	for _, tc := range testCases {
