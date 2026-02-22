@@ -44,9 +44,9 @@ There are a number of flags to customize the shell integration.
 			case "":
 				cmd.Help()
 			case "sh", "bash", "zsh":
-				cmd.Println(bashCollection.Output(wrapGit, includeAliases))
+				fmt.Fprintln(cmd.OutOrStdout(), bashCollection.Output(wrapGit, includeAliases))
 			case "fish":
-				cmd.Println(fishCollection.Output(wrapGit, includeAliases))
+				fmt.Fprintln(cmd.OutOrStdout(), fishCollection.Output(wrapGit, includeAliases))
 			default:
 				return fmt.Errorf(`unrecognized shell "%s"`, shellType)
 			}

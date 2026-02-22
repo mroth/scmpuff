@@ -2,6 +2,8 @@ module github.com/mroth/scmpuff
 
 go 1.24
 
+retract v0.6.1 // init -s writes to stderr instead of stdout, breaking eval
+
 require (
 	github.com/caarlos0/go-version v0.2.2
 	github.com/google/go-cmp v0.7.0

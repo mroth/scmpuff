@@ -18,8 +18,6 @@ func TestMain(m *testing.M) {
 
 func runScmpuff() {
 	root := newRootCmd("test")
-	root.SetOut(os.Stdout)
-	root.SetErr(os.Stderr)
 	if err := root.Execute(); err != nil {
 		os.Exit(1)
 	}
