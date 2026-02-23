@@ -49,9 +49,15 @@ var testExpandNumericFlagCases = []struct {
 	{"git log -n 1 2", "git log -n 1 $e2"},
 	{"git log --max-count 1 2", "git log --max-count 1 $e2"},
 	{"git log --skip 1 2", "git log --skip 1 $e2"},
-	{"git log --min-parents 2 --max-parents 5 1-3", "git log --min-parents 2 --max-parents 5 $e1 $e2 $e3"},
+	{"git log --grep 1 2", "git log --grep 1 $e2"},
 	{"git blame -L 1 1", "git blame -L 1 $e1"},
 	{"git rebase -C 3 1", "git rebase -C 3 $e1"},
+	{"git rebase --onto 713 main topic", "git rebase --onto 713 main topic"},
+
+	// Flags that take a string value that could happen to be all digits.
+	{"git commit -m 123", "git commit -m 123"},
+	{"git commit --message 456", "git commit --message 456"},
+	{"git merge -m 123 topic", "git merge -m 123 topic"},
 
 	// Flags where the value is glued to the flag (no space) — the combined
 	// token won't match the digit regex, so expansion is already harmless.

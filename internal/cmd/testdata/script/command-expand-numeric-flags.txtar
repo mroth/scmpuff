@@ -29,6 +29,22 @@ stdout '^git\tcheckout\t-b\t99\tfoo\.txt$'
 exec scmpuff expand -- git blame -L 1 1
 stdout '^git\tblame\t-L\t1\tfoo\.txt$'
 
+# git commit -m: message should stay literal
+exec scmpuff expand -- git commit -m 123
+stdout '^git\tcommit\t-m\t123$'
+
+# git merge -m: message should stay literal
+exec scmpuff expand -- git merge -m 123 topic
+stdout '^git\tmerge\t-m\t123\ttopic$'
+
+# git log --grep: pattern should stay literal, file shortcut still expands
+exec scmpuff expand -- git log --grep 1 2
+stdout '^git\tlog\t--grep\t1\tbar\.txt$'
+
+# git rebase --onto: ref should stay literal
+exec scmpuff expand -- git rebase --onto 713 main topic
+stdout '^git\trebase\t--onto\t713\tmain\ttopic$'
+
 # git rm -n is --dry-run (no value), so the "1" after it is a file shortcut
 exec scmpuff expand -- git rm -n 1
 stdout '^git\trm\t-n\tfoo\.txt$'

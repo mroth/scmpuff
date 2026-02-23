@@ -68,6 +68,9 @@ func convertToRelativeIfFilePath(arg string) (string, error) {
 // value must be glued (e.g. "-U3") are not a problem because the combined
 // token doesn't match the digit regex.
 //
+// Known limitation: positional numeric arguments that don't immediately follow
+// a flag (e.g. the start-point in "git checkout -b new 713") are not protected.
+//
 // gitCmd is the value of SCMPUFF_GIT_CMD; when args[0] matches it, we know
 // this is a git command routed through the shell wrapper.
 func skipExpansion(args []string, pos int, gitCmd string) bool {
@@ -78,7 +81,17 @@ func skipExpansion(args []string, pos int, gitCmd string) bool {
 	switch args[1] {
 	case "log":
 		switch prev {
-		case "-n", "--max-count", "--skip", "--min-parents", "--max-parents":
+		case "-n", "--max-count", "--skip", "--grep":
+			return true
+		}
+	case "commit":
+		switch prev {
+		case "-m", "--message":
+			return true
+		}
+	case "merge":
+		switch prev {
+		case "-m", "--message":
 			return true
 		}
 	case "checkout":
@@ -93,7 +106,7 @@ func skipExpansion(args []string, pos int, gitCmd string) bool {
 		}
 	case "rebase":
 		switch prev {
-		case "-C":
+		case "-C", "--onto":
 			return true
 		}
 	}
