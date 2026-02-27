@@ -4,6 +4,7 @@ import (
 	"os"
 	"path/filepath"
 	"reflect"
+	"slices"
 	"strings"
 	"testing"
 )
@@ -27,6 +28,64 @@ func TestExpand(t *testing.T) {
 		if !reflect.DeepEqual(actual, expected) {
 			t.Fatalf("ExpandArgs(%v): expected %v, actual %v", tc.args, expected, actual)
 		}
+	}
+}
+
+// Test that numeric arguments to known git flags are not incorrectly expanded
+// to file shortcuts. For example, "git log -n 1" should keep "1" as a literal
+// count, not turn it into "$e1". This only kicks in when args[0] matches
+// SCMPUFF_GIT_CMD, mirroring how the shell wrapper invokes "scmpuff exec".
+//
+// Each test case is written as a space-separated command line. The left side is
+// the input args, the right side is the expected output after expansion. A bare
+// number in the output (e.g. "1") means it was protected from expansion; "$eN"
+// means it was expanded as a file shortcut.
+var testExpandNumericFlagCases = []struct {
+	args, expected string
+}{
+	// Flags that take a numeric count separated by a space — the count must
+	// not be treated as a file shortcut.
+	{"git log -n 1", "git log -n 1"},
+	{"git log -n 1 2", "git log -n 1 $e2"},
+	{"git log --max-count 1 2", "git log --max-count 1 $e2"},
+	{"git log --skip 1 2", "git log --skip 1 $e2"},
+	{"git log --grep 1 2", "git log --grep 1 $e2"},
+	{"git blame -L 1 1", "git blame -L 1 $e1"},
+	{"git rebase -C 3 1", "git rebase -C 3 $e1"},
+	{"git rebase --onto 713 main topic", "git rebase --onto 713 main topic"},
+
+	// Flags that take a string value that could happen to be all digits.
+	{"git commit -m 123", "git commit -m 123"},
+	{"git commit --message 456", "git commit --message 456"},
+	{"git merge -m 123 topic", "git merge -m 123 topic"},
+
+	// Flags where the value is glued to the flag (no space) — the combined
+	// token won't match the digit regex, so expansion is already harmless.
+	{"git log -n1 2", "git log -n1 $e2"},
+	{"git log -1 1", "git log -1 $e1"},
+
+	// Flags that take a non-numeric argument that could happen to be all
+	// digits — e.g. branch names like "713".
+	{"git checkout -b 713", "git checkout -b 713"},
+	{"git checkout -B 42", "git checkout -B 42"},
+	{"git checkout --orphan 99", "git checkout --orphan 99"},
+
+	// Same flag name, different subcommand: -n on "git rm" is --dry-run and
+	// takes no value, so the following "1" is a file shortcut.
+	{"git rm -n 1", "git rm -n $e1"},
+}
+
+func TestExpandNumericFlags(t *testing.T) {
+	t.Setenv("SCMPUFF_GIT_CMD", "git")
+	for _, tc := range testExpandNumericFlagCases {
+		t.Run(tc.args, func(t *testing.T) {
+			args := strings.Split(tc.args, " ")
+			expected := strings.Split(tc.expected, " ")
+			actual := Expand(args)
+			if !slices.Equal(actual, expected) {
+				t.Errorf("expected %v, actual %v", expected, actual)
+			}
+		})
 	}
 }
 
