@@ -2,9 +2,17 @@ package inits
 
 import (
 	"bytes"
+	"os"
 	"strings"
 	"testing"
 )
+
+func TestMain(m *testing.M) {
+	// Pin SHELL so tests that rely on the default shell type produce
+	// deterministic output regardless of the developer's login shell.
+	os.Setenv("SHELL", "/bin/bash")
+	os.Exit(m.Run())
+}
 
 func Test_defaultShellType(t *testing.T) {
 	tests := []struct {
