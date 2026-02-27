@@ -46,15 +46,28 @@ func executeInitCmd(t *testing.T, args ...string) (stdout string, stderr string,
 }
 
 func TestNewInitCmd_StatusShortcutsIncluded(t *testing.T) {
-	stdout, stderr, err := executeInitCmd(t, "-s")
-	if err != nil {
-		t.Fatalf("execute init -s failed: %v", err)
+	tests := []struct {
+		name       string
+		shell      string
+		wantScript string
+	}{
+		{name: "bash", shell: "bash", wantScript: scriptStatusShortcuts},
+		{name: "fish", shell: "fish", wantScript: scriptStatusShortcutsFish},
 	}
-	if stderr != "" {
-		t.Errorf("unexpected stderr: %q", stderr)
-	}
-	if !strings.Contains(stdout, "scmpuff_status()") {
-		t.Fatalf("expected output to contain scmpuff_status function, got: %q", stdout)
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			stdout, stderr, err := executeInitCmd(t, "--shell="+tt.shell)
+			if err != nil {
+				t.Fatalf("execute init --shell=%s failed: %v", tt.shell, err)
+			}
+			if stderr != "" {
+				t.Errorf("unexpected stderr: %q", stderr)
+			}
+			if !strings.Contains(stdout, tt.wantScript) {
+				t.Errorf("expected output to contain %s status shortcuts script", tt.shell)
+			}
+		})
 	}
 }
 
@@ -69,69 +82,78 @@ func TestNewInitCmd_UnrecognizedShellErrors(t *testing.T) {
 }
 
 func TestNewInitCmd_AliasesFlagControlsOutput(t *testing.T) {
+	shells := []string{"bash", "fish"}
+
 	tests := []struct {
 		name        string
-		args        []string
-		wantAliasGS bool
-		wantAliasGA bool
+		flagArgs    []string
+		wantAliases bool
 	}{
-		{name: "default true", args: []string{"-s"}, wantAliasGS: true, wantAliasGA: true},
-		{name: "short true", args: []string{"-as"}, wantAliasGS: true, wantAliasGA: true},
-		{name: "separate true", args: []string{"-a", "-s"}, wantAliasGS: true, wantAliasGA: true},
-		{name: "explicit true", args: []string{"-s", "--aliases=true"}, wantAliasGS: true, wantAliasGA: true},
-		{name: "explicit false", args: []string{"-s", "--aliases=false"}, wantAliasGS: false, wantAliasGA: false},
+		{name: "default true", flagArgs: nil, wantAliases: true},
+		{name: "short true", flagArgs: []string{"-a"}, wantAliases: true},
+		{name: "explicit true", flagArgs: []string{"--aliases=true"}, wantAliases: true},
+		{name: "explicit false", flagArgs: []string{"--aliases=false"}, wantAliases: false},
 	}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			stdout, stderr, err := executeInitCmd(t, tt.args...)
-			if err != nil {
-				t.Fatalf("execute init failed: %v", err)
-			}
-			if stderr != "" {
-				t.Errorf("unexpected stderr: %q", stderr)
-			}
+	for _, shell := range shells {
+		for _, tt := range tests {
+			t.Run(shell+"/"+tt.name, func(t *testing.T) {
+				args := append([]string{"--shell=" + shell}, tt.flagArgs...)
+				stdout, stderr, err := executeInitCmd(t, args...)
+				if err != nil {
+					t.Fatalf("execute init failed: %v", err)
+				}
+				if stderr != "" {
+					t.Errorf("unexpected stderr: %q", stderr)
+				}
 
-			gotAliasGS := strings.Contains(stdout, "alias gs='scmpuff_status'")
-			if gotAliasGS != tt.wantAliasGS {
-				t.Errorf("alias gs presence = %v, want %v", gotAliasGS, tt.wantAliasGS)
-			}
-
-			gotAliasGA := strings.Contains(stdout, "alias ga='git add'")
-			if gotAliasGA != tt.wantAliasGA {
-				t.Errorf("alias ga presence = %v, want %v", gotAliasGA, tt.wantAliasGA)
-			}
-		})
+				gotAliases := strings.Contains(stdout, scriptAliases)
+				if gotAliases != tt.wantAliases {
+					t.Errorf("aliases script presence = %v, want %v", gotAliases, tt.wantAliases)
+				}
+			})
+		}
 	}
 }
 
 func TestNewInitCmd_WrapFlagControlsOutput(t *testing.T) {
-	tests := []struct {
-		name     string
-		args     []string
-		wantWrap bool
-	}{
-		{name: "default true", args: []string{"-s"}, wantWrap: true},
-		{name: "short true", args: []string{"-ws"}, wantWrap: true},
-		{name: "separate true", args: []string{"-w", "-s"}, wantWrap: true},
-		{name: "explicit true", args: []string{"-s", "--wrap=true"}, wantWrap: true},
-		{name: "explicit false", args: []string{"-s", "--wrap=false"}, wantWrap: false},
+	type shellInfo struct {
+		name           string
+		wantWrapScript string
+	}
+	shells := []shellInfo{
+		{name: "bash", wantWrapScript: scriptGitWrapper},
+		{name: "fish", wantWrapScript: scriptGitWrapperFish},
 	}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			stdout, stderr, err := executeInitCmd(t, tt.args...)
-			if err != nil {
-				t.Fatalf("execute init failed: %v", err)
-			}
-			if stderr != "" {
-				t.Errorf("unexpected stderr: %q", stderr)
-			}
+	tests := []struct {
+		name     string
+		flagArgs []string
+		wantWrap bool
+	}{
+		{name: "default true", flagArgs: nil, wantWrap: true},
+		{name: "short true", flagArgs: []string{"-w"}, wantWrap: true},
+		{name: "explicit true", flagArgs: []string{"--wrap=true"}, wantWrap: true},
+		{name: "explicit false", flagArgs: []string{"--wrap=false"}, wantWrap: false},
+	}
 
-			gotWrap := strings.Contains(stdout, "function git()")
-			if gotWrap != tt.wantWrap {
-				t.Errorf("git wrapper presence = %v, want %v", gotWrap, tt.wantWrap)
-			}
-		})
+	for _, shell := range shells {
+		for _, tt := range tests {
+			t.Run(shell.name+"/"+tt.name, func(t *testing.T) {
+				args := append([]string{"--shell=" + shell.name}, tt.flagArgs...)
+				stdout, stderr, err := executeInitCmd(t, args...)
+				if err != nil {
+					t.Fatalf("execute init failed: %v", err)
+				}
+				if stderr != "" {
+					t.Errorf("unexpected stderr: %q", stderr)
+				}
+
+				gotWrap := strings.Contains(stdout, shell.wantWrapScript)
+				if gotWrap != tt.wantWrap {
+					t.Errorf("git wrapper presence = %v, want %v", gotWrap, tt.wantWrap)
+				}
+			})
+		}
 	}
 }
