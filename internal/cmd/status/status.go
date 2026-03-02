@@ -8,7 +8,7 @@ import (
 	"os/exec"
 	"path/filepath"
 
-	"github.com/mroth/scmpuff/internal/gitstatus/porcelainv1"
+	"github.com/mroth/scmpuff/internal/gitstatus/porcelainv2"
 	"github.com/spf13/cobra"
 )
 
@@ -64,7 +64,7 @@ see 'scmpuff init'.)
 			}
 
 			// Parse and then process the git status output.
-			info, err := porcelainv1.Process(status)
+			info, err := porcelainv2.Process(status)
 			if err != nil {
 				// Currently, this is a "special case" error condition, as it means there was a failure
 				// processing the git status output, which is somewhere we definitely want to obtain a debug
@@ -116,36 +116,16 @@ You can file the bug at: https://github.com/mroth/scmpuff/issues/`, err)
 	return statusCmd
 }
 
-// Runs `git status --porcelain=v1 -b -z` and returns the results.
+// Runs `git status --porcelain=v2 -b -z` and returns the results.
 //
-// Why z-mode? It lets us do machine parsing in a reliable cross-platform way,
-// as per this quote from the git status documentation:
+// The -z flag uses NUL (ASCII 0) as line terminators instead of newlines,
+// which allows reliable machine parsing of paths containing special characters
+// without quoting or escaping issues across platforms.
 //
-//	"There is also an alternate -z format recommended for machine parsing. In
-//	that format, the status field is the same, but some other things change.
-//	First, the -> is omitted from rename entries and the field order is
-//	reversed (e.g from -> to becomes to from). Second, a NUL (ASCII 0) follows
-//	each filename, replacing space as a field separator and the terminating
-//	newline (but a space still separates the status field from the first
-//	filename). Third, filenames containing special characters are not specially
-//	formatted; no quoting or backslash-escaping is performed."
-//
-// Okay, it also introduces some complexity because it wasn't well thought out,
-// but it beats dealing with shell escaping and hoping we do it right across
-// different platforms and shells, I hope...  see `process.go` for all the parsing
-// we do to make sense of it, this just grabs its output.
-//
-// NOTE: More recent versions of git support `--porcelain=v2`, which is a more
-// reasoned structured output format addressing mistakes in git porcelain, but
-// we have not yet implemented support for that.
+// porcelain=v2 provides structured branch information and typed entries,
+// and requires git >= 2.11.0 (Nov 2016).
 func gitStatusOutput() ([]byte, error) {
-	// We actually use `git status -z -b` here, which is the same as `git status
-	// --porcelain=v1 -b -z`, as the `-z` flag implies `--porcelain=v1` if not
-	// specified otherwise. That way we retain reverse compatiblity with very
-	// old versions of git that might not understand the `--porcelain=v1` flag
-	// (prior to porcelain v2 support, the flag was just `--porcelain` and was
-	// still implied by `-z`).
-	return exec.Command("git", "status", "-z", "-b").Output()
+	return exec.Command("git", "status", "--porcelain=v2", "-b", "-z").Output()
 }
 
 // Runs git commands to determine the root for the git project.
