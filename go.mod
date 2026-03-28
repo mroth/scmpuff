@@ -1,6 +1,6 @@
 module github.com/mroth/scmpuff
 
-go 1.25.8
+go 1.26.1
 
 retract v0.6.1 // init -s writes to stderr instead of stdout, breaking eval
 
