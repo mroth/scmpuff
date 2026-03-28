@@ -63,7 +63,7 @@ Only update goldens for intentional output changes. If updates are unexpected, i
 
 ## Adding Parsing Regression Tests
 
-`scmpuff debug dump --archive` produces a diagnostic archive containing raw porcelain output in all formats. When a user reports a parsing failure, the raw output from their archive can be added to `internal/gitstatus/porcelainv1/testdata/` as a regression test fixture — similar to the golden file workflow but for the parsing layer.
+`scmpuff debug dump --archive` produces a diagnostic archive containing raw porcelain output in all formats. When a user reports a parsing failure, the raw output from their archive can be added to `internal/gitstatus/testdata/` for shared regression coverage, or to `internal/gitstatus/porcelainv2/testdata/` when the fixture is specific to the current v2 parser/conversion layer.
 
 ## Integration Test Style Guide
 

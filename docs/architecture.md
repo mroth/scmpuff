@@ -21,7 +21,8 @@ internal/
 │
 └── gitstatus/
     ├── gitstatus.go             Data structures: StatusInfo, BranchInfo, StatusItem, enums
-    └── porcelainv1/             Porcelain v1 parser (raw git output → structured data)
+    ├── porcelainv2/             Active porcelain v2 conversion layer (parsed git output → StatusInfo)
+    └── porcelainv1/             Legacy porcelain v1 implementation retained for reference
 ```
 
 ## End-to-end flows
@@ -44,7 +45,7 @@ The wrapper and aliases are each controlled by flags (`--wrap`, `--aliases`, bot
 
 1. Shell alias `gs` calls `scmpuff_status()` shell function.
 2. `scmpuff_status()` shell function runs `scmpuff status --filelist` and captures output.
-3. In the scmpuff binary, `scmpuff status` runs `git status` and parses the porcelain output (see [git-status-parsing.md](git-status-parsing.md) for the full pipeline), renders it into a combination output of metadata and display info (see [Status rendering](#status-rendering) below).
+3. In the scmpuff binary, `scmpuff status` runs `git status --porcelain=v2 -b -z`, parses the porcelain output (see [git-status-parsing.md](git-status-parsing.md) for the full pipeline), then renders it into a combination output of metadata and display info (see [Status rendering](#status-rendering) below).
 4. Back in the shell, `scmpuff_status()` extracts the first line of the output which contains the metadata (tab-delimited file list), parses it, and exports `$e1`, `$e2`, ... `$eN` to the shell as environment variables. Lines 2+ (the colorized display) are printed to the terminal.
 
 ### 3. Numeric shortcut expansion
@@ -78,7 +79,7 @@ After parsing (see [git-status-parsing.md](git-status-parsing.md)), the status r
 | Dependency | Import path                       | Purpose                                                       |
 |------------|-----------------------------------|---------------------------------------------------------------|
 | cobra      | `github.com/spf13/cobra`          | CLI framework                                                 |
-| porcelain  | `github.com/mroth/porcelain`      | Low-level git porcelain parser                                |
+| porcelain  | `github.com/mroth/porcelain`      | Low-level git porcelain v2 parser (`statusv2`)                |
 | go-version | `github.com/caarlos0/go-version`  | Structured version info display                               |
 | go-cmp     | `github.com/google/go-cmp`        | Structured comparison in tests                                |
 | testscript | `github.com/rogpeppe/go-internal` | Integration test framework (txtar scripts)                    |
