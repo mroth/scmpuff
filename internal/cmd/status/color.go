@@ -7,16 +7,16 @@ type Color string
 
 // Base color constants with full ANSI escape sequences
 const (
-	RedColor     Color = "\033[0;31m"
-	GreenColor   Color = "\033[0;32m"
-	YellowColor  Color = "\033[0;33m"
-	BlueColor    Color = "\033[0;34m"
-	MagentaColor Color = "\033[0;35m"
-	CyanColor    Color = "\033[0;36m"
-
-	BoldColor  Color = "\033[1m"
-	DimColor   Color = "\033[2;37m" // dim white
-	ResetColor Color = "\033[0m"
+	RedColor           Color = "\033[0;31m"
+	GreenColor         Color = "\033[0;32m"
+	YellowColor        Color = "\033[0;33m"
+	BlueColor          Color = "\033[0;34m"
+	MagentaColor       Color = "\033[0;35m"
+	CyanColor          Color = "\033[0;36m"
+	BoldColor          Color = "\033[1m"
+	DimWhiteColor      Color = "\033[2;37m"
+	DimForegroundColor Color = "\033[2;39m"
+	ResetColor         Color = "\033[0m"
 )
 
 // Semantic color mappings for different change states
