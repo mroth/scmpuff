@@ -179,15 +179,15 @@ func formatBranchBannerPrelude(b gitstatus.BranchInfo) string {
 	if diffStr != "" {
 		diffFormatted = fmt.Sprintf(
 			"  %s|  %s%s%s",
-			DimColor, YellowColor, diffStr, ResetColor,
+			DimForegroundColor, YellowColor, diffStr, ResetColor,
 		)
 	}
 
 	return fmt.Sprintf(
 		"%s#%s On branch: %s%s%s  %s|  ",
-		DimColor, ResetColor, BoldColor,
+		DimForegroundColor, ResetColor, BoldColor,
 		b.Name, diffFormatted,
-		DimColor,
+		DimForegroundColor,
 	)
 }
 
@@ -208,7 +208,7 @@ func formatUpstreamDiffIndicator(b gitstatus.BranchInfo) string {
 func bannerChangeHeader() string {
 	return fmt.Sprintf(
 		"[%s*%s]%s => $e*\n%s#%s",
-		ResetColor, DimColor, ResetColor, DimColor, ResetColor,
+		ResetColor, DimForegroundColor, ResetColor, DimForegroundColor, ResetColor,
 	)
 }
 
@@ -276,7 +276,7 @@ func (r *Renderer) formatStatusItemDisplay(item gitstatus.StatusItem, displayNum
 
 	return fmt.Sprintf(
 		"%s#%s     %s%s:%s%s [%s%d%s] %s%s%s\n",
-		groupColor, ResetColor, stateColor, paddedMsg, padding, DimColor,
-		ResetColor, displayNum, DimColor, groupColor, itemDisplayPath, ResetColor,
+		groupColor, ResetColor, stateColor, paddedMsg, padding, DimForegroundColor,
+		ResetColor, displayNum, DimForegroundColor, groupColor, itemDisplayPath, ResetColor,
 	)
 }
