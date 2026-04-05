@@ -1,7 +1,4 @@
 bin/
-builds/
+dist/
 _site/
-junk/
-tmp/
-.bundle/
-Gemfile.lock
+plans/
