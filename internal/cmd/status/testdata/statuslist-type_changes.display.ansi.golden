@@ -1,10 +1,10 @@
-[2;39m#[0m On branch: [1mtype-change  [2;39m|  [0;33m+1[0m  [2;39m|  [[0m*[2;39m][0m => $e*
-[2;39m#[0m
-[1;33m➤[0m Changes to be committed
-[0;33m#[0m
-[0;33m#[0m     [0;35mtypechange: [2;39m [[0m1[2;39m] [0;33mstaged_typechange.txt[0m
-[0;33m#[0m
-[1;32m➤[0m Changes not staged for commit
-[0;32m#[0m
-[0;32m#[0m     [0;35mtypechange: [2;39m [[0m2[2;39m] [0;32munstaged_typechange.txt[0m
-[0;32m#[0m
+[2m#[22m On branch: [1mtype-change[22m  [2m|[22m  [33m+1[0m  [2m|  [22m[2m[[22m*[2m][22m => $e*
+[2m#[22m
+[33;1m➤[0;22m Changes to be committed
+[33m#[0m
+[33m#[0m     [35mtypechange:[0m  [2m[[22m1[2m][22m [33mstaged_typechange.txt[0m
+[33m#[0m
+[32;1m➤[0;22m Changes not staged for commit
+[32m#[0m
+[32m#[0m     [35mtypechange:[0m  [2m[[22m2[2m][22m [32munstaged_typechange.txt[0m
+[32m#[0m

@@ -1,26 +1,24 @@
 package status
 
-import "github.com/mroth/scmpuff/internal/gitstatus"
+import (
+	"github.com/fatih/color"
+	"github.com/mroth/scmpuff/internal/gitstatus"
+)
 
-// Color represents an ANSI color code
-type Color string
-
-// Base color constants with full ANSI escape sequences
-const (
-	RedColor           Color = "\033[0;31m"
-	GreenColor         Color = "\033[0;32m"
-	YellowColor        Color = "\033[0;33m"
-	BlueColor          Color = "\033[0;34m"
-	MagentaColor       Color = "\033[0;35m"
-	CyanColor          Color = "\033[0;36m"
-	BoldColor          Color = "\033[1m"
-	DimWhiteColor      Color = "\033[2;37m"
-	DimForegroundColor Color = "\033[2;39m"
-	ResetColor         Color = "\033[0m"
+// Color definitions using fatih/color for cross-platform terminal support.
+var (
+	RedColor           = color.New(color.FgRed)
+	GreenColor         = color.New(color.FgGreen)
+	YellowColor        = color.New(color.FgYellow)
+	BlueColor          = color.New(color.FgBlue)
+	MagentaColor       = color.New(color.FgMagenta)
+	CyanColor          = color.New(color.FgCyan)
+	BoldColor          = color.New(color.Bold)
+	DimForegroundColor = color.New(color.Faint)
 )
 
 // Semantic color mappings for different change states
-var stateColors = map[gitstatus.ChangeState]Color{
+var stateColors = map[gitstatus.ChangeState]*color.Color{
 	gitstatus.NewState:         YellowColor,
 	gitstatus.ModifiedState:    GreenColor,
 	gitstatus.DeletedState:     RedColor,
@@ -31,7 +29,7 @@ var stateColors = map[gitstatus.ChangeState]Color{
 }
 
 // Group color mappings for status groups
-var groupColors = map[gitstatus.StatusGroup]Color{
+var groupColors = map[gitstatus.StatusGroup]*color.Color{
 	gitstatus.Staged:    YellowColor,
 	gitstatus.Unmerged:  RedColor,
 	gitstatus.Unstaged:  GreenColor,
@@ -39,9 +37,9 @@ var groupColors = map[gitstatus.StatusGroup]Color{
 }
 
 // Bold group colors for headers (arrows)
-var groupBoldColors = map[gitstatus.StatusGroup]Color{
-	gitstatus.Staged:    "\033[1;33m", // bold yellow
-	gitstatus.Unmerged:  "\033[1;31m", // bold red
-	gitstatus.Unstaged:  "\033[1;32m", // bold green
-	gitstatus.Untracked: "\033[1;36m", // bold cyan
+var groupBoldColors = map[gitstatus.StatusGroup]*color.Color{
+	gitstatus.Staged:    color.New(color.FgYellow, color.Bold),
+	gitstatus.Unmerged:  color.New(color.FgRed, color.Bold),
+	gitstatus.Unstaged:  color.New(color.FgGreen, color.Bold),
+	gitstatus.Untracked: color.New(color.FgCyan, color.Bold),
 }
