@@ -1,12 +1,12 @@
-[2;39m#[0m On branch: [1mmerge-conflict  [2;39m|  [[0m*[2;39m][0m => $e*
-[2;39m#[0m
-[1;31m➤[0m Unmerged paths
-[0;31m#[0m
-[0;31m#[0m     [0;33m     both added: [2;39m [[0m1[2;39m] [0;31mboth_added[0m
-[0;31m#[0m     [0;32m  both modified: [2;39m [[0m2[2;39m] [0;31mboth_modified[0m
-[0;31m#[0m     [0;31mdeleted by them: [2;39m [[0m3[2;39m] [0;31mdeleted_by_them[0m
-[0;31m#[0m     [0;31m  deleted by us: [2;39m [[0m4[2;39m] [0;31mdeleted_by_us[0m
-[0;31m#[0m     [0;31m   both deleted: [2;39m [[0m5[2;39m] [0;31mrenamed_file[0m
-[0;31m#[0m     [0;33m  added by them: [2;39m [[0m6[2;39m] [0;31mrenamed_file_on_branch[0m
-[0;31m#[0m     [0;33m    added by us: [2;39m [[0m7[2;39m] [0;31mrenamed_file_on_master[0m
-[0;31m#[0m
+[2m#[22m On branch: [1mmerge-conflict[22m  [2m|  [22m[2m[[22m*[2m][22m => $e*
+[2m#[22m
+[31;1m➤[0;22m Unmerged paths
+[31m#[0m
+[31m#[0m     [33m     both added:[0m  [2m[[22m1[2m][22m [31mboth_added[0m
+[31m#[0m     [32m  both modified:[0m  [2m[[22m2[2m][22m [31mboth_modified[0m
+[31m#[0m     [31mdeleted by them:[0m  [2m[[22m3[2m][22m [31mdeleted_by_them[0m
+[31m#[0m     [31m  deleted by us:[0m  [2m[[22m4[2m][22m [31mdeleted_by_us[0m
+[31m#[0m     [31m   both deleted:[0m  [2m[[22m5[2m][22m [31mrenamed_file[0m
+[31m#[0m     [33m  added by them:[0m  [2m[[22m6[2m][22m [31mrenamed_file_on_branch[0m
+[31m#[0m     [33m    added by us:[0m  [2m[[22m7[2m][22m [31mrenamed_file_on_master[0m
+[31m#[0m

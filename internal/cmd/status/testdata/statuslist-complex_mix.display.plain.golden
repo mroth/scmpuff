@@ -1,0 +1,15 @@
+# On branch: feature  |  +2/-1  |  [*] => $e*
+#
+➤ Changes to be committed
+#
+#       new file:  [1] new.go
+#       new file:  [2] new_b.go
+#
+➤ Changes not staged for commit
+#
+#       modified:  [3] modified.go
+#
+➤ Untracked files
+#
+#      untracked:  [4] untracked.go
+#

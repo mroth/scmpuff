@@ -8,6 +8,8 @@ import (
 	"os/exec"
 	"path/filepath"
 
+	"github.com/fatih/color"
+	"github.com/mattn/go-isatty"
 	"github.com/mroth/scmpuff/internal/gitstatus/porcelainv2"
 	"github.com/spf13/cobra"
 )
@@ -34,6 +36,22 @@ see 'scmpuff init'.)
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cmd.SilenceUsage = true // silence usage-on-error after args processed
 
+			// Determine color output based on the user's terminal, not our stdout.
+			//
+			// stdout is always a pipe when invoked via the scmpuff_status() shell
+			// wrapper (which captures output in a subshell), so we cannot rely on
+			// fatih/color's default TTY detection against stdout. Instead, check
+			// stderr (which remains connected to the user's terminal) and honor
+			// the NO_COLOR convention (https://no-color.org/).
+			switch {
+			case os.Getenv("NO_COLOR") != "":
+				color.NoColor = true
+			case isatty.IsTerminal(os.Stderr.Fd()) || isatty.IsCygwinTerminal(os.Stderr.Fd()):
+				color.NoColor = false
+			default:
+				color.NoColor = true
+			}
+
 			// Obtain the current working directory (needed to determine git root and relative paths)
 			wd, err := os.Getwd()
 			if err != nil {
@@ -49,7 +67,7 @@ see 'scmpuff init'.)
 				var exitErr *exec.ExitError
 				if errors.As(err, &exitErr) && exitErr.ExitCode() == 128 {
 					msg := "Not a git repository (or any of the parent directories)"
-					fmt.Fprintf(os.Stderr, "%s%s%s\n", RedColor, msg, ResetColor)
+					fmt.Fprintln(os.Stderr, RedColor.Sprint(msg))
 					os.Exit(128)
 				}
 

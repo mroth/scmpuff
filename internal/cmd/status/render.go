@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"io"
+	"strconv"
 	"strings"
 
 	"github.com/mroth/scmpuff/internal/gitstatus"
@@ -178,17 +179,16 @@ func formatBranchBannerPrelude(b gitstatus.BranchInfo) string {
 	var diffFormatted string
 	if diffStr != "" {
 		diffFormatted = fmt.Sprintf(
-			"  %s|  %s%s%s",
-			DimForegroundColor, YellowColor, diffStr, ResetColor,
+			"  %s  %s",
+			DimForegroundColor.Sprint("|"), YellowColor.Sprint(diffStr),
 		)
 	}
 
-	return fmt.Sprintf(
-		"%s#%s On branch: %s%s%s  %s|  ",
-		DimForegroundColor, ResetColor, BoldColor,
-		b.Name, diffFormatted,
-		DimForegroundColor,
-	)
+	hash := DimForegroundColor.Sprint("#")
+	branch := BoldColor.Sprint(b.Name)
+	separator := DimForegroundColor.Sprint("|  ")
+
+	return fmt.Sprintf("%s On branch: %s%s  %s", hash, branch, diffFormatted, separator)
 }
 
 // formatUpstreamDiffIndicator formats the +1/-2 ahead/behind diff indicator for a branch relative to upstream
@@ -207,17 +207,14 @@ func formatUpstreamDiffIndicator(b gitstatus.BranchInfo) string {
 
 func bannerChangeHeader() string {
 	return fmt.Sprintf(
-		"[%s*%s]%s => $e*\n%s#%s",
-		ResetColor, DimForegroundColor, ResetColor, DimForegroundColor, ResetColor,
+		"%s*%s => $e*\n%s",
+		DimForegroundColor.Sprint("["), DimForegroundColor.Sprint("]"), DimForegroundColor.Sprint("#"),
 	)
 }
 
 // bannerNoChanges returns the no changes message when working directory is clean
 func bannerNoChanges() string {
-	return fmt.Sprintf(
-		"%sNo changes (working directory clean)%s",
-		GreenColor, ResetColor,
-	)
+	return GreenColor.Sprint("No changes (working directory clean)")
 }
 
 // formatHeaderForGroup returns the display header string for a file group.
@@ -230,15 +227,14 @@ func formatHeaderForGroup(group gitstatus.StatusGroup) string {
 	groupColor := groupColors[group]
 	groupBoldColor := groupBoldColors[group]
 	return fmt.Sprintf(
-		"%s➤%s %s\n%s#%s\n",
-		groupBoldColor, ResetColor, group.Description(), groupColor, ResetColor,
+		"%s %s\n%s\n",
+		groupBoldColor.Sprint("➤"), group.Description(), groupColor.Sprint("#"),
 	)
 }
 
 // formatFooterForGroup prints a final "#" for vertical padding
 func formatFooterForGroup(group gitstatus.StatusGroup) string {
-	groupColor := groupColors[group]
-	return fmt.Sprintf("%s#%s\n", groupColor, ResetColor)
+	return groupColors[group].Sprint("#") + "\n"
 }
 
 // formatStatusItemDisplay returns print string for an individual status item for a group.
@@ -247,9 +243,8 @@ func formatFooterForGroup(group gitstatus.StatusGroup) string {
 //
 //	#       modified: [1] commands/status/constants.go
 func (r *Renderer) formatStatusItemDisplay(item gitstatus.StatusItem, displayNum int) string {
-	// Get configured colors for the item display based on status group and state.
-	groupColor := string(groupColors[item.StatusGroup()])
-	stateColor := string(stateColors[item.State()])
+	groupColor := groupColors[item.StatusGroup()]
+	stateColor := stateColors[item.State()]
 
 	// For reasons lost to time, I originally decided to use a fixed width of 2
 	// to pad the display number, so that entries 1-99 would align nicely.
@@ -274,9 +269,10 @@ func (r *Renderer) formatStatusItemDisplay(item gitstatus.StatusItem, displayNum
 		paddedMsg = fmt.Sprintf("%10s", baseMsg)
 	}
 
-	return fmt.Sprintf(
-		"%s#%s     %s%s:%s%s [%s%d%s] %s%s%s\n",
-		groupColor, ResetColor, stateColor, paddedMsg, padding, DimForegroundColor,
-		ResetColor, displayNum, DimForegroundColor, groupColor, itemDisplayPath, ResetColor,
-	)
+	hash := groupColor.Sprint("#")
+	state := stateColor.Sprintf("%s:", paddedMsg)
+	num := DimForegroundColor.Sprint("[") + strconv.Itoa(displayNum) + DimForegroundColor.Sprint("]")
+	path := groupColor.Sprint(itemDisplayPath)
+
+	return fmt.Sprintf("%s     %s%s %s %s\n", hash, state, padding, num, path)
 }

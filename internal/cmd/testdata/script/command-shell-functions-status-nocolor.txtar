@@ -1,0 +1,40 @@
+# Scenario: color output is disabled when NO_COLOR is set or stderr is not a TTY
+# Purpose: Verify the NO_COLOR convention and non-TTY detection work through
+# the scmpuff_status shell wrapper.
+
+exec git init repo
+cd repo
+exec git add keep.txt
+exec git commit -m base
+
+# When NO_COLOR is set, output should contain no ANSI escape sequences.
+env NO_COLOR=1
+[exec:bash] exec bash -c 'eval "$(scmpuff init -s)"; scmpuff_status'
+[exec:bash] ! stdout '\x1b\['
+[exec:bash] stdout 'No changes \(working directory clean\)'
+
+[exec:zsh] exec zsh -c 'eval "$(scmpuff init -s)"; scmpuff_status'
+[exec:zsh] ! stdout '\x1b\['
+[exec:zsh] stdout 'No changes \(working directory clean\)'
+
+[exec:fish] exec fish -c 'scmpuff init --shell=fish | source; scmpuff_status'
+[exec:fish] ! stdout '\x1b\['
+[exec:fish] stdout 'No changes \(working directory clean\)'
+
+# When stderr is not a TTY (as in this test environment) and NO_COLOR is unset,
+# color should also be disabled.
+env NO_COLOR=
+[exec:bash] exec bash -c 'eval "$(scmpuff init -s)"; scmpuff_status'
+[exec:bash] ! stdout '\x1b\['
+[exec:bash] stdout 'No changes \(working directory clean\)'
+
+[exec:zsh] exec zsh -c 'eval "$(scmpuff init -s)"; scmpuff_status'
+[exec:zsh] ! stdout '\x1b\['
+[exec:zsh] stdout 'No changes \(working directory clean\)'
+
+[exec:fish] exec fish -c 'scmpuff init --shell=fish | source; scmpuff_status'
+[exec:fish] ! stdout '\x1b\['
+[exec:fish] stdout 'No changes \(working directory clean\)'
+
+-- repo/keep.txt --
+keep
