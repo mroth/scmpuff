@@ -10,6 +10,9 @@ demo-raw.gif: demo.tape
 demo.gif: demo-raw.gif
 	gifsicle -O3 $< -o $@
 
+demo-social.gif: demo-social.tape
+	docker run --rm -v $(PWD):/vhs $(IMAGE) $<
+
 .PHONY: demo
 demo: demo.gif
 
