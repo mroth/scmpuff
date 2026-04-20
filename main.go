@@ -29,7 +29,7 @@ var asciiArt = `                                    ________
 
 func buildVersion(version, commit, date, builtBy, treeState string) goversion.Info {
 	return goversion.GetVersionInfo(
-		goversion.WithAppDetails("scmpuff", "Git by the numbers.", "https://mroth.github.io/scmpuff/"),
+		goversion.WithAppDetails("scmpuff", "Git by the numbers.", "https://github.com/mroth/scmpuff"),
 		goversion.WithASCIIName(asciiArt),
 		func(i *goversion.Info) {
 			if commit != "" {
