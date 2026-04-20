@@ -1,0 +1,12 @@
+# On branch: main  |  [*] => $e*
+#
+➤ Changes to be committed
+#
+#       modified:  [1] also_renamed.txt
+#
+➤ Changes not staged for commit
+#
+#        renamed:  [2] old_name.txt -> new_name.txt
+#         copied:  [3] original.txt -> copy.txt
+#        renamed:  [4] was_this.txt -> also_renamed.txt
+#

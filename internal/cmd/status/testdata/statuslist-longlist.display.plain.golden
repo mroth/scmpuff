@@ -1,0 +1,23 @@
+# On branch: techdebt  |  +42/-1123  |  [*] => $e*
+#
+➤ Changes to be committed
+#
+#       new file:  [1] new_a.php
+#       new file:  [2] new_b.php
+#       new file:  [3] new_c.php
+#       new file:  [4] new_d.php
+#        renamed:  [5] tests/flakey -> tests/disabled
+#        renamed:  [6] SECURITY.md -> docs/SECURITY.md
+#         copied:  [7] me -> metoo
+#
+➤ Changes not staged for commit
+#
+#       modified:  [8] modified1.php
+#       modified:  [9] modified2.php
+#       modified: [10] 修改后的文件.php
+#        deleted: [11] 👻.go
+#
+➤ Untracked files
+#
+#      untracked: [12] untracked file with spaces.txt
+#

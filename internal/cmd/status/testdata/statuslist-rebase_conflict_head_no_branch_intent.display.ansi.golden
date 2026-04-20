@@ -1,6 +1,6 @@
-[2;39m#[0m On branch: [1mHEAD (no branch)  [2;39m|  [[0m*[2;39m][0m => $e*
-[2;39m#[0m
-[1;31m➤[0m Unmerged paths
-[0;31m#[0m
-[0;31m#[0m     [0;32m  both modified: [2;39m [[0m1[2;39m] [0;31mfile_with_conflict[0m
-[0;31m#[0m
+[2m#[22m On branch: [1mHEAD (no branch)[22m  [2m|  [22m[2m[[22m*[2m][22m => $e*
+[2m#[22m
+[31;1m➤[0;22m Unmerged paths
+[31m#[0m
+[31m#[0m     [32m  both modified:[0m  [2m[[22m1[2m][22m [31mfile_with_conflict[0m
+[31m#[0m

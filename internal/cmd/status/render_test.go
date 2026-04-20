@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/fatih/color"
 	"github.com/mroth/scmpuff/internal/gitstatus"
 )
 
@@ -223,13 +224,18 @@ func TestRenderer_Display(t *testing.T) {
 				name                string
 				includeParseData    bool
 				includeStatusOutput bool
+				forceColor          bool
 			}{
 				{name: "parsedata.txt", includeParseData: true, includeStatusOutput: false},
-				{name: "display.ansi", includeParseData: false, includeStatusOutput: true},
+				{name: "display.ansi", includeParseData: false, includeStatusOutput: true, forceColor: true},
+				{name: "display.plain", includeParseData: false, includeStatusOutput: true, forceColor: false},
 			}
 
 			for _, oc := range optionCases {
 				t.Run(oc.name, func(t *testing.T) {
+					// Control color output for this test case.
+					color.NoColor = !oc.forceColor
+
 					renderer, err := NewRenderer(&tc.info, tc.root, tc.cwd)
 					if err != nil {
 						t.Fatalf("NewRenderer() error: %v", err)

@@ -1,0 +1,12 @@
+# On branch: merge-conflict  |  [*] => $e*
+#
+➤ Unmerged paths
+#
+#          both added:  [1] both_added
+#       both modified:  [2] both_modified
+#     deleted by them:  [3] deleted_by_them
+#       deleted by us:  [4] deleted_by_us
+#        both deleted:  [5] renamed_file
+#       added by them:  [6] renamed_file_on_branch
+#         added by us:  [7] renamed_file_on_master
+#
