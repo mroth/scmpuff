@@ -16,6 +16,13 @@ function git
         scmpuff exec -- "$SCMPUFF_GIT_CMD" $argv
     case checkout diff rm reset restore
         scmpuff exec --relative -- "$SCMPUFF_GIT_CMD" $argv
+    case stash
+        switch $argv[2]
+        case push
+            scmpuff exec --relative -- "$SCMPUFF_GIT_CMD" $argv
+        case '*'
+            eval command "$SCMPUFF_GIT_CMD" (string escape -- $argv)
+        end
     case add
         scmpuff exec -- "$SCMPUFF_GIT_CMD" $argv
         scmpuff_status

@@ -13,6 +13,14 @@ function git() {
       scmpuff exec -- "$SCMPUFF_GIT_CMD" "$@";;
     checkout|diff|rm|reset|restore)
       scmpuff exec --relative -- "$SCMPUFF_GIT_CMD" "$@";;
+    stash)
+      case ${2-:} in
+        push)
+          scmpuff exec --relative -- "$SCMPUFF_GIT_CMD" "$@";;
+        *)
+          "$SCMPUFF_GIT_CMD" "$@";;
+      esac
+      ;;
     add)
       scmpuff exec -- "$SCMPUFF_GIT_CMD" "$@"
       scmpuff_status;;
