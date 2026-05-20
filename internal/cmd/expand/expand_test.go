@@ -27,6 +27,7 @@ func TestProcessEscaping(t *testing.T) {
 		{name: "quote escaped", value: "\"x.txt", want: "\\\"x.txt"},
 		{name: "semicolon escaped", value: "wt;af.gif", want: "wt\\;af.gif"},
 		{name: "pipe escaped", value: "foo|bar", want: "foo\\|bar"},
+		{name: "windows path separators escaped", value: `dir\readme.md`, want: `dir\\readme.md`},
 	}
 
 	for _, tt := range tests {
