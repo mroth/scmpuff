@@ -32,7 +32,7 @@ Takes a list of digits (1 4 5) or numeric ranges (1-5) or even both.`,
 	return expandCmd
 }
 
-var shellEscaper = regexp.MustCompile("([\\^()\\[\\]<>' \";\\|*])")
+var shellEscaper = regexp.MustCompile(`([\\()\[\]<>' ";|*^])`)
 
 // Process expands args and performs all substitution, etc.
 //
