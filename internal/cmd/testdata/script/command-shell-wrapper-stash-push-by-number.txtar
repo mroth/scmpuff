@@ -1,0 +1,48 @@
+# Scenario: Wrapped `git stash push <n>` stashes the selected file by number
+# Purpose: Verify wrapped `stash push` expands a numeric arg to the right path,
+#          stashing only that file and leaving the others modified.
+# Verbose notes: stash requires an initial commit (HEAD); uses per-shell repo
+#                copies to avoid state mutation overlap.
+
+exec git init repo_base
+cd repo_base
+exec git add bar.foo foo.bar
+exec git commit -m 'initial commit'
+cp ../bar.foo.modified bar.foo
+cp ../foo.bar.modified foo.bar
+cd ..
+
+# Bash
+[exec:bash] exec cp -R repo_base repo_bash
+[exec:bash] cd repo_bash
+[exec:bash] exec bash -c 'eval "$(scmpuff init -s)"; scmpuff_status >/dev/null; git stash push 1'
+[exec:bash] exec git status --porcelain
+[exec:bash] cmp stdout ../expected-porcelain.txt
+[exec:bash] cd ..
+
+# Zsh
+[exec:zsh] exec cp -R repo_base repo_zsh
+[exec:zsh] cd repo_zsh
+[exec:zsh] exec zsh -c 'eval "$(scmpuff init -s)"; scmpuff_status >/dev/null; git stash push 1'
+[exec:zsh] exec git status --porcelain
+[exec:zsh] cmp stdout ../expected-porcelain.txt
+[exec:zsh] cd ..
+
+# Fish
+[exec:fish] exec cp -R repo_base repo_fish
+[exec:fish] cd repo_fish
+[exec:fish] exec fish -c 'scmpuff init --shell=fish | source; scmpuff_status >/dev/null; git stash push 1'
+[exec:fish] exec git status --porcelain
+[exec:fish] cmp stdout ../expected-porcelain.txt
+[exec:fish] cd ..
+
+-- repo_base/bar.foo --
+ab
+-- repo_base/foo.bar --
+ab
+-- bar.foo.modified --
+abcd
+-- foo.bar.modified --
+abcd
+-- expected-porcelain.txt --
+ M foo.bar
