@@ -59,6 +59,16 @@ var testExpandNumericFlagCases = []struct {
 	{"git commit --message 456", "git commit --message 456"},
 	{"git merge -m 123 topic", "git merge -m 123 topic"},
 
+	// Bundled short flags where the message flag "-m" is last in the cluster
+	// (e.g. the common "gcam" alias => "git commit -am"). The following token
+	// is the message and must not be expanded.
+	{"git commit -am 205", "git commit -am 205"},
+	{"git commit -sam 205", "git commit -sam 205"},
+	{"git merge -am 205 topic", "git merge -am 205 topic"},
+	// The "m" must be last: in "-ma" it is not the message flag, so a trailing
+	// numeric token is still a file shortcut.
+	{"git commit -ma 1", "git commit -ma $e1"},
+
 	// Flags where the value is glued to the flag (no space) — the combined
 	// token won't match the digit regex, so expansion is already harmless.
 	{"git log -n1 2", "git log -n1 $e2"},

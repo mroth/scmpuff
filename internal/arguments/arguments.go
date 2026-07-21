@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"strconv"
+	"strings"
 )
 
 var (
@@ -68,6 +69,10 @@ func convertToRelativeIfFilePath(arg string) (string, error) {
 // value must be glued (e.g. "-U3") are not a problem because the combined
 // token doesn't match the digit regex.
 //
+// Short flags may also be bundled into a single token, with the value-taking
+// flag last (e.g. "git commit -am 205" is "-a -m 205", so "205" is the
+// message). We detect this for the message flag via isBundledMessageFlag.
+//
 // Known limitation: positional numeric arguments that don't immediately follow
 // a flag (e.g. the start-point in "git checkout -b new 713") are not protected.
 //
@@ -86,14 +91,16 @@ func skipExpansion(args []string, pos int, gitCmd string) bool {
 		}
 	case "commit":
 		switch prev {
-		case "-m", "--message":
+		case "--message":
 			return true
 		}
+		return isBundledMessageFlag(prev)
 	case "merge":
 		switch prev {
-		case "-m", "--message":
+		case "--message":
 			return true
 		}
+		return isBundledMessageFlag(prev)
 	case "checkout":
 		switch prev {
 		case "-b", "-B", "--orphan":
@@ -111,6 +118,21 @@ func skipExpansion(args []string, pos int, gitCmd string) bool {
 		}
 	}
 	return false
+}
+
+// isBundledMessageFlag reports whether flag is a short-flag token whose final
+// letter is "m" — the message flag for "git commit"/"git merge". This covers
+// the plain "-m" as well as bundled forms like "-am" or "-sam" (common via
+// aliases such as "gcam" => "git commit -am"), where the token after the flag
+// is the message and must not be expanded as a file shortcut.
+//
+// It deliberately excludes long flags ("--foo") and glued values ("-m205",
+// which git reads as the message "205" in the same token, so there is no
+// separate token to protect).
+func isBundledMessageFlag(flag string) bool {
+	return strings.HasPrefix(flag, "-") &&
+		!strings.HasPrefix(flag, "--") &&
+		strings.HasSuffix(flag, "m")
 }
 
 // Expand takes the list of arguments received from the command line and expands
