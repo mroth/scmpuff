@@ -11,7 +11,7 @@ function git() {
   case $1 in
     commit|blame|log|rebase|merge)
       scmpuff exec -- "$SCMPUFF_GIT_CMD" "$@";;
-    checkout|diff|rm|reset|restore)
+    checkout|diff|difftool|mergetool|rm|reset|restore)
       scmpuff exec --relative -- "$SCMPUFF_GIT_CMD" "$@";;
     add)
       scmpuff exec -- "$SCMPUFF_GIT_CMD" "$@"

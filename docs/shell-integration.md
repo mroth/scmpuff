@@ -23,7 +23,7 @@ Not all git subcommands need shortcut expansion. The wrapper uses a dispatch tab
 | Subcommand(s)                                | Behavior                                                                      |
 |----------------------------------------------|-------------------------------------------------------------------------------|
 | `commit`, `blame`, `log`, `rebase`, `merge`  | `scmpuff exec -- git <args>` — expands shortcuts to absolute paths            |
-| `checkout`, `diff`, `rm`, `reset`, `restore` | `scmpuff exec --relative -- git <args>` — expands shortcuts to relative paths |
+| `checkout`, `diff`, `difftool`, `mergetool`, `rm`, `reset`, `restore` | `scmpuff exec --relative -- git <args>` — expands shortcuts to relative paths |
 | `add`                                        | `scmpuff exec -- git <args>` then auto-refreshes status via `scmpuff_status`  |
 | everything else                              | Pass through to real git directly (no expansion)                              |
 

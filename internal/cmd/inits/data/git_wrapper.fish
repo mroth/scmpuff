@@ -14,7 +14,7 @@ function git
     switch $argv[1]
     case commit blame log rebase merge
         scmpuff exec -- "$SCMPUFF_GIT_CMD" $argv
-    case checkout diff rm reset restore
+    case checkout diff difftool mergetool rm reset restore
         scmpuff exec --relative -- "$SCMPUFF_GIT_CMD" $argv
     case add
         scmpuff exec -- "$SCMPUFF_GIT_CMD" $argv
