@@ -1,0 +1,59 @@
+# Scenario: Wrapped git mergetool works with numeric arg
+# Purpose: Verify mergetool resolves the conflicted file selected by number.
+# Original report: https://github.com/mroth/scmpuff/issues/83
+# Verbose notes: Uses a stub merge tool that takes $LOCAL, so no interactive
+# tool is required. keepBackup is off so no foo.bar.orig is left behind.
+# zsh runs with -f: zsh reads /etc/zshenv for every shell, and on some systems
+# (e.g. nix-darwin) that prepends profile dirs to PATH, shadowing the scmpuff
+# binary under test with an installed one.
+
+exec git init -b main repo_base
+cd repo_base
+exec git config mergetool.stub.cmd 'cp "$LOCAL" "$MERGED"'
+exec git config mergetool.stub.trustExitCode true
+exec git config merge.tool stub
+exec git config mergetool.keepBackup false
+exec git add foo.bar
+exec git commit -m 'initial commit'
+exec git switch -c other
+cp ../foo.bar.other foo.bar
+exec git commit -am 'other change'
+exec git switch main
+cp ../foo.bar.main foo.bar
+exec git commit -am 'main change'
+! exec git merge other
+cd ..
+
+# Bash
+[exec:bash] exec cp -R repo_base repo_bash
+[exec:bash] cd repo_bash
+[exec:bash] exec bash -c 'eval "$(scmpuff init -s)"; scmpuff_status >/dev/null; git mergetool --no-prompt 1'
+[exec:bash] cmp foo.bar ../expected-merged.txt
+[exec:bash] cd ..
+
+# Zsh
+[exec:zsh] exec cp -R repo_base repo_zsh
+[exec:zsh] cd repo_zsh
+[exec:zsh] exec zsh -f -c 'eval "$(scmpuff init -s)"; scmpuff_status >/dev/null; git mergetool --no-prompt 1'
+[exec:zsh] cmp foo.bar ../expected-merged.txt
+[exec:zsh] cd ..
+
+# Fish
+[exec:fish] exec cp -R repo_base repo_fish
+[exec:fish] cd repo_fish
+[exec:fish] exec fish -c 'scmpuff init --shell=fish | source; scmpuff_status >/dev/null; git mergetool --no-prompt 1'
+[exec:fish] cmp foo.bar ../expected-merged.txt
+[exec:fish] cd ..
+
+-- repo_base/foo.bar --
+ab
+
+-- foo.bar.other --
+other change
+
+-- foo.bar.main --
+main change
+
+-- expected-merged.txt --
+main change
+
