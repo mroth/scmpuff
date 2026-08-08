@@ -1,0 +1,53 @@
+# Scenario: Wrapped git stash passes non-`push` subcommands straight through
+# Purpose: Verify bare `git stash` and `git stash pop` are forwarded unchanged
+#          (no numeric expansion) and do not error. Bare `git stash` in
+#          particular exercises the empty second-argument code path.
+# Verbose notes: stash requires an initial commit (HEAD); uses per-shell repo
+#                copies to avoid state mutation overlap.
+
+exec git init repo_base
+cd repo_base
+exec git add foo.bar
+exec git commit -m 'initial commit'
+cp ../foo.bar.modified foo.bar
+cd ..
+
+# Bash
+[exec:bash] exec cp -R repo_base repo_bash
+[exec:bash] cd repo_bash
+[exec:bash] exec bash -c 'eval "$(scmpuff init -s)"; scmpuff_status >/dev/null; git stash'
+[exec:bash] exec git status --porcelain
+[exec:bash] ! stdout .
+[exec:bash] exec bash -c 'eval "$(scmpuff init -s)"; git stash pop'
+[exec:bash] exec git status --porcelain
+[exec:bash] cmp stdout ../expected-porcelain.txt
+[exec:bash] cd ..
+
+# Zsh
+[exec:zsh] exec cp -R repo_base repo_zsh
+[exec:zsh] cd repo_zsh
+[exec:zsh] exec zsh -c 'eval "$(scmpuff init -s)"; scmpuff_status >/dev/null; git stash'
+[exec:zsh] exec git status --porcelain
+[exec:zsh] ! stdout .
+[exec:zsh] exec zsh -c 'eval "$(scmpuff init -s)"; git stash pop'
+[exec:zsh] exec git status --porcelain
+[exec:zsh] cmp stdout ../expected-porcelain.txt
+[exec:zsh] cd ..
+
+# Fish
+[exec:fish] exec cp -R repo_base repo_fish
+[exec:fish] cd repo_fish
+[exec:fish] exec fish -c 'scmpuff init --shell=fish | source; scmpuff_status >/dev/null; git stash'
+[exec:fish] exec git status --porcelain
+[exec:fish] ! stdout .
+[exec:fish] exec fish -c 'scmpuff init --shell=fish | source; git stash pop'
+[exec:fish] exec git status --porcelain
+[exec:fish] cmp stdout ../expected-porcelain.txt
+[exec:fish] cd ..
+
+-- repo_base/foo.bar --
+ab
+-- foo.bar.modified --
+abcd
+-- expected-porcelain.txt --
+ M foo.bar
