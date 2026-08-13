@@ -116,6 +116,25 @@ func TestNewInitCmd_AliasesFlagControlsOutput(t *testing.T) {
 	}
 }
 
+func TestNewInitCmd_IncludesGraphLogAlias(t *testing.T) {
+	const wantAlias = `alias gl="git log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit"`
+
+	for _, shell := range []string{"bash", "fish"} {
+		t.Run(shell, func(t *testing.T) {
+			stdout, stderr, err := executeInitCmd(t, "--shell="+shell)
+			if err != nil {
+				t.Fatalf("execute init failed: %v", err)
+			}
+			if stderr != "" {
+				t.Errorf("unexpected stderr: %q", stderr)
+			}
+			if !strings.Contains(stdout, wantAlias) {
+				t.Errorf("expected output to contain graph log alias %q", wantAlias)
+			}
+		})
+	}
+}
+
 func TestNewInitCmd_WrapFlagControlsOutput(t *testing.T) {
 	type shellInfo struct {
 		name           string
