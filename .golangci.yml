@@ -7,4 +7,4 @@ linters:
     - errcheck
   settings:
     exhaustive:
-      check: [switch, map]
+      check: [switch, mapliteral]
