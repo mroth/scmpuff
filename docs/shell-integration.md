@@ -33,14 +33,14 @@ The `--relative` flag matters for commands like `diff` and `checkout` where git 
 
 `scmpuff init` optionally installs short aliases (controlled by `--aliases`, default on):
 
-| Alias | Expansion        |
-|-------|------------------|
-| `gs`  | `scmpuff_status` |
-| `ga`  | `git add`        |
-| `gd`  | `git diff`       |
-| `gl`  | `git log`        |
-| `gco` | `git checkout`   |
-| `grs` | `git reset`      |
+| Alias | Expansion                   |
+|-------|-----------------------------|
+| `gs`  | `scmpuff_status`            |
+| `ga`  | `git add`                   |
+| `gd`  | `git diff`                  |
+| `gl`  | Colorized compact graph log |
+| `gco` | `git checkout`              |
+| `grs` | `git reset`                 |
 
 Since `git` is wrapped, `ga 1 2` effectively becomes `scmpuff exec -- git add 1 2` with auto-status-refresh.
 
